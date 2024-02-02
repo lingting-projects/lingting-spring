@@ -1,0 +1,3 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  live.lingting.spring.jackson.configuration.SpringObjectMapperAutoConfiguration,\
+  live.lingting.spring.jackson.configuration.SpringJacksonModuleAutoConfiguration
