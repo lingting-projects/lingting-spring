@@ -24,7 +24,7 @@ public class AspectUtils {
 	public static Method getMethod(ProceedingJoinPoint point) {
 		Signature signature = point.getSignature();
 		if (signature instanceof MethodSignature ms) {
-            return ms.getMethod();
+			return ms.getMethod();
 		}
 		return null;
 	}
