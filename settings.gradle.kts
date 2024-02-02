@@ -32,7 +32,8 @@ dependencyResolutionManagement {
             library("mapstructProcessor", "org.mapstruct", "mapstruct-processor").version(mapstructVersion)
             library("lombokMapstruct", "org.projectlombok", "lombok-mapstruct-binding").version(lombokMapstructBindingVersion)
 
-            bundle("compile", listOf("mapstruct", "lombok"))
+            bundle("implementation", listOf("mapstruct"));
+            bundle("compile", listOf("lombok"))
             bundle("annotation", listOf("mapstructProcessor", "lombok", "lombokMapstruct"))
 
             plugin("springFormat", "io.spring.javaformat").version(formatterVersion)
@@ -44,3 +45,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "lingting-spring"
 include("lingting-spring-core")
+include("lingting-spring-jackson")

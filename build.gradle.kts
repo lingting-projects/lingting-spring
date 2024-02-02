@@ -176,13 +176,14 @@ configure(javaProjects) {
 
         add("implementation", "org.slf4j:slf4j-api")
 
+        add("implementation", catalogLibs.bundles.implementation)
         add("compileOnly", catalogLibs.bundles.compile)
         add("testCompileOnly", catalogLibs.bundles.compile)
         add("annotationProcessor", catalogLibs.bundles.annotation)
         add("testAnnotationProcessor", catalogLibs.bundles.annotation)
 
         add("testImplementation", "org.awaitility:awaitility")
-        add("testImplementation", "org.junit.jupiter:junit-jupiter")
+        add("testImplementation", "org.springframework.boot:spring-boot-starter-test")
     }
 
     configure<JavaPluginExtension> {
