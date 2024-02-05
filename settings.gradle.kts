@@ -46,3 +46,4 @@ dependencyResolutionManagement {
 rootProject.name = "lingting-spring"
 include("lingting-spring-core")
 include("lingting-spring-jackson")
+include("lingting-spring-datascope")
