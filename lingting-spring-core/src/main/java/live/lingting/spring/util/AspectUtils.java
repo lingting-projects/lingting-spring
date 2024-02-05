@@ -4,6 +4,7 @@ import lombok.experimental.UtilityClass;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.Signature;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.core.annotation.AnnotationUtils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -39,11 +40,11 @@ public class AspectUtils {
 		Method method = getMethod(point);
 		T t = null;
 		if (method != null) {
-			t = method.getAnnotation(cls);
+			t = AnnotationUtils.findAnnotation(method, cls);
 		}
 
 		if (t == null) {
-			t = point.getTarget().getClass().getAnnotation(cls);
+			t = AnnotationUtils.findAnnotation(point.getTarget().getClass(), cls);
 		}
 		return t;
 	}
