@@ -15,7 +15,7 @@ import java.util.List;
  * @author lingting 2024-02-02 16:40
  */
 @AutoConfiguration
-public class SpringDataScopeAutoConfiguration {
+public class DataScopeAutoConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean

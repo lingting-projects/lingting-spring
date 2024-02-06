@@ -106,7 +106,6 @@ allprojects {
             excludeDirs.add(File(rootDir, "src/test/java"))
             excludeDirs.add(File(rootDir, "src/test/resources"))
         }
-
     }
 
     publishing {
