@@ -192,6 +192,9 @@ configure(javaProjects) {
     dependencies {
         add("implementation", platform(catalogLibs.frameworkDependencies))
 
+        add("annotationProcessor", platform(catalogLibs.frameworkDependencies))
+        add("annotationProcessor", "org.springframework.boot:spring-boot-configuration-processor")
+
         add("implementation", "org.slf4j:slf4j-api")
 
         add("implementation", catalogLibs.bundles.implementation)
