@@ -20,22 +20,25 @@ val encoding = "UTF-8"
 val ideaLanguageLevel = IdeaLanguageLevel(javaVersion);
 // 仅打包jar, 不打包源文件jar和文档jar
 val onlyJar = isSnapshot
-// spring java formatter 版本
-val formatterVersion = "0.0.41"
 
 plugins {
     id("idea")
     id("java")
-    id("checkstyle")
     id("maven-publish")
     id("signing")
-    alias(libs.plugins.springFormat)
 }
 
 idea {
     project {
         languageLevel = ideaLanguageLevel
         targetBytecodeVersion = javaVersion
+    }
+}
+
+buildscript {
+    dependencies {
+        classpath(platform(libs.frameworkDependencies))
+        classpath("io.spring.javaformat:spring-javaformat-gradle-plugin")
     }
 }
 
@@ -186,22 +189,28 @@ allprojects {
 
 configure(javaProjects) {
     apply {
-        plugin(catalogLibs.plugins.springFormat.get().pluginId)
+        plugin("io.spring.javaformat")
     }
 
     dependencies {
         add("implementation", platform(catalogLibs.frameworkDependencies))
 
         add("annotationProcessor", platform(catalogLibs.frameworkDependencies))
+        add("testAnnotationProcessor", platform(catalogLibs.frameworkDependencies))
         add("annotationProcessor", "org.springframework.boot:spring-boot-configuration-processor")
 
         add("implementation", "org.slf4j:slf4j-api")
+        add("implementation", "org.mapstruct:mapstruct")
+        add("compileOnly", "org.projectlombok:lombok")
+        add("testCompileOnly", "org.projectlombok:lombok")
 
-        add("implementation", catalogLibs.bundles.implementation)
-        add("compileOnly", catalogLibs.bundles.compile)
-        add("testCompileOnly", catalogLibs.bundles.compile)
-        add("annotationProcessor", catalogLibs.bundles.annotation)
-        add("testAnnotationProcessor", catalogLibs.bundles.annotation)
+        add("annotationProcessor", "org.mapstruct:mapstruct-processor")
+        add("annotationProcessor", "org.projectlombok:lombok")
+        add("annotationProcessor", "org.projectlombok:lombok-mapstruct-binding")
+
+        add("testAnnotationProcessor", "org.mapstruct:mapstruct-processor")
+        add("testAnnotationProcessor", "org.projectlombok:lombok")
+        add("testAnnotationProcessor", "org.projectlombok:lombok-mapstruct-binding")
 
         add("testImplementation", "org.awaitility:awaitility")
         add("testImplementation", "org.springframework.boot:spring-boot-starter-test")
