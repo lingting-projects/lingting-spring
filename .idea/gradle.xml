@@ -8,6 +8,7 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/lingting-spring-actuator" />
             <option value="$PROJECT_DIR$/lingting-spring-core" />
             <option value="$PROJECT_DIR$/lingting-spring-datascope" />
             <option value="$PROJECT_DIR$/lingting-spring-dependencies" />

@@ -1,0 +1,3 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  live.lingting.spring.actuator.configuration.ActuatorAutoConfiguration,\
+  live.lingting.spring.actuator.configuration.GrpcActuatorAutoConfiguration
