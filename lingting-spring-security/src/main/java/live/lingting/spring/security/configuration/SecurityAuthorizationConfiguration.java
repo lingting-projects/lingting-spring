@@ -20,9 +20,12 @@ public class SecurityAuthorizationConfiguration {
 		return new SecurityMemoryStore();
 	}
 
+	/**
+	 * 使用 password-secret-key 可以匹配 - 和驼峰
+	 */
 	@Bean
 	@ConditionalOnMissingBean
-	@ConditionalOnProperty(prefix = SecuritySpringProperties.PREFIX + ".authorization", name = "passwordSecretKey")
+	@ConditionalOnProperty(prefix = SecuritySpringProperties.PREFIX + ".authorization", name = "password-secret-key")
 	public SecurityPassword securityPassword(SecuritySpringProperties properties) {
 		SecuritySpringProperties.Authorization authorization = properties.getAuthorization();
 		return new SecurityDefaultPassword(authorization.getPasswordSecretKey());
