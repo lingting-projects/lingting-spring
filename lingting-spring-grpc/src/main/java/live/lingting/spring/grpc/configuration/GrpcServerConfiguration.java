@@ -1,5 +1,6 @@
 package live.lingting.spring.grpc.configuration;
 
+import io.grpc.BindableService;
 import io.grpc.ServerInterceptor;
 import live.lingting.framework.grpc.GrpcServer;
 import live.lingting.framework.grpc.GrpcServerBuilder;
@@ -16,8 +17,9 @@ public class GrpcServerConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
-	public GrpcServerBuilder grpcServerBuilder(GrpcServerProperties properties, List<ServerInterceptor> interceptors) {
-		return new GrpcServerBuilder().properties(properties).interceptor(interceptors);
+	public GrpcServerBuilder grpcServerBuilder(GrpcServerProperties properties, List<BindableService> services,
+											   List<ServerInterceptor> interceptors) {
+		return new GrpcServerBuilder().properties(properties).service(services).interceptor(interceptors);
 	}
 
 	@Bean
