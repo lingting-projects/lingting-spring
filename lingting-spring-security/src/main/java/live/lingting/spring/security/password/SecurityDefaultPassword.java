@@ -1,11 +1,11 @@
 package live.lingting.spring.security.password;
 
 import live.lingting.framework.security.password.SecurityPassword;
+import live.lingting.framework.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.encrypt.BytesEncryptor;
 import org.springframework.security.crypto.encrypt.Encryptors;
-import org.springframework.util.StringUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -26,7 +26,8 @@ public class SecurityDefaultPassword implements SecurityPassword {
 	}
 
 	private BytesEncryptor frontEncryptor() {
-		return Encryptors.standard(securityKey, securityKey);
+		String salt = StringUtils.hex(securityKey.getBytes(StandardCharsets.UTF_8));
+		return Encryptors.standard(securityKey, salt);
 	}
 
 	/**
