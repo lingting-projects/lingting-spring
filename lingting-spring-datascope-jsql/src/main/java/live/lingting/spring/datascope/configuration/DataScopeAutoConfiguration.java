@@ -1,6 +1,6 @@
 package live.lingting.spring.datascope.configuration;
 
-import live.lingting.framework.datascope.DataScope;
+import live.lingting.framework.datascope.JsqlDataScope;
 import live.lingting.framework.datascope.handler.DataPermissionHandler;
 import live.lingting.framework.datascope.handler.DefaultDataPermissionHandler;
 import live.lingting.framework.datascope.parser.DataScopeParser;
@@ -19,7 +19,7 @@ public class DataScopeAutoConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
-	public DataPermissionHandler dataPermissionHandler(List<DataScope> scopes) {
+	public DataPermissionHandler dataPermissionHandler(List<JsqlDataScope> scopes) {
 		return new DefaultDataPermissionHandler(scopes);
 	}
 
