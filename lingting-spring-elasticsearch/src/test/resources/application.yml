@@ -1,0 +1,10 @@
+spring:
+  elasticsearch:
+    uris:
+      - 192.168.91.129:9200
+
+
+lingting:
+  elasticsearch:
+    scroll:
+      timeout: 15s
