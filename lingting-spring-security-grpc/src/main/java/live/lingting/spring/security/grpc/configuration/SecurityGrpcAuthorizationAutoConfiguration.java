@@ -22,8 +22,8 @@ public class SecurityGrpcAuthorizationAutoConfiguration {
 	@Bean
 	@ConditionalOnMissingBean
 	public SecurityGrpcAuthorizationServiceGrpc.SecurityGrpcAuthorizationServiceImplBase securityGrpcAuthorizationServiceImplBase(
-		SecurityAuthorizationService service, SecurityStore store, SecurityPassword password,
-		SecurityGrpcConvert convert) {
+			SecurityAuthorizationService service, SecurityStore store, SecurityPassword password,
+			SecurityGrpcConvert convert) {
 		return new SecurityGrpcAuthorizationEndpoint(service, store, password, convert);
 	}
 

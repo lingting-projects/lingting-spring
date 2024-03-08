@@ -26,17 +26,17 @@ public class SecurityGrpcResourceAutoConfiguration {
 	@Bean
 	@ConditionalOnMissingBean
 	public SecurityGrpcResourceServerInterceptor securityGrpcResourceServerInterceptor(
-		SecurityGrpcSpringProperties properties, SecurityResourceService service, SecurityAuthorize authorize,
-		SecurityGrpcExceptionHandler exceptionHandler) {
+			SecurityGrpcSpringProperties properties, SecurityResourceService service, SecurityAuthorize authorize,
+			SecurityGrpcExceptionHandler exceptionHandler) {
 		return new SecurityGrpcResourceServerInterceptor(properties.properties().authorizationKey(), service, authorize,
-			exceptionHandler);
+				exceptionHandler);
 	}
 
 	@Bean
 	@ConditionalOnMissingBean
 	@ConditionalOnUsingRemoteAuthorization
 	public SecurityGrpcRemoteResourceClientInterceptor securityGrpcRemoteResourceClientInterceptor(
-		SecurityGrpcProperties properties) {
+			SecurityGrpcProperties properties) {
 		return new SecurityGrpcRemoteResourceClientInterceptor(properties);
 	}
 
@@ -45,8 +45,8 @@ public class SecurityGrpcResourceAutoConfiguration {
 	@ConditionalOnUsingRemoteAuthorization
 	@ConditionalOnBean(GrpcClientProvide.class)
 	public SecurityResourceService serviceGrpcRemoteResourceService(SecurityProperties properties,
-																	SecurityGrpcRemoteResourceClientInterceptor interceptor, GrpcClientProvide provide,
-																	SecurityGrpcConvert convert) {
+			SecurityGrpcRemoteResourceClientInterceptor interceptor, GrpcClientProvide provide,
+			SecurityGrpcConvert convert) {
 		return new SecurityGrpcDefaultRemoteResourceServiceImpl(properties, interceptor, provide, convert);
 	}
 

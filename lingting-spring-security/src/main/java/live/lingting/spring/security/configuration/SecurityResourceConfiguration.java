@@ -26,7 +26,7 @@ public class SecurityResourceConfiguration {
 	@Bean
 	@ConditionalOnMissingBean
 	@ConditionalOnProperty(prefix = SecuritySpringProperties.PREFIX + ".authorization", value = "remote",
-		havingValue = "false", matchIfMissing = true)
+			havingValue = "false", matchIfMissing = true)
 	public SecurityResourceService securityStoreResourceService(SecurityStore store) {
 		return new SecurityDefaultResourceServiceImpl(store);
 	}

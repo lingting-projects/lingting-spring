@@ -13,7 +13,7 @@ import java.lang.annotation.Target;
 /**
  * @author lingting 2023-03-29 21:08
  */
-@Target({ElementType.TYPE})
+@Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 @Documented
