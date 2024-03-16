@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    url: jdbc:mysql://192.168.91.129:3306/mysql?zeroDateTimeBehavior=convertToNull&useSSL=false&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=GMT%2B8&allowMultiQueries=true&allowPublicKeyRetrieval=true
+    username: root
+    password: root
+
+
+mybatis-plus:
+  global-config:
+    banner: false
+    db-config:
+      id-type: auto
+      logic-delete-value: UNIX_TIMESTAMP()
+      logic-not-delete-value: 0
+  configuration:
+    default-enum-type-handler: live.lingting.framework.mybatis.typehandler.EnumTypeHandler
