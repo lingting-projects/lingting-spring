@@ -4,7 +4,7 @@ import live.lingting.framework.util.MdcUtils;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-import java.util.concurrent.TimeUnit;
+import java.time.Duration;
 
 /**
  * @author lingting 2024-02-05 16:10
@@ -17,15 +17,9 @@ public class GrpcSpringProperties {
 
 	private String traceIdKey = MdcUtils.TRACE_ID;
 
-	/**
-	 * 单位: 毫秒
-	 */
-	private long keepAliveTime = TimeUnit.MINUTES.toMillis(30);
+	private Duration keepAliveTime = Duration.ofMinutes(30);
 
-	/**
-	 * 单位: 毫秒
-	 */
-	private long keepAliveTimeout = TimeUnit.SECONDS.toMillis(2);
+	private Duration keepAliveTimeout = Duration.ofSeconds(2);
 
 	private Client client;
 
