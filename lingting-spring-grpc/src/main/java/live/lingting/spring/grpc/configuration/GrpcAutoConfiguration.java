@@ -2,11 +2,14 @@ package live.lingting.spring.grpc.configuration;
 
 import io.grpc.ClientInterceptor;
 import live.lingting.framework.grpc.GrpcClientProvide;
+import live.lingting.framework.grpc.GrpcServer;
+import live.lingting.framework.grpc.GrpcServerBuilder;
 import live.lingting.framework.grpc.properties.GrpcClientProperties;
 import live.lingting.framework.grpc.properties.GrpcServerProperties;
 import live.lingting.spring.grpc.mapstruct.SpringGrpcMapstruct;
 import live.lingting.spring.grpc.properties.GrpcSpringProperties;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -36,6 +39,13 @@ public class GrpcAutoConfiguration {
 	@ConditionalOnMissingBean
 	public GrpcClientProvide grpcClientProvide(GrpcClientProperties properties, List<ClientInterceptor> interceptors) {
 		return new GrpcClientProvide(properties, interceptors);
+	}
+
+	@Bean
+	@ConditionalOnMissingBean
+	@ConditionalOnBean(GrpcServerBuilder.class)
+	public GrpcServer grpcServer(GrpcServerBuilder builder) {
+		return builder.build();
 	}
 
 }
