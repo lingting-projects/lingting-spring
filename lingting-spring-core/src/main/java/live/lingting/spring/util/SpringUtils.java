@@ -14,41 +14,25 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 /**
  * @author lingting 2022/10/15 15:21
  */
 @UtilityClass
+@SuppressWarnings("unchecked")
 public class SpringUtils {
-
-	private static final Map<Class<?>, Object> BEAN_CLS_CACHE = new ConcurrentHashMap<>();
-
-	private static final Map<String, Object> BEAN_NAME_CACHE = new ConcurrentHashMap<>();
 
 	@Setter
 	@Getter
 	private static ApplicationContext context;
 
-	@SuppressWarnings("unchecked")
 	public static <T> T getBean(String name) {
-		if (BEAN_NAME_CACHE.containsKey(name)) {
-			return (T) BEAN_NAME_CACHE.get(name);
-		}
-		Object bean = context.getBean(name);
-		BEAN_NAME_CACHE.put(name, bean);
-		return (T) bean;
+		return (T) context.getBean(name);
 	}
 
-	@SuppressWarnings("unchecked")
 	public static <T> T getBean(Class<T> clazz) {
-		if (BEAN_CLS_CACHE.containsKey(clazz)) {
-			return (T) BEAN_CLS_CACHE.get(clazz);
-		}
-		T bean = context.getBean(clazz);
-		BEAN_CLS_CACHE.put(clazz, bean);
-		return bean;
+		return context.getBean(clazz);
 	}
 
 	public static <T> T getBean(String name, Class<T> clazz) {
@@ -94,19 +78,6 @@ public class SpringUtils {
 			}
 		}
 		return t;
-	}
-
-	public static void clearCache(Class<?> cls) {
-		BEAN_CLS_CACHE.remove(cls);
-	}
-
-	public static void clearCache(String name) {
-		BEAN_NAME_CACHE.remove(name);
-	}
-
-	public static void clearCache() {
-		BEAN_CLS_CACHE.clear();
-		BEAN_NAME_CACHE.clear();
 	}
 
 }
