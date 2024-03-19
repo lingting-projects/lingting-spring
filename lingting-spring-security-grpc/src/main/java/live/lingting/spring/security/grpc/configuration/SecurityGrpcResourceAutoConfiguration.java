@@ -13,7 +13,6 @@ import live.lingting.framework.security.resource.SecurityResourceService;
 import live.lingting.spring.grpc.configuration.GrpcAutoConfiguration;
 import live.lingting.spring.security.conditional.ConditionalOnResource;
 import live.lingting.spring.security.conditional.ConditionalOnUsingRemoteAuthorization;
-import live.lingting.spring.security.grpc.properties.SecurityGrpcSpringProperties;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -26,9 +25,9 @@ public class SecurityGrpcResourceAutoConfiguration {
 	@Bean
 	@ConditionalOnMissingBean
 	public SecurityGrpcResourceServerInterceptor securityGrpcResourceServerInterceptor(
-			SecurityGrpcSpringProperties properties, SecurityResourceService service, SecurityAuthorize authorize,
+		SecurityGrpcProperties properties, SecurityResourceService service, SecurityAuthorize authorize,
 			SecurityGrpcExceptionHandler exceptionHandler) {
-		return new SecurityGrpcResourceServerInterceptor(properties.properties().authorizationKey(), service, authorize,
+		return new SecurityGrpcResourceServerInterceptor(properties.authorizationKey(), service, authorize,
 				exceptionHandler);
 	}
 

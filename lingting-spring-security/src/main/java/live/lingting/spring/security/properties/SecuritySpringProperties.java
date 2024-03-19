@@ -15,6 +15,11 @@ public class SecuritySpringProperties {
 
 	private Authorization authorization;
 
+	/**
+	 * 鉴权优先级. 降序排序
+	 */
+	private int order = -500;
+
 	@Data
 	public static class Authorization {
 
@@ -39,6 +44,7 @@ public class SecuritySpringProperties {
 
 		SecurityProperties properties = new SecurityProperties();
 		properties.setAuthorization(sa);
+		properties.setOrder(getOrder());
 		return properties;
 	}
 
