@@ -1,4 +1,0 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  live.lingting.spring.security.grpc.configuration.SecurityGrpcAutoConfiguration,\
-  live.lingting.spring.security.grpc.configuration.SecurityGrpcAuthorizationAutoConfiguration,\
-  live.lingting.spring.security.grpc.configuration.SecurityGrpcResourceAutoConfiguration
