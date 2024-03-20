@@ -1,9 +1,8 @@
 dependencies {
-    api("org.springframework:spring-web")
-    api("org.springframework.boot:spring-boot-starter-web")
-    api("org.springframework.boot:spring-boot-starter-undertow") {
+    api("org.springframework.boot:spring-boot-starter-web") {
         exclude("org.springframework.boot", "spring-boot-starter-tomcat")
     }
+    api("org.springframework.boot:spring-boot-starter-undertow")
     api("org.hibernate.validator:hibernate-validator")
 
     implementation(project(":lingting-spring-core"))

@@ -36,7 +36,11 @@ class SpringWebTest {
 	@SneakyThrows
 	@Test
 	void test() {
-		mock.perform(get("/hello")).andDo(print()).andExpect(status().isOk())
+		mock.perform(get("/hello"))
+			.andDo(print())
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.code").value(200))
+			.andExpect(jsonPath("$.message").value(ApiResultCode.SUCCESS.getMessage()))
 
 		;
 
