@@ -18,6 +18,7 @@
             <option value="$PROJECT_DIR$/lingting-spring-mybatis" />
             <option value="$PROJECT_DIR$/lingting-spring-security" />
             <option value="$PROJECT_DIR$/lingting-spring-security-grpc" />
+            <option value="$PROJECT_DIR$/lingting-spring-web" />
           </set>
         </option>
       </GradleProjectSettings>
