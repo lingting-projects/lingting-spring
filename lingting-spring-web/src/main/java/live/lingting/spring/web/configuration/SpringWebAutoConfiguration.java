@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -22,8 +23,11 @@ public class SpringWebAutoConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
-	public WebScopeFilter webScopeFilter(SpringWebProperties properties) {
-		return new WebScopeFilter(properties);
+	public FilterRegistrationBean<WebScopeFilter> webScopeFilter(SpringWebProperties properties) {
+		WebScopeFilter filter = new WebScopeFilter(properties);
+		FilterRegistrationBean<WebScopeFilter> bean = new FilterRegistrationBean<>(filter);
+		bean.setOrder(properties.getScopeFilterOrder());
+		return bean;
 	}
 
 	@Bean
