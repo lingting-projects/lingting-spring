@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Bean;
 /**
  * @author lingting 2024-02-05 19:12
  */
-@AutoConfiguration
+@AutoConfiguration(beforeName = "SecurityWebAutoConfiguration")
 @EnableConfigurationProperties(SecurityGrpcSpringProperties.class)
 public class SecurityGrpcAutoConfiguration {
 

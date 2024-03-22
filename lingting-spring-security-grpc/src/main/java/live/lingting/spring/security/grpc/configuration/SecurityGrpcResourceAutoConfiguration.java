@@ -19,13 +19,13 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean;
 
 @ConditionalOnResource
-@AutoConfiguration(after = GrpcAutoConfiguration.class)
+@AutoConfiguration(after = GrpcAutoConfiguration.class, beforeName = "SecurityWebResourceAutoConfiguration")
 public class SecurityGrpcResourceAutoConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
 	public SecurityGrpcResourceServerInterceptor securityGrpcResourceServerInterceptor(
-		SecurityGrpcProperties properties, SecurityResourceService service, SecurityAuthorize authorize,
+			SecurityGrpcProperties properties, SecurityResourceService service, SecurityAuthorize authorize,
 			SecurityGrpcExceptionHandler exceptionHandler) {
 		return new SecurityGrpcResourceServerInterceptor(properties.authorizationKey(), service, authorize,
 				exceptionHandler);
