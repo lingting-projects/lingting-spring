@@ -1,0 +1,9 @@
+server:
+  port: 0
+lingting:
+  security:
+    authorization:
+      password-secret-key: ==Lingting-Key==
+logging:
+  level:
+    root: debug

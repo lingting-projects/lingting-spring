@@ -1,0 +1,3 @@
+live.lingting.spring.security.web.configuration.SecurityWebAutoConfiguration
+live.lingting.spring.security.web.configuration.SecurityWebAuthorizationAutoConfiguration
+live.lingting.spring.security.web.configuration.SecurityWebResourceAutoConfiguration
