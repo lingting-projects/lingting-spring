@@ -5,8 +5,9 @@ import live.lingting.framework.security.properties.SecurityProperties;
 import live.lingting.framework.security.resource.SecurityDefaultResourceServiceImpl;
 import live.lingting.framework.security.resource.SecurityResourceService;
 import live.lingting.framework.security.store.SecurityStore;
-import live.lingting.spring.security.conditional.ConditionalOnUsingRemoteAuthorization;
+import live.lingting.spring.security.properties.SecuritySpringProperties;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 
 /**
@@ -25,7 +26,8 @@ public class SecurityResourceConfiguration {
 	 */
 	@Bean
 	@ConditionalOnMissingBean
-	@ConditionalOnUsingRemoteAuthorization
+	@ConditionalOnProperty(prefix = SecuritySpringProperties.PREFIX + ".authorization", value = "remote",
+			havingValue = "false", matchIfMissing = true)
 	public SecurityResourceService securityStoreResourceService(SecurityStore store) {
 		return new SecurityDefaultResourceServiceImpl(store);
 	}
