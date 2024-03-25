@@ -21,9 +21,9 @@ public class GrpcSpringProperties {
 
 	private Duration keepAliveTimeout = Duration.ofSeconds(2);
 
-	private Client client;
+	private Client client = new Client();
 
-	private Server server;
+	private Server server = new Server();
 
 	@Data
 	public static class Client {

@@ -16,6 +16,6 @@ public interface SpringGrpcMapstruct {
 
 	GrpcClientProperties client(GrpcSpringProperties properties, GrpcSpringProperties.Client client);
 
-	GrpcServerProperties server(GrpcSpringProperties properties, GrpcSpringProperties.Server client);
+	GrpcServerProperties server(GrpcSpringProperties properties, GrpcSpringProperties.Server server);
 
 }
