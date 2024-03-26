@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.sql.SQLIntegrityConstraintViolationException;
 
@@ -161,6 +162,11 @@ public class GlobalExceptionHandler {
 			SQLIntegrityConstraintViolationException e) {
 		log.error("uri: {}; SQLIntegrityConstraintViolationException! {}", request.getRequestURI(), e.getMessage());
 		return R.failed(ApiResultCode.DB_CONSTRAINT_VIOLATION_ERROR);
+	}
+
+	@ExceptionHandler(NoResourceFoundException.class)
+	public R<String> handlerNoResourceFoundException() {
+		return R.failed(ApiResultCode.NOT_FOUND);
 	}
 
 }
