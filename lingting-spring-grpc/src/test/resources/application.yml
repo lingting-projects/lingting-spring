@@ -1,0 +1,4 @@
+lingting:
+  grpc:
+    server:
+      port: 0
