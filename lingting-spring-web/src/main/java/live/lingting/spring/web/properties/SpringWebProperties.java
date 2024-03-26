@@ -1,12 +1,14 @@
 package live.lingting.spring.web.properties;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * @author lingting 2024-03-20 14:58
  */
-@Data
+@Getter
+@Setter
 @ConfigurationProperties(SpringWebProperties.PREFIX)
 public class SpringWebProperties {
 
@@ -20,7 +22,8 @@ public class SpringWebProperties {
 
 	private Pagination pagination = new Pagination();
 
-	@Data
+	@Getter
+	@Setter
 	public static class Pagination {
 
 		private long pageSize = 10;

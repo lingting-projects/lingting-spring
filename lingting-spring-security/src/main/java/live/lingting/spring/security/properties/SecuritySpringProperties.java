@@ -1,26 +1,29 @@
 package live.lingting.spring.security.properties;
 
 import live.lingting.framework.security.properties.SecurityProperties;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * @author lingting 2023-03-29 20:50
  */
-@Data
+@Getter
+@Setter
 @ConfigurationProperties(prefix = SecuritySpringProperties.PREFIX)
 public class SecuritySpringProperties {
 
 	public static final String PREFIX = "lingting.security";
 
-	private Authorization authorization;
+	private Authorization authorization = new Authorization();
 
 	/**
 	 * 鉴权优先级. 降序排序
 	 */
 	private int order = -500;
 
-	@Data
+	@Getter
+	@Setter
 	public static class Authorization {
 
 		private boolean remote = false;

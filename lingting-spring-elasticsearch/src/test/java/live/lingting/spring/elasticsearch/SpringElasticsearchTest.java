@@ -2,7 +2,8 @@ package live.lingting.spring.elasticsearch;
 
 import live.lingting.framework.api.PaginationParams;
 import live.lingting.framework.elasticsearch.annotation.Document;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +39,8 @@ class SpringElasticsearchTest {
 		assertEquals("Default", byQuery.getSpace().get("name"));
 	}
 
-	@Data
+	@Getter
+	@Setter
 	@Document(index = ".kibana_8.12.2_001")
 	public static class Entity {
 

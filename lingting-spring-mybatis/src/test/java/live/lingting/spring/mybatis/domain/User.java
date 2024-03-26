@@ -2,14 +2,16 @@ package live.lingting.spring.mybatis.domain;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
 /**
  * @author lingting 2024-03-12 14:26
  */
-@Data
+@Getter
+@Setter
 @TableName("user")
 public class User {
 

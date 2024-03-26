@@ -1,7 +1,8 @@
 package live.lingting.spring.grpc.properties;
 
 import live.lingting.framework.util.MdcUtils;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.time.Duration;
@@ -9,7 +10,8 @@ import java.time.Duration;
 /**
  * @author lingting 2024-02-05 16:10
  */
-@Data
+@Getter
+@Setter
 @ConfigurationProperties(prefix = GrpcSpringProperties.PREFIX)
 public class GrpcSpringProperties {
 
@@ -25,7 +27,8 @@ public class GrpcSpringProperties {
 
 	private Server server = new Server();
 
-	@Data
+	@Getter
+	@Setter
 	public static class Client {
 
 		private String host;
@@ -45,7 +48,8 @@ public class GrpcSpringProperties {
 
 	}
 
-	@Data
+	@Getter
+	@Setter
 	public static class Server {
 
 		private Integer port;

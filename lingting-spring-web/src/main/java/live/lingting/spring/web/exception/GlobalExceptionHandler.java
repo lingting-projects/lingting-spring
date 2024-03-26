@@ -55,7 +55,7 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(NullPointerException.class)
 	public R<String> handleNullPointerException(HttpServletRequest request, NullPointerException e) {
 		log.error("uri: {}, NullPointerException!", request.getRequestURI(), e);
-		return R.failed(ApiResultCode.SERVER_NLP_ERROR);
+		return R.failed(ApiResultCode.SERVER_ERROR);
 	}
 
 	/**
