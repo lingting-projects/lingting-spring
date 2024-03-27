@@ -10,7 +10,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @EnableGrpcServer
 @SpringBootApplication
 public class SpringGrpcApplication {
+
 	public static void main(String[] args) {
 		SpringApplication.run(SpringGrpcApplication.class, args);
 	}
+
 }

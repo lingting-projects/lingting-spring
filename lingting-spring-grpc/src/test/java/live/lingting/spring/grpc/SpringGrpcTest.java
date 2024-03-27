@@ -21,4 +21,5 @@ class SpringGrpcTest {
 		assertTrue(server.port() > -1);
 		assertTrue(server.getFullMethodNameMap().isEmpty());
 	}
+
 }

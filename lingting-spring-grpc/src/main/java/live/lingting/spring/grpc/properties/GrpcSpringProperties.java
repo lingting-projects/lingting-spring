@@ -19,6 +19,8 @@ public class GrpcSpringProperties {
 
 	private String traceIdKey = MdcUtils.TRACE_ID;
 
+	private int traceOrder = Integer.MIN_VALUE + 100;
+
 	private Duration keepAliveTime = Duration.ofMinutes(30);
 
 	private Duration keepAliveTimeout = Duration.ofSeconds(2);
@@ -55,6 +57,8 @@ public class GrpcSpringProperties {
 		private Integer port;
 
 		private long messageSize = 524288;
+
+		private int exceptionHandlerOrder = Integer.MAX_VALUE - 100;
 
 	}
 

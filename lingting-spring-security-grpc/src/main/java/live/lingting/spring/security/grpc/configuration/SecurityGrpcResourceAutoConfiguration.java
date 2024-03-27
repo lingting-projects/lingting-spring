@@ -1,7 +1,6 @@
 package live.lingting.spring.security.grpc.configuration;
 
 import live.lingting.framework.convert.SecurityGrpcConvert;
-import live.lingting.framework.exception.SecurityGrpcExceptionHandler;
 import live.lingting.framework.grpc.GrpcClientProvide;
 import live.lingting.framework.interceptor.SecurityGrpcRemoteResourceClientInterceptor;
 import live.lingting.framework.interceptor.SecurityGrpcResourceServerInterceptor;
@@ -25,10 +24,8 @@ public class SecurityGrpcResourceAutoConfiguration {
 	@Bean
 	@ConditionalOnMissingBean
 	public SecurityGrpcResourceServerInterceptor securityGrpcResourceServerInterceptor(
-			SecurityGrpcProperties properties, SecurityResourceService service, SecurityAuthorize authorize,
-			SecurityGrpcExceptionHandler exceptionHandler) {
-		return new SecurityGrpcResourceServerInterceptor(properties.authorizationKey(), service, authorize,
-				exceptionHandler);
+			SecurityGrpcProperties properties, SecurityResourceService service, SecurityAuthorize authorize) {
+		return new SecurityGrpcResourceServerInterceptor(properties.authorizationKey(), service, authorize);
 	}
 
 	@Bean
