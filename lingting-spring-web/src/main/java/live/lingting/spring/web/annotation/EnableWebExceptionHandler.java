@@ -19,6 +19,6 @@ import java.lang.annotation.Target;
 @Inherited
 @Documented
 @Import({ DefaultExceptionHandler.class, GlobalExceptionHandler.class })
-public @interface EnableExceptionHandler {
+public @interface EnableWebExceptionHandler {
 
 }
