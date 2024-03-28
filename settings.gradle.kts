@@ -1,15 +1,3 @@
-pluginManagement {
-    repositories {
-        mavenLocal()
-
-        maven(url = "https://mirrors.huaweicloud.com/repository/maven/")
-        maven(url = "https://maven.aliyun.com/repository/public/")
-        maven(url = "https://maven.aliyun.com/repository/spring")
-
-        mavenCentral()
-    }
-}
-
 dependencyResolutionManagement {
     val frameworkVersion = "2024.01.24-SNAPSHOT"
     val jSqlParserLowerVersion = "4.6"
