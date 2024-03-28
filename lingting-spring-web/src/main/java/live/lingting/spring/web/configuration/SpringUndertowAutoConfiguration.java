@@ -8,7 +8,7 @@ import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.web.embedded.undertow.UndertowWebServer;
+import org.springframework.boot.web.embedded.undertow.UndertowServletWebServerFactory;
 import org.springframework.context.annotation.Bean;
 
 /**
@@ -16,7 +16,7 @@ import org.springframework.context.annotation.Bean;
  */
 @AutoConfiguration
 @ConditionalOnClass(Undertow.class)
-@ConditionalOnBean(UndertowWebServer.class)
+@ConditionalOnBean(UndertowServletWebServerFactory.class)
 public class SpringUndertowAutoConfiguration {
 
 	@Bean
