@@ -1,15 +1,15 @@
 
 package live.lingting.spring.web.exception;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ValidationException;
 import live.lingting.framework.api.ApiResultCode;
 import live.lingting.framework.api.R;
 import live.lingting.framework.exception.BizException;
+import live.lingting.spring.web.scope.WebScopeHolder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.convert.ConversionFailedException;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
@@ -17,9 +17,8 @@ import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
@@ -29,10 +28,9 @@ import java.sql.SQLIntegrityConstraintViolationException;
  * @author lingting 2022/9/21 15:55
  */
 @Slf4j
-@RestControllerAdvice
-@ResponseStatus(HttpStatus.OK)
+@ControllerAdvice
 @Order(GlobalExceptionHandler.ORDER)
-public class GlobalExceptionHandler {
+public class GlobalExceptionHandler extends AbstractExceptionHandler {
 
 	public static final int ORDER = -100;
 
@@ -42,10 +40,10 @@ public class GlobalExceptionHandler {
 	 * @return R
 	 */
 	@ExceptionHandler(BizException.class)
-	public R<String> handle2BizException(HttpServletRequest request, BizException e) {
-		log.error("uri: {}, Business error! code: {}; message: {};", request.getRequestURI(), e.getCode(),
-				e.getMessage(), e.getCause());
-		return R.failed(e.getCode(), e.getMessage());
+	public ResponseEntity<R<String>> handle2BizException(BizException e) {
+		log.error("uri: {}, Business error! code: {}; message: {};", WebScopeHolder.uri(), e.getCode(), e.getMessage(),
+				e.getCause());
+		return extract(R.failed(e.getCode(), e.getMessage()));
 	}
 
 	/**
@@ -54,9 +52,9 @@ public class GlobalExceptionHandler {
 	 * @return R
 	 */
 	@ExceptionHandler(NullPointerException.class)
-	public R<String> handleNullPointerException(HttpServletRequest request, NullPointerException e) {
-		log.error("uri: {}, NullPointerException!", request.getRequestURI(), e);
-		return R.failed(ApiResultCode.SERVER_ERROR);
+	public ResponseEntity<R<String>> handleNullPointerException(NullPointerException e) {
+		log.error("uri: {}, NullPointerException!", WebScopeHolder.uri(), e);
+		return extract(R.failed(ApiResultCode.SERVER_ERROR));
 	}
 
 	/**
@@ -65,9 +63,9 @@ public class GlobalExceptionHandler {
 	 * @return R
 	 */
 	@ExceptionHandler(MethodArgumentTypeMismatchException.class)
-	public R<String> handleMethodArgumentTypeMismatchException(HttpServletRequest request, Exception e) {
-		log.error("uri: {}, ArgumentTypeMismatchException! {}", request.getRequestURI(), e.getMessage());
-		return R.failed(ApiResultCode.SERVER_PARAM_CONVERT_ERROR);
+	public ResponseEntity<R<String>> handleMethodArgumentTypeMismatchException(Exception e) {
+		log.error("uri: {}, ArgumentTypeMismatchException! {}", WebScopeHolder.uri(), e.getMessage());
+		return extract(R.failed(ApiResultCode.SERVER_PARAM_CONVERT_ERROR));
 	}
 
 	/**
@@ -75,9 +73,9 @@ public class GlobalExceptionHandler {
 	 * @return R
 	 */
 	@ExceptionHandler({ HttpMediaTypeNotSupportedException.class, HttpRequestMethodNotSupportedException.class })
-	public R<String> requestNotSupportedException(HttpServletRequest request, Exception e) {
-		log.error("uri: {}, MethodNotSupportedException! {}", request.getRequestURI(), e.getMessage());
-		return R.failed(ApiResultCode.SERVER_METHOD_ERROR);
+	public ResponseEntity<R<String>> requestNotSupportedException(Exception e) {
+		log.error("uri: {}, MethodNotSupportedException! {}", WebScopeHolder.uri(), e.getMessage());
+		return extract(R.failed(ApiResultCode.SERVER_METHOD_ERROR));
 	}
 
 	/**
@@ -86,9 +84,9 @@ public class GlobalExceptionHandler {
 	 * @return R
 	 */
 	@ExceptionHandler(IllegalArgumentException.class)
-	public R<String> handleIllegalArgumentException(HttpServletRequest request, IllegalArgumentException e) {
-		log.error("uri: {}, IllegalArgumentException! {}", request.getRequestURI(), e.getMessage());
-		return R.failed(ApiResultCode.SERVER_PARAM_INVALID_ERROR);
+	public ResponseEntity<R<String>> handleIllegalArgumentException(IllegalArgumentException e) {
+		log.error("uri: {}, IllegalArgumentException! {}", WebScopeHolder.uri(), e.getMessage());
+		return extract(R.failed(ApiResultCode.SERVER_PARAM_INVALID_ERROR));
 	}
 
 	/**
@@ -97,7 +95,7 @@ public class GlobalExceptionHandler {
 	 * @return R
 	 */
 	@ExceptionHandler({ ValidationException.class, MethodArgumentNotValidException.class, BindException.class })
-	public R<String> handleValidationException(HttpServletRequest request, Exception e) {
+	public ResponseEntity<R<String>> handleValidationException(Exception e) {
 		String message = e.getLocalizedMessage();
 		FieldError fe = null;
 		if (e instanceof MethodArgumentNotValidException me) {
@@ -110,17 +108,17 @@ public class GlobalExceptionHandler {
 		if (fe != null) {
 			message = fe.getDefaultMessage();
 		}
-		log.error("uri: {}, ValidationException! {}", request.getRequestURI(), e.getMessage());
-		return R.failed(ApiResultCode.PARAMS_ERROR, message);
+		log.error("uri: {}, ValidationException! {}", WebScopeHolder.uri(), e.getMessage());
+		return extract(R.failed(ApiResultCode.PARAMS_ERROR, message));
 	}
 
 	/**
 	 * 参数类型转换异常
 	 */
 	@ExceptionHandler(ConversionFailedException.class)
-	public R<String> handlerConversionFailedException(HttpServletRequest request, ConversionFailedException e) {
-		log.error("uri: {}; ConversionFailedException!", request.getRequestURI(), e);
-		return R.failed(ApiResultCode.PARAMS_ERROR);
+	public ResponseEntity<R<String>> handlerConversionFailedException(ConversionFailedException e) {
+		log.error("uri: {}; ConversionFailedException!", WebScopeHolder.uri(), e);
+		return extract(R.failed(ApiResultCode.PARAMS_ERROR));
 	}
 
 	/**
@@ -129,9 +127,9 @@ public class GlobalExceptionHandler {
 	 * @return R
 	 */
 	@ExceptionHandler(HttpMessageNotReadableException.class)
-	public R<String> handleHttpBodyException(HttpServletRequest request, HttpMessageNotReadableException e) {
-		log.error("uri: {}, HttpBodyException! {}", request.getRequestURI(), e.getMessage());
-		return R.failed(ApiResultCode.PARAM_BODY_ERROR);
+	public ResponseEntity<R<String>> handleHttpBodyException(HttpMessageNotReadableException e) {
+		log.error("uri: {}, HttpBodyException! {}", WebScopeHolder.uri(), e.getMessage());
+		return extract(R.failed(ApiResultCode.PARAM_BODY_ERROR));
 	}
 
 	/**
@@ -140,33 +138,32 @@ public class GlobalExceptionHandler {
 	 * @return R
 	 */
 	@ExceptionHandler(MissingServletRequestParameterException.class)
-	public R<String> handleParamsMissingException(HttpServletRequest request,
-			MissingServletRequestParameterException e) {
-		log.error("uri: {}, ParamsMissingException! {}", request.getRequestURI(), e.getMessage());
-		return R.failed(ApiResultCode.PARAM_MISSING_ERROR);
+	public ResponseEntity<R<String>> handleParamsMissingException(MissingServletRequestParameterException e) {
+		log.error("uri: {}, ParamsMissingException! {}", WebScopeHolder.uri(), e.getMessage());
+		return extract(R.failed(ApiResultCode.PARAM_MISSING_ERROR));
 	}
 
 	/**
 	 * 鉴权异常
 	 */
 	@ExceptionHandler(SecurityException.class)
-	public R<String> handlerSecurityException(SecurityException e) {
-		return R.failed(ApiResultCode.UNAUTHORIZED_ERROR, e.getMessage());
+	public ResponseEntity<R<String>> handlerSecurityException(SecurityException e) {
+		return extract(R.failed(ApiResultCode.UNAUTHORIZED_ERROR, e.getMessage()));
 	}
 
 	/**
 	 * sql执行异常
 	 */
 	@ExceptionHandler(SQLIntegrityConstraintViolationException.class)
-	public R<String> handlerSQLIntegrityConstraintViolationException(HttpServletRequest request,
+	public ResponseEntity<R<String>> handlerSQLIntegrityConstraintViolationException(
 			SQLIntegrityConstraintViolationException e) {
-		log.error("uri: {}; SQLIntegrityConstraintViolationException! {}", request.getRequestURI(), e.getMessage());
-		return R.failed(ApiResultCode.DB_CONSTRAINT_VIOLATION_ERROR);
+		log.error("uri: {}; SQLIntegrityConstraintViolationException! {}", WebScopeHolder.uri(), e.getMessage());
+		return extract(R.failed(ApiResultCode.DB_CONSTRAINT_VIOLATION_ERROR));
 	}
 
 	@ExceptionHandler(NoResourceFoundException.class)
-	public R<String> handlerNoResourceFoundException() {
-		return R.failed(ApiResultCode.NOT_FOUND);
+	public ResponseEntity<R<String>> handlerNoResourceFoundException() {
+		return extract(R.failed(ApiResultCode.NOT_FOUND));
 	}
 
 }

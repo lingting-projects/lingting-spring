@@ -4,39 +4,38 @@ import live.lingting.framework.api.ApiResultCode;
 import live.lingting.framework.api.R;
 import live.lingting.framework.security.exception.AuthorizationException;
 import live.lingting.framework.security.exception.PermissionsException;
+import live.lingting.spring.web.exception.AbstractExceptionHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 /**
  * @author lingting 2022/9/21 15:55
  */
 @Slf4j
-@RestControllerAdvice
-@ResponseStatus(HttpStatus.OK)
+@ControllerAdvice
 @Order(Ordered.HIGHEST_PRECEDENCE)
-public class SecurityWebExceptionHandler {
+public class SecurityWebExceptionHandler extends AbstractExceptionHandler {
 
 	/**
 	 * 鉴权异常
 	 */
 	@ExceptionHandler(AuthorizationException.class)
-	public R<String> handlerAuthorizationException(AuthorizationException e) {
+	public ResponseEntity<R<String>> handlerAuthorizationException(AuthorizationException e) {
 		log.error("AuthorizationException! {}", e.getMessage());
-		return R.failed(ApiResultCode.UNAUTHORIZED_ERROR);
+		return extract(R.failed(ApiResultCode.UNAUTHORIZED_ERROR));
 	}
 
 	/**
 	 * 权限异常
 	 */
 	@ExceptionHandler(PermissionsException.class)
-	public R<String> handlerPermissionsException(PermissionsException e) {
+	public ResponseEntity<R<String>> handlerPermissionsException(PermissionsException e) {
 		log.error("PermissionsException! {}", e.getMessage());
-		return R.failed(ApiResultCode.FORBIDDEN_ERROR);
+		return extract(R.failed(ApiResultCode.FORBIDDEN_ERROR));
 	}
 
 }

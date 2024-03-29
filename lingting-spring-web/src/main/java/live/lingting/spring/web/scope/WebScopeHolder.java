@@ -5,6 +5,7 @@ import live.lingting.framework.util.IpUtils;
 import lombok.experimental.UtilityClass;
 
 import java.util.Optional;
+import java.util.function.Function;
 
 /**
  * @author lingting 2024-03-20 15:09
@@ -35,6 +36,18 @@ public class WebScopeHolder {
 				IpUtils.getFirstIp(request), request.getRequestURI(), traceId, requestId,
 				request.getHeader("Accept-Language"), request.getHeader("Authorization"),
 				request.getHeader("User-Agent"));
+	}
+
+	public static <T> T map(Function<WebScope, T> function) {
+		return map(function, null);
+	}
+
+	public static <T> T map(Function<WebScope, T> function, T other) {
+		return getOptional().map(function).orElse(other);
+	}
+
+	public static String uri() {
+		return map(WebScope::getUri, "");
 	}
 
 }
