@@ -10,6 +10,7 @@ import live.lingting.framework.security.resource.SecurityResourceService;
 import live.lingting.framework.util.StringUtils;
 import live.lingting.spring.security.web.properties.SecurityWebProperties;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -18,6 +19,7 @@ import java.io.IOException;
 /**
  * @author lingting 2024-03-21 19:49
  */
+@Slf4j
 @RequiredArgsConstructor
 public class SecurityWebResourceFilter extends OncePerRequestFilter {
 
@@ -28,29 +30,29 @@ public class SecurityWebResourceFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response,
 			@NotNull FilterChain filterChain) throws ServletException, IOException {
-		handlerScope(request);
-
+		SecurityScope scope = getScope(request);
+		service.putScope(scope);
 		try {
 			filterChain.doFilter(request, response);
 		}
 		finally {
-			service.removeScope();
+			service.popScope();
 		}
 	}
 
-	protected void handlerScope(HttpServletRequest request) {
+	protected SecurityScope getScope(HttpServletRequest request) {
 		SecurityToken token = getToken(request);
 		// token有效, 设置上下文
 		if (!token.isAvailable()) {
-			return;
+			return null;
 		}
 		try {
-			SecurityScope scope = service.resolve(token);
-			service.setScope(scope);
+			return service.resolve(token);
 		}
 		catch (Exception e) {
-			//
+			log.debug("resolve token error!", e);
 		}
+		return null;
 	}
 
 	public SecurityToken getToken(HttpServletRequest request) {
