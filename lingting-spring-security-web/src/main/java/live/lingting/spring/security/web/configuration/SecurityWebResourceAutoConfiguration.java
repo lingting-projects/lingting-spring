@@ -1,5 +1,6 @@
 package live.lingting.spring.security.web.configuration;
 
+import jakarta.servlet.DispatcherType;
 import live.lingting.framework.okhttp.OkHttpBuilder;
 import live.lingting.framework.security.authorize.SecurityAuthorize;
 import live.lingting.framework.security.convert.SecurityConvert;
@@ -14,12 +15,15 @@ import live.lingting.spring.security.web.resource.SecurityWebResourceInterceptor
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
+import org.springframework.boot.autoconfigure.web.servlet.ConditionalOnMissingFilterBean;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.time.Duration;
+import java.util.EnumSet;
 
 /**
  * @author lingting 2024-03-21 19:41
@@ -41,11 +45,13 @@ public class SecurityWebResourceAutoConfiguration {
 	}
 
 	@Bean
-	@ConditionalOnMissingBean
+	@ConditionalOnMissingFilterBean
+	@ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
 	public FilterRegistrationBean<SecurityWebResourceFilter> securityWebResourceFilter(SecurityProperties properties,
 			SecurityWebProperties webProperties, SecurityResourceService service) {
 		SecurityWebResourceFilter filter = new SecurityWebResourceFilter(webProperties, service);
 		FilterRegistrationBean<SecurityWebResourceFilter> bean = new FilterRegistrationBean<>(filter);
+		bean.setDispatcherTypes(EnumSet.allOf(DispatcherType.class));
 		bean.setOrder(properties.getOrder());
 		return bean;
 	}
@@ -63,7 +69,7 @@ public class SecurityWebResourceAutoConfiguration {
 		return new WebMvcConfigurer() {
 			@Override
 			public void addInterceptors(InterceptorRegistry registry) {
-				registry.addInterceptor(interceptor);
+				registry.addInterceptor(interceptor).addPathPatterns("/**");
 			}
 		};
 	}
