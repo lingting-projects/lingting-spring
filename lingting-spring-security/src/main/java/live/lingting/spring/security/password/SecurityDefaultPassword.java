@@ -1,14 +1,12 @@
 package live.lingting.spring.security.password;
 
+import live.lingting.framework.cipher.AES;
+import live.lingting.framework.cipher.AbstractCrypt;
 import live.lingting.framework.security.password.SecurityPassword;
 import live.lingting.framework.util.StringUtils;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.encrypt.BytesEncryptor;
-import org.springframework.security.crypto.encrypt.Encryptors;
-
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 
 /**
  * @author lingting 2024-02-05 17:26
@@ -18,6 +16,8 @@ public class SecurityDefaultPassword implements SecurityPassword {
 
 	private final String securityKey;
 
+	private final AES front = AES.builder().cbc().pkcs7().build();
+
 	private final BCryptPasswordEncoder encode = new BCryptPasswordEncoder();
 
 	@Override
@@ -25,34 +25,26 @@ public class SecurityDefaultPassword implements SecurityPassword {
 		return StringUtils.hasText(plaintext);
 	}
 
-	private BytesEncryptor frontEncryptor() {
-		String salt = StringUtils.hex(securityKey.getBytes(StandardCharsets.UTF_8));
-		return Encryptors.standard(securityKey, salt);
+	<T extends AbstractCrypt<T>> T fill(T t) {
+		return t.secret(securityKey).iv(securityKey);
 	}
 
 	/**
 	 * 依据前端加密方式, 明文转密文
 	 */
+	@SneakyThrows
 	@Override
 	public String encodeFront(String plaintext) {
-		BytesEncryptor encryptor = frontEncryptor();
-		java.util.Base64.Encoder encoder = java.util.Base64.getEncoder();
-
-		byte[] bytes = encryptor.encrypt(plaintext.getBytes(StandardCharsets.UTF_8));
-		return encoder.encodeToString(bytes);
+		return fill(front.encrypt()).base64(plaintext);
 	}
 
 	/**
 	 * 解析收到的前端密文
 	 */
+	@SneakyThrows
 	@Override
 	public String decodeFront(String ciphertext) {
-		BytesEncryptor encryptor = frontEncryptor();
-		java.util.Base64.Decoder decoder = Base64.getDecoder();
-
-		byte[] bytes = decoder.decode(ciphertext.getBytes(StandardCharsets.UTF_8));
-		byte[] result = encryptor.decrypt(bytes);
-		return new String(result, StandardCharsets.UTF_8);
+		return fill(front.decrypt()).base64(ciphertext);
 	}
 
 	/**
