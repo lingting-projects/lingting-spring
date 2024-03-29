@@ -34,7 +34,7 @@ public class WebScopeFilter extends OncePerRequestFilter {
 		String requestId = requestId();
 
 		WebScope scope = WebScopeHolder.of(request, traceId, requestId);
-		WebScopeHolder.set(scope);
+		WebScopeHolder.put(scope);
 		MdcUtils.fillTraceId(scope.getTraceId());
 		try {
 			response.addHeader(properties.getHeaderTraceId(), scope.getTraceId());
@@ -46,7 +46,7 @@ public class WebScopeFilter extends OncePerRequestFilter {
 			response.copyBodyToResponse();
 			// 关闭包装请求
 			request.close();
-			WebScopeHolder.remove();
+			WebScopeHolder.pop();
 			MdcUtils.removeTraceId();
 		}
 	}

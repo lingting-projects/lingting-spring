@@ -1,6 +1,7 @@
 package live.lingting.spring.web.scope;
 
 import jakarta.servlet.http.HttpServletRequest;
+import live.lingting.framework.thread.StackThreadLocal;
 import live.lingting.framework.util.IpUtils;
 import lombok.experimental.UtilityClass;
 
@@ -13,7 +14,7 @@ import java.util.function.Function;
 @UtilityClass
 public class WebScopeHolder {
 
-	static final ThreadLocal<WebScope> LOCAL = new ThreadLocal<>();
+	static final StackThreadLocal<WebScope> LOCAL = new StackThreadLocal<>();
 
 	public static WebScope get() {
 		return LOCAL.get();
@@ -23,12 +24,12 @@ public class WebScopeHolder {
 		return Optional.ofNullable(LOCAL.get());
 	}
 
-	public static void set(WebScope webScope) {
-		LOCAL.set(webScope);
+	public static void put(WebScope webScope) {
+		LOCAL.put(webScope);
 	}
 
-	public static void remove() {
-		LOCAL.remove();
+	public static void pop() {
+		LOCAL.pop();
 	}
 
 	public static WebScope of(HttpServletRequest request, String traceId, String requestId) {
