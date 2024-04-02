@@ -4,6 +4,7 @@ import io.grpc.ClientInterceptor;
 import live.lingting.framework.grpc.GrpcClientProvide;
 import live.lingting.framework.grpc.GrpcServer;
 import live.lingting.framework.grpc.GrpcServerBuilder;
+import live.lingting.framework.grpc.interceptor.GrpcClientTraceIdInterceptor;
 import live.lingting.framework.grpc.properties.GrpcClientProperties;
 import live.lingting.framework.grpc.properties.GrpcServerProperties;
 import live.lingting.spring.grpc.mapstruct.SpringGrpcMapstruct;
@@ -48,4 +49,9 @@ public class GrpcAutoConfiguration {
 		return builder.build();
 	}
 
+	@Bean
+	@ConditionalOnMissingBean
+	public GrpcClientTraceIdInterceptor grpcClientTraceIdInterceptor(GrpcClientProperties properties) {
+		return new GrpcClientTraceIdInterceptor(properties);
+	}
 }
