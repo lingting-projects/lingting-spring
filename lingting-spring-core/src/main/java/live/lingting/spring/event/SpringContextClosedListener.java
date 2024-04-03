@@ -36,13 +36,13 @@ public class SpringContextClosedListener implements ApplicationListener<ContextC
 		// 依照spring生态的@Order排序, 优先级高的先执行停止
 		List<ContextComponent> values = Sequence.asc(map.values());
 
-		log.debug("context component stop before");
+		log.debug("context component stop before. size: {}", values.size());
 		for (ContextComponent component : values) {
 			log.trace("class [{}] stop before", component.getClass());
 			component.onApplicationStopBefore();
 		}
 
-		log.debug("context component stop");
+		log.debug("context component stop. size: {}", values.size());
 		for (ContextComponent component : values) {
 			log.trace("class [{}] stop", component.getClass());
 			component.onApplicationStop();
