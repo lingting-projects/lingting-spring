@@ -1,6 +1,7 @@
 package live.lingting.spring.configuration;
 
 import live.lingting.framework.context.ContextComponent;
+import live.lingting.spring.event.SpringContextClosedListener;
 import live.lingting.spring.mdc.MdcTaskDecorator;
 import live.lingting.spring.post.ContextComposeBeanPostProcessor;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -28,4 +29,9 @@ public class SpringAutoConfiguration {
 		return new MdcTaskDecorator();
 	}
 
+	@Bean
+	@ConditionalOnMissingBean
+	public SpringContextClosedListener springContextClosedListener() {
+		return new SpringContextClosedListener();
+	}
 }

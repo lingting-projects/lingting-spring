@@ -24,9 +24,9 @@ public class SpringContextClosedListener implements ApplicationListener<ContextC
 
 	@Override
 	public void onApplicationEvent(ContextClosedEvent event) {
-		log.debug("spring context closed");
 		ContextHolder.stop();
 		ApplicationContext applicationContext = event.getApplicationContext();
+		log.debug("spring context closed.");
 		// 上下文容器停止
 		contextComponentStop(applicationContext);
 	}
