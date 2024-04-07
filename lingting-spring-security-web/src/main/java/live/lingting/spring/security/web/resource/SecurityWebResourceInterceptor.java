@@ -3,9 +3,7 @@ package live.lingting.spring.security.web.resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import live.lingting.framework.Sequence;
-import live.lingting.framework.security.annotation.Authorize;
 import live.lingting.framework.security.authorize.SecurityAuthorize;
-import live.lingting.framework.util.AnnotationUtils;
 import live.lingting.spring.security.web.properties.SecurityWebProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.Ordered;
@@ -27,17 +25,22 @@ public class SecurityWebResourceInterceptor implements HandlerInterceptor, Order
 
 	protected final SecurityWebProperties properties;
 
-	protected final SecurityAuthorize securityAuthorize;
+	protected final SecurityAuthorize authorize;
 
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
 			throws Exception {
 		if (handler instanceof HandlerMethod handlerMethod && !isIgnoreUri(request.getRequestURI())) {
-			Authorize authorize = findAuthorize(handlerMethod);
-			securityAuthorize.valid(authorize);
+			validAuthority(handlerMethod);
 		}
 
 		return true;
+	}
+
+	protected void validAuthority(HandlerMethod handlerMethod) {
+		Class<?> cls = handlerMethod.getBeanType();
+		Method method = handlerMethod.getMethod();
+		authorize.valid(cls, method);
 	}
 
 	protected boolean isIgnoreUri(String uri) {
@@ -55,15 +58,6 @@ public class SecurityWebResourceInterceptor implements HandlerInterceptor, Order
 		return false;
 	}
 
-	protected Authorize findAuthorize(HandlerMethod handlerMethod) {
-		Method method = handlerMethod.getMethod();
-		Authorize authorize = AnnotationUtils.findAnnotation(method, Authorize.class);
-		if (authorize != null) {
-			return authorize;
-		}
-		return AnnotationUtils.findAnnotation(handlerMethod.getBeanType(), Authorize.class);
-	}
-
 	@Override
 	public int getSequence() {
 		return getOrder();
@@ -71,7 +65,7 @@ public class SecurityWebResourceInterceptor implements HandlerInterceptor, Order
 
 	@Override
 	public int getOrder() {
-		return securityAuthorize.getOrder();
+		return authorize.getOrder();
 	}
 
 }
