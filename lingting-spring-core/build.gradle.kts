@@ -1,4 +1,4 @@
-dependencies{
+dependencies {
     api("live.lingting.framework:lingting-core")
 
     compileOnly("org.aspectj:aspectjweaver")

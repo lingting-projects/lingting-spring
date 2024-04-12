@@ -54,4 +54,5 @@ public class GrpcAutoConfiguration {
 	public GrpcClientTraceIdInterceptor grpcClientTraceIdInterceptor(GrpcClientProperties properties) {
 		return new GrpcClientTraceIdInterceptor(properties);
 	}
+
 }

@@ -18,7 +18,7 @@ public class GrpcServerConfiguration {
 	@Bean
 	@ConditionalOnMissingBean
 	public GrpcServerBuilder grpcServerBuilder(GrpcServerProperties properties, List<BindableService> services,
-											   List<ServerInterceptor> interceptors) {
+			List<ServerInterceptor> interceptors) {
 		return new GrpcServerBuilder().properties(properties).service(services).interceptor(interceptors);
 	}
 

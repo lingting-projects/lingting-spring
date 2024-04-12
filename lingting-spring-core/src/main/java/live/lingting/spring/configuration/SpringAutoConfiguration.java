@@ -34,4 +34,5 @@ public class SpringAutoConfiguration {
 	public SpringContextClosedListener springContextClosedListener() {
 		return new SpringContextClosedListener();
 	}
+
 }

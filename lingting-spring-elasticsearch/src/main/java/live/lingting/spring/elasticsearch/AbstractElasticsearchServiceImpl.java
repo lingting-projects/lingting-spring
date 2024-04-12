@@ -49,14 +49,14 @@ public abstract class AbstractElasticsearchServiceImpl<T> {
 	protected final Logger log = org.slf4j.LoggerFactory.getLogger(getClass());
 
 	@Getter
-	@Setter
-	protected ElasticsearchApi<T> api;
-
-	@Getter
 	protected final String index = index(getEntityClass(getClass()));
 
 	@Getter
 	protected final Class<T> cls = getEntityClass(getClass());
+
+	@Getter
+	@Setter
+	protected ElasticsearchApi<T> api;
 
 	public abstract String documentId(T t);
 

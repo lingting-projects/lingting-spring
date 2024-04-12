@@ -22,6 +22,20 @@ public class SecuritySpringProperties {
 	 */
 	private int order = -500;
 
+	public SecurityProperties properties() {
+		SecurityProperties.Authorization sa = new SecurityProperties.Authorization();
+		Authorization a = getAuthorization();
+		if (a != null) {
+			sa.setRemote(a.isRemote());
+			sa.setRemoteHost(a.getRemoteHost());
+		}
+
+		SecurityProperties properties = new SecurityProperties();
+		properties.setAuthorization(sa);
+		properties.setOrder(getOrder());
+		return properties;
+	}
+
 	@Getter
 	@Setter
 	public static class Authorization {
@@ -35,20 +49,6 @@ public class SecuritySpringProperties {
 		 */
 		private String passwordSecretKey;
 
-	}
-
-	public SecurityProperties properties() {
-		SecurityProperties.Authorization sa = new SecurityProperties.Authorization();
-		Authorization a = getAuthorization();
-		if (a != null) {
-			sa.setRemote(a.isRemote());
-			sa.setRemoteHost(a.getRemoteHost());
-		}
-
-		SecurityProperties properties = new SecurityProperties();
-		properties.setAuthorization(sa);
-		properties.setOrder(getOrder());
-		return properties;
 	}
 
 }

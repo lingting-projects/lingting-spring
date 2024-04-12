@@ -62,16 +62,8 @@ public class EnvironmentUtils {
 		return environment.resolveRequiredPlaceholders(text);
 	}
 
-	public static void setActiveProfiles(String... profiles) {
-		environment.setActiveProfiles(profiles);
-	}
-
 	public static void addActiveProfile(String profile) {
 		environment.addActiveProfile(profile);
-	}
-
-	public static void setDefaultProfiles(String... profiles) {
-		environment.setDefaultProfiles(profiles);
 	}
 
 	public static MutablePropertySources getPropertySources() {
@@ -126,8 +118,16 @@ public class EnvironmentUtils {
 		return environment.getActiveProfiles();
 	}
 
+	public static void setActiveProfiles(String... profiles) {
+		environment.setActiveProfiles(profiles);
+	}
+
 	public static String[] getDefaultProfiles() {
 		return environment.getDefaultProfiles();
+	}
+
+	public static void setDefaultProfiles(String... profiles) {
+		environment.setDefaultProfiles(profiles);
 	}
 
 	public static boolean acceptsProfiles(Profiles profiles) {

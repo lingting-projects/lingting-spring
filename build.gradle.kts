@@ -155,9 +155,13 @@ allprojects {
 configure(javaProjects) {
     apply {
         plugin("io.spring.javaformat")
+        plugin("checkstyle")
     }
 
     dependencies {
+        add("checkstyle", platform(catalogLibs.frameworkDependencies))
+        add("checkstyle", "io.spring.javaformat:spring-javaformat-checkstyle")
+
         add("implementation", platform(catalogLibs.frameworkDependencies))
 
         add("annotationProcessor", platform(catalogLibs.frameworkDependencies))
