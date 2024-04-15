@@ -25,7 +25,7 @@ public class SecurityWebAutoConfiguration {
 	}
 
 	@Bean
-	@ConditionalOnMissingBean
+	@ConditionalOnMissingBean(SecurityConvert.class)
 	public SecurityConvert securityConvert() {
 		return new SecurityConvert() {
 		};
