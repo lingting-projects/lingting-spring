@@ -49,7 +49,7 @@ public class SpringJacksonModuleAutoConfiguration {
 	@Bean
 	@ConditionalOnMissingBean
 	public NullSerializerProvider nullSerializerProvider() {
-		return NullSerializerProvider.INSTANCE;
+		return new NullSerializerProvider();
 	}
 
 }
