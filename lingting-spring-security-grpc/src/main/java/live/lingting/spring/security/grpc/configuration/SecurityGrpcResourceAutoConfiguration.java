@@ -1,5 +1,6 @@
 package live.lingting.spring.security.grpc.configuration;
 
+import io.grpc.ManagedChannel;
 import live.lingting.framework.convert.SecurityGrpcConvert;
 import live.lingting.framework.grpc.GrpcClientProvide;
 import live.lingting.framework.interceptor.SecurityGrpcRemoteResourceClientInterceptor;
@@ -43,7 +44,12 @@ public class SecurityGrpcResourceAutoConfiguration {
 	public SecurityResourceService serviceGrpcRemoteResourceService(SecurityProperties properties,
 			SecurityGrpcRemoteResourceClientInterceptor interceptor, GrpcClientProvide provide,
 			SecurityGrpcConvert convert) {
-		return new SecurityGrpcDefaultRemoteResourceServiceImpl(properties, interceptor, provide, convert);
+		SecurityProperties.Authorization authorization = properties.getAuthorization();
+		ManagedChannel channel = provide.builder(authorization.getRemoteHost())
+			.provide()
+			.interceptor(interceptor)
+			.build();
+		return new SecurityGrpcDefaultRemoteResourceServiceImpl(channel, convert);
 	}
 
 }
