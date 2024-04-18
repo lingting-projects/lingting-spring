@@ -1,11 +1,10 @@
 package live.lingting.spring.redis.cache;
 
-import live.lingting.framework.function.ThrowingSupplier;
+import live.lingting.framework.function.ThrowableSupplier;
 import live.lingting.spring.redis.Redis;
 import live.lingting.spring.redis.properties.RedisProperties;
 import live.lingting.spring.util.AspectUtils;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -37,7 +36,6 @@ public class CacheAspect implements Ordered {
 		// do nothing
 	}
 
-	@SneakyThrows
 	@Around("pointCut()")
 	public Object around(ProceedingJoinPoint point) throws Throwable {
 		Object target = point.getTarget();
@@ -73,7 +71,7 @@ public class CacheAspect implements Ordered {
 			RedisCache cache = new RedisCache(redis, properties.getNullValue(), expireTime, properties.getLockTimeout(),
 					properties.getLeaseTime());
 
-			ThrowingSupplier<Object> onLockFailure = () -> cache.get(key, type);
+			ThrowableSupplier<Object> onLockFailure = () -> cache.get(key, type);
 			result = cached.ifAbsent() ? cache.setIfAbsent(key, point::proceed, onLockFailure, type)
 					: cache.set(key, point::proceed, onLockFailure);
 		}
