@@ -6,6 +6,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import live.lingting.framework.security.domain.SecurityScope;
 import live.lingting.framework.security.domain.SecurityToken;
+import live.lingting.framework.security.exception.AuthorizationException;
+import live.lingting.framework.security.exception.PermissionsException;
 import live.lingting.framework.security.resource.SecurityResourceService;
 import live.lingting.framework.util.StringUtils;
 import live.lingting.spring.security.web.properties.SecurityWebProperties;
@@ -48,6 +50,9 @@ public class SecurityWebResourceFilter extends OncePerRequestFilter {
 		}
 		try {
 			return service.resolve(token);
+		}
+		catch (AuthorizationException | PermissionsException e) {
+			throw e;
 		}
 		catch (Exception e) {
 			log.debug("resolve token error!", e);
