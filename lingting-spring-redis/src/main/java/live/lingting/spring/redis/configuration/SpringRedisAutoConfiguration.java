@@ -73,7 +73,6 @@ public class SpringRedisAutoConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
-	@ConditionalOnBean(Redisson.class)
 	public Redis redis(StringRedisTemplate template, Redisson redisson, RedisProperties properties,
 			List<RedisScriptProvider> providers) {
 		return new Redis(template, redisson, properties, providers);
@@ -81,6 +80,7 @@ public class SpringRedisAutoConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
+	@ConditionalOnBean(Redis.class)
 	public CacheAspect cacheAspect(Redis redis, RedisProperties properties) {
 		return new CacheAspect(redis, properties);
 	}
