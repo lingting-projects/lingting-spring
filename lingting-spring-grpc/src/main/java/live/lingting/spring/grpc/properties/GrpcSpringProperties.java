@@ -58,7 +58,7 @@ public class GrpcSpringProperties {
 
 		private long messageSize = 524288;
 
-		private int exceptionHandlerOrder = Integer.MAX_VALUE - 100;
+		private int exceptionHandlerOrder = Integer.MIN_VALUE + 200;
 
 	}
 
