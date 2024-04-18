@@ -1,0 +1,123 @@
+package live.lingting.spring.redis.cache;
+
+import live.lingting.framework.function.ThrowingSupplier;
+import live.lingting.framework.jackson.JacksonUtils;
+import live.lingting.spring.redis.Redis;
+import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
+import org.redisson.RedissonSpinLock;
+import org.springframework.data.redis.core.ValueOperations;
+
+import java.time.Duration;
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+
+/**
+ * @author lingting 2024-04-17 19:11
+ */
+@RequiredArgsConstructor
+public class RedisCache {
+
+	private final Redis redis;
+
+	private final String nullValue;
+
+	private final Duration expireTime;
+
+	private final Duration lockTimeout;
+
+	private final Duration leaseTime;
+
+	protected String get(String key) {
+		ValueOperations<String, String> ops = redis.valueOps();
+		if (expireTime != null) {
+			return ops.getAndExpire(key, expireTime);
+		}
+		return ops.get(key);
+	}
+
+	public <T> T get(String key, Class<T> tClass) {
+		return get(key, v -> JacksonUtils.toObj(v, tClass));
+	}
+
+	public <T> T get(String key, Function<String, T> deserialize) {
+		String cache = get(key);
+		if (Objects.equals(nullValue, cache)) {
+			return null;
+		}
+		return deserialize.apply(cache);
+	}
+
+	public <T> void set(String key, T t) {
+		set(key, t, JacksonUtils::toJson);
+	}
+
+	public <T> void set(String key, T t, Function<T, String> serialize) {
+		String value = t == null ? nullValue : serialize.apply(t);
+		ValueOperations<String, String> ops = redis.valueOps();
+		if (expireTime != null) {
+			ops.set(key, value, expireTime);
+		}
+		else {
+			ops.set(key, value);
+		}
+	}
+
+	public <T> T set(String key, ThrowingSupplier<T> onGet, ThrowingSupplier<T> onLockFailure) {
+		return set(key, onGet, onLockFailure, JacksonUtils::toJson);
+	}
+
+	@SneakyThrows
+	public <T> T set(String key, ThrowingSupplier<T> onGet, ThrowingSupplier<T> onLockFailure,
+			Function<T, String> serialize) {
+		RedissonSpinLock spinLock = redis.spinLock("%s:%s".formatted(key, "lock"));
+
+		if (spinLock.tryLock(lockTimeout.toMillis(), leaseTime.toMillis(), TimeUnit.MILLISECONDS)) {
+			try {
+				T t = onGet.get();
+				set(key, t, serialize);
+				return t;
+			}
+			finally {
+				spinLock.unlock();
+			}
+		}
+
+		return onLockFailure.get();
+	}
+
+	public <T> T setIfAbsent(String key, ThrowingSupplier<T> onGet, ThrowingSupplier<T> onLockFailure,
+			Class<T> tClass) {
+		return setIfAbsent(key, onGet, onLockFailure, JacksonUtils::toJson, v -> JacksonUtils.toObj(v, tClass));
+	}
+
+	@SneakyThrows
+	public <T> T setIfAbsent(String key, ThrowingSupplier<T> onGet, ThrowingSupplier<T> onLockFailure,
+			Function<T, String> serialize, Function<String, T> deserialize) {
+		RedissonSpinLock spinLock = redis.spinLock("%s:%s".formatted(key, "lock"));
+
+		if (spinLock.tryLock(lockTimeout.toMillis(), leaseTime.toMillis(), TimeUnit.MILLISECONDS)) {
+			try {
+				String cache = get(key);
+				if (Objects.equals(nullValue, cache)) {
+					return null;
+				}
+
+				if (cache == null) {
+					T t = onGet.get();
+					set(key, t, serialize);
+					return t;
+				}
+
+				return deserialize.apply(cache);
+			}
+			finally {
+				spinLock.unlock();
+			}
+		}
+
+		return onLockFailure.get();
+	}
+
+}
