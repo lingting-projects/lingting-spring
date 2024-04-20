@@ -35,7 +35,7 @@ public class RepeatRedisScript<T> {
 	}
 
 	public RepeatRedisScript(String source, ReturnType type) {
-		Assert.state(!StringUtils.hasText(source), "Source must not be empty");
+		Assert.state(StringUtils.hasText(source), "Redis script source must not be empty");
 		this.source = source;
 		this.sha1 = DigestUtils.sha1DigestAsHex(source);
 		this.type = type;
