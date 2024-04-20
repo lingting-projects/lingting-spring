@@ -17,8 +17,14 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.core.HashOperations;
+import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.SetOperations;
+import org.springframework.data.redis.core.StreamOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.data.redis.core.ZSetOperations;
 
 import java.util.List;
 
@@ -69,6 +75,42 @@ public class SpringRedisAutoConfiguration {
 		template.setConnectionFactory(redisConnectionFactory);
 		template.setKeySerializer(serializer);
 		return template;
+	}
+
+	@Bean
+	@ConditionalOnMissingBean
+	public HashOperations<String, String, String> hashOps(StringRedisTemplate template) {
+		return template.opsForHash();
+	}
+
+	@Bean
+	@ConditionalOnMissingBean
+	public ValueOperations<String, String> valueOps(StringRedisTemplate template) {
+		return template.opsForValue();
+	}
+
+	@Bean
+	@ConditionalOnMissingBean
+	public ListOperations<String, String> listOps(StringRedisTemplate template) {
+		return template.opsForList();
+	}
+
+	@Bean
+	@ConditionalOnMissingBean
+	public SetOperations<String, String> setOps(StringRedisTemplate template) {
+		return template.opsForSet();
+	}
+
+	@Bean
+	@ConditionalOnMissingBean
+	public ZSetOperations<String, String> zSetOps(StringRedisTemplate template) {
+		return template.opsForZSet();
+	}
+
+	@Bean
+	@ConditionalOnMissingBean
+	public StreamOperations<String, String, String> streamOps(StringRedisTemplate template) {
+		return template.opsForStream();
 	}
 
 	@Bean
