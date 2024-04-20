@@ -2,6 +2,7 @@ package live.lingting.spring.security.web;
 
 import live.lingting.framework.security.authorize.SecurityAuthorizationService;
 import live.lingting.framework.security.domain.SecurityScope;
+import live.lingting.framework.security.domain.SecurityScopeAttributes;
 import live.lingting.framework.security.exception.AuthorizationException;
 import live.lingting.framework.security.store.SecurityStore;
 import live.lingting.framework.util.LocalDateTimeUtils;
@@ -10,7 +11,6 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Objects;
 
 /**
@@ -33,12 +33,11 @@ public class SecurityAuthorizationServiceImpl implements SecurityAuthorizationSe
 			scope.setNickname(username);
 			scope.setPassword(password);
 			scope.setAvatar("");
-			scope.setIsSystem("lingting".equals(username));
-			scope.setIsEnabled(true);
+			scope.setEnabled(true);
 			scope.setExpireTime(LocalDateTimeUtils.toTimestamp(LocalDateTime.now().plusMonths(3)));
 			scope.setRoles(Collections.singleton(username));
 			scope.setPermissions(Collections.singleton(username));
-			scope.setAttributes(new HashMap<>());
+			scope.setAttributes(new SecurityScopeAttributes());
 			return scope;
 		}
 		throw new AuthorizationException("用户名或密码错误!");
