@@ -52,7 +52,7 @@ public class SecurityWebResourceFilter extends OncePerRequestFilter {
 			return service.resolve(token);
 		}
 		catch (AuthorizationException | PermissionsException e) {
-			throw e;
+			return null;
 		}
 		catch (Exception e) {
 			log.debug("resolve token error!", e);
