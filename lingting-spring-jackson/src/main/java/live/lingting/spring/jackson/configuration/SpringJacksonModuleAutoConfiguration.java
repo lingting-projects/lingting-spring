@@ -3,6 +3,7 @@ package live.lingting.spring.jackson.configuration;
 import live.lingting.framework.jackson.module.BooleanModule;
 import live.lingting.framework.jackson.module.EnumModule;
 import live.lingting.framework.jackson.module.JavaTimeModule;
+import live.lingting.framework.jackson.module.MoneyModule;
 import live.lingting.framework.jackson.module.RModule;
 import live.lingting.framework.jackson.provider.NullSerializerProvider;
 import live.lingting.framework.jackson.sensitive.SensitiveModule;
@@ -44,6 +45,12 @@ public class SpringJacksonModuleAutoConfiguration {
 	@ConditionalOnMissingBean
 	public SensitiveModule sensitiveModule() {
 		return new SensitiveModule();
+	}
+
+	@Bean
+	@ConditionalOnMissingBean
+	public MoneyModule moneyModule() {
+		return new MoneyModule();
 	}
 
 	@Bean
