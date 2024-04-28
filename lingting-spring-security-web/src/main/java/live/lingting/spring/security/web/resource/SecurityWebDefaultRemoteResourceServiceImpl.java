@@ -1,6 +1,6 @@
 package live.lingting.spring.security.web.resource;
 
-import live.lingting.framework.okhttp.OkHttp;
+import live.lingting.framework.okhttp.OkHttp3;
 import live.lingting.framework.security.convert.SecurityConvert;
 import live.lingting.framework.security.domain.AuthorizationVO;
 import live.lingting.framework.security.domain.SecurityScope;
@@ -15,7 +15,7 @@ import okhttp3.Request;
  */
 public class SecurityWebDefaultRemoteResourceServiceImpl implements SecurityResourceService {
 
-	protected final OkHttp client;
+	protected final OkHttp3 client;
 
 	protected final String urlResolve;
 
@@ -23,7 +23,7 @@ public class SecurityWebDefaultRemoteResourceServiceImpl implements SecurityReso
 
 	protected final SecurityWebProperties properties;
 
-	public SecurityWebDefaultRemoteResourceServiceImpl(String host, OkHttp client, SecurityConvert convert,
+	public SecurityWebDefaultRemoteResourceServiceImpl(String host, OkHttp3 client, SecurityConvert convert,
 			SecurityWebProperties properties) {
 		this.client = client;
 		this.urlResolve = join(host, "authorization/resolve");
