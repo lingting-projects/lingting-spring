@@ -1,6 +1,6 @@
 package live.lingting.spring.security.web.resource;
 
-import live.lingting.framework.okhttp.OkHttp3;
+import live.lingting.framework.http.HttpDelegateClient;
 import live.lingting.framework.security.convert.SecurityConvert;
 import live.lingting.framework.security.domain.AuthorizationVO;
 import live.lingting.framework.security.domain.SecurityScope;
@@ -8,44 +8,48 @@ import live.lingting.framework.security.domain.SecurityToken;
 import live.lingting.framework.security.resource.SecurityResourceService;
 import live.lingting.framework.util.StringUtils;
 import live.lingting.spring.security.web.properties.SecurityWebProperties;
-import okhttp3.Request;
+import lombok.SneakyThrows;
+
+import java.net.URI;
+import java.net.http.HttpRequest;
 
 /**
  * @author lingting 2024-03-21 19:41
  */
 public class SecurityWebDefaultRemoteResourceServiceImpl implements SecurityResourceService {
 
-	protected final OkHttp3 client;
+	protected final HttpDelegateClient<?> client;
 
-	protected final String urlResolve;
+	protected final URI urlResolve;
 
 	protected final SecurityConvert convert;
 
 	protected final SecurityWebProperties properties;
 
-	public SecurityWebDefaultRemoteResourceServiceImpl(String host, OkHttp3 client, SecurityConvert convert,
-			SecurityWebProperties properties) {
+	public SecurityWebDefaultRemoteResourceServiceImpl(String host, HttpDelegateClient<?> client,
+			SecurityConvert convert, SecurityWebProperties properties) {
 		this.client = client;
-		this.urlResolve = join(host, "authorization/resolve");
+		this.urlResolve = URI.create(join(host, "authorization/resolve"));
 		this.convert = convert;
 		this.properties = properties;
 	}
 
-	public Request.Builder resolveBuilder(SecurityToken token) {
-		Request.Builder builder = new Request.Builder();
-		builder.get().url(urlResolve);
+	public HttpRequest.Builder resolveBuilder(SecurityToken token) {
+		HttpRequest.Builder builder = HttpRequest.newBuilder();
+		builder.GET().uri(urlResolve);
 		builder = fillSecurity(builder, token);
 		return builder;
 	}
 
+	@SneakyThrows
 	@Override
 	public SecurityScope resolve(SecurityToken token) {
-		Request.Builder builder = resolveBuilder(token);
+		HttpRequest.Builder builder = resolveBuilder(token);
 		AuthorizationVO vo = client.request(builder.build(), AuthorizationVO.class);
 		return convert.voToScope(vo);
 	}
 
-	protected Request.Builder fillSecurity(Request.Builder builder, SecurityToken token) {
+	protected HttpRequest.Builder fillSecurity(HttpRequest.Builder builder, SecurityToken token) {
 		builder.header(properties.getHeaderAuthorization(), token.getRaw());
 		return builder;
 	}
