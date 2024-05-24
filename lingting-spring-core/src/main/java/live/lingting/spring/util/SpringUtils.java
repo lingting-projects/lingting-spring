@@ -1,7 +1,7 @@
 package live.lingting.spring.util;
 
 import jakarta.annotation.Resource;
-import live.lingting.framework.domain.ClassField;
+import live.lingting.framework.reflect.ClassField;
 import live.lingting.framework.util.ClassUtils;
 import lombok.Getter;
 import lombok.Setter;

@@ -1,6 +1,6 @@
 package live.lingting.spring.web.converter;
 
-import live.lingting.framework.domain.ClassField;
+import live.lingting.framework.reflect.ClassField;
 import live.lingting.framework.util.EnumUtils;
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.stereotype.Component;
