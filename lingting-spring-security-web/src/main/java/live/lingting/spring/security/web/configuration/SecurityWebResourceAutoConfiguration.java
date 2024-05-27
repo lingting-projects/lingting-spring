@@ -9,7 +9,7 @@ import live.lingting.framework.security.resource.SecurityResourceService;
 import live.lingting.spring.security.conditional.ConditionalOnResource;
 import live.lingting.spring.security.conditional.ConditionalOnUsingRemoteAuthorization;
 import live.lingting.spring.security.web.properties.SecurityWebProperties;
-import live.lingting.spring.security.web.resource.SecurityWebDefaultRemoteResourceServiceImpl;
+import live.lingting.spring.security.web.resource.SecurityTokenWebRemoteResolver;
 import live.lingting.spring.security.web.resource.SecurityWebResourceFilter;
 import live.lingting.spring.security.web.resource.SecurityWebResourceInterceptor;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -35,15 +35,15 @@ public class SecurityWebResourceAutoConfiguration {
 	@Bean
 	@ConditionalOnMissingBean
 	@ConditionalOnUsingRemoteAuthorization
-	public SecurityResourceService securityResourceService(SecurityProperties properties, SecurityConvert convert,
-			SecurityWebProperties webProperties) {
+	public SecurityTokenWebRemoteResolver securityTokenWebRemoteResolver(SecurityProperties properties,
+			SecurityConvert convert, SecurityWebProperties webProperties) {
 		HttpDelegateClient.Builder<?, ?, ?> builder = HttpDelegateClient.okhttp()
 			.disableSsl()
 			.timeout(Duration.ofSeconds(5), Duration.ofSeconds(10));
 
 		SecurityProperties.Authorization authorization = properties.getAuthorization();
 		String remoteHost = authorization.getRemoteHost();
-		return new SecurityWebDefaultRemoteResourceServiceImpl(remoteHost, builder.build(), convert, webProperties);
+		return new SecurityTokenWebRemoteResolver(remoteHost, builder.build(), convert, webProperties);
 	}
 
 	@Bean

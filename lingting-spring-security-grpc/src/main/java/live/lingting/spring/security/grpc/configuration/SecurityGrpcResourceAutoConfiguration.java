@@ -6,7 +6,7 @@ import live.lingting.framework.grpc.GrpcClientProvide;
 import live.lingting.framework.interceptor.SecurityGrpcRemoteResourceClientInterceptor;
 import live.lingting.framework.interceptor.SecurityGrpcResourceServerInterceptor;
 import live.lingting.framework.properties.SecurityGrpcProperties;
-import live.lingting.framework.resource.SecurityGrpcDefaultRemoteResourceServiceImpl;
+import live.lingting.framework.resource.SecurityTokenGrpcRemoteResolver;
 import live.lingting.framework.security.authorize.SecurityAuthorize;
 import live.lingting.framework.security.properties.SecurityProperties;
 import live.lingting.framework.security.resource.SecurityResourceService;
@@ -41,7 +41,7 @@ public class SecurityGrpcResourceAutoConfiguration {
 	@ConditionalOnMissingBean
 	@ConditionalOnUsingRemoteAuthorization
 	@ConditionalOnBean(GrpcClientProvide.class)
-	public SecurityResourceService serviceGrpcRemoteResourceService(SecurityProperties properties,
+	public SecurityTokenGrpcRemoteResolver securityTokenGrpcRemoteResolver(SecurityProperties properties,
 			SecurityGrpcRemoteResourceClientInterceptor interceptor, GrpcClientProvide provide,
 			SecurityGrpcConvert convert) {
 		SecurityProperties.Authorization authorization = properties.getAuthorization();
@@ -49,7 +49,7 @@ public class SecurityGrpcResourceAutoConfiguration {
 			.provide()
 			.interceptor(interceptor)
 			.build();
-		return new SecurityGrpcDefaultRemoteResourceServiceImpl(channel, convert);
+		return new SecurityTokenGrpcRemoteResolver(channel, convert);
 	}
 
 }

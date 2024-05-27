@@ -1,11 +1,12 @@
 package live.lingting.spring.security.web.resource;
 
+import live.lingting.framework.Sequence;
 import live.lingting.framework.http.HttpDelegateClient;
 import live.lingting.framework.security.convert.SecurityConvert;
 import live.lingting.framework.security.domain.AuthorizationVO;
 import live.lingting.framework.security.domain.SecurityScope;
 import live.lingting.framework.security.domain.SecurityToken;
-import live.lingting.framework.security.resource.SecurityResourceService;
+import live.lingting.framework.security.resolver.SecurityTokenResolver;
 import live.lingting.framework.util.StringUtils;
 import live.lingting.spring.security.web.properties.SecurityWebProperties;
 import lombok.SneakyThrows;
@@ -16,7 +17,7 @@ import java.net.http.HttpRequest;
 /**
  * @author lingting 2024-03-21 19:41
  */
-public class SecurityWebDefaultRemoteResourceServiceImpl implements SecurityResourceService {
+public class SecurityTokenWebRemoteResolver implements SecurityTokenResolver, Sequence {
 
 	protected final HttpDelegateClient<?> client;
 
@@ -26,8 +27,8 @@ public class SecurityWebDefaultRemoteResourceServiceImpl implements SecurityReso
 
 	protected final SecurityWebProperties properties;
 
-	public SecurityWebDefaultRemoteResourceServiceImpl(String host, HttpDelegateClient<?> client,
-			SecurityConvert convert, SecurityWebProperties properties) {
+	public SecurityTokenWebRemoteResolver(String host, HttpDelegateClient<?> client, SecurityConvert convert,
+			SecurityWebProperties properties) {
 		this.client = client;
 		this.urlResolve = URI.create(join(host, "authorization/resolve"));
 		this.convert = convert;
@@ -39,14 +40,6 @@ public class SecurityWebDefaultRemoteResourceServiceImpl implements SecurityReso
 		builder.GET().uri(urlResolve);
 		builder = fillSecurity(builder, token);
 		return builder;
-	}
-
-	@SneakyThrows
-	@Override
-	public SecurityScope resolve(SecurityToken token) {
-		HttpRequest.Builder builder = resolveBuilder(token);
-		AuthorizationVO vo = client.request(builder.build(), AuthorizationVO.class);
-		return convert.voToScope(vo);
 	}
 
 	protected HttpRequest.Builder fillSecurity(HttpRequest.Builder builder, SecurityToken token) {
@@ -72,6 +65,24 @@ public class SecurityWebDefaultRemoteResourceServiceImpl implements SecurityReso
 		}
 		builder.append(uri);
 		return builder.toString();
+	}
+
+	@Override
+	public boolean isSupport(SecurityToken token) {
+		return true;
+	}
+
+	@SneakyThrows
+	@Override
+	public SecurityScope resolver(SecurityToken token) {
+		HttpRequest.Builder builder = resolveBuilder(token);
+		AuthorizationVO vo = client.request(builder.build(), AuthorizationVO.class);
+		return convert.voToScope(vo);
+	}
+
+	@Override
+	public int getSequence() {
+		return Integer.MAX_VALUE;
 	}
 
 }

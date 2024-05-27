@@ -2,13 +2,16 @@ package live.lingting.spring.security.configuration;
 
 import live.lingting.framework.security.authorize.SecurityAuthorize;
 import live.lingting.framework.security.properties.SecurityProperties;
+import live.lingting.framework.security.resolver.SecurityTokenDefaultResolver;
+import live.lingting.framework.security.resolver.SecurityTokenResolver;
 import live.lingting.framework.security.resource.SecurityDefaultResourceServiceImpl;
 import live.lingting.framework.security.resource.SecurityResourceService;
 import live.lingting.framework.security.store.SecurityStore;
-import live.lingting.spring.security.properties.SecuritySpringProperties;
+import live.lingting.spring.security.conditional.ConditionalOnUsingLocalAuthorization;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
+
+import java.util.List;
 
 /**
  * @author lingting 2023-03-29 21:09
@@ -21,15 +24,16 @@ public class SecurityResourceConfiguration {
 		return new SecurityAuthorize(properties.getOrder());
 	}
 
-	/**
-	 * 使用本地解析token
-	 */
 	@Bean
 	@ConditionalOnMissingBean
-	@ConditionalOnProperty(prefix = SecuritySpringProperties.PREFIX + ".authorization", value = "remote",
-			havingValue = "false", matchIfMissing = true)
-	public SecurityResourceService securityStoreResourceService(SecurityStore store) {
-		return new SecurityDefaultResourceServiceImpl(store);
+	public SecurityResourceService securityStoreResourceService(List<SecurityTokenResolver> resolvers) {
+		return new SecurityDefaultResourceServiceImpl(resolvers);
+	}
+
+	@Bean
+	@ConditionalOnUsingLocalAuthorization
+	public SecurityTokenDefaultResolver securityTokenDefaultResolver(SecurityStore store) {
+		return new SecurityTokenDefaultResolver(store);
 	}
 
 }
