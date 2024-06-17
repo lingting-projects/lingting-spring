@@ -20,6 +20,7 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.sql.SQLIntegrityConstraintViolationException;
@@ -162,8 +163,24 @@ public class GlobalExceptionHandler extends AbstractExceptionHandler {
 	}
 
 	@ExceptionHandler(NoResourceFoundException.class)
-	public ResponseEntity<R<String>> handlerNoResourceFoundException() {
+	public ResponseEntity<R<String>> handlerNoResourceFoundException(NoResourceFoundException e) {
+		log.warn("uri: {}, NoResourceFoundException! {}", WebScopeHolder.uri(), e.getMessage());
 		return extract(R.failed(ApiResultCode.NOT_FOUND));
+	}
+
+	/**
+	 * 404异常. 需要配合两个设置
+	 * <p>
+	 * 1. spring.mvc.throw-exception-if-no-handler-found=true
+	 * </p>
+	 * <p>
+	 * 2. spring.web.resources.add-mappings=false
+	 * </p>
+	 */
+	@ExceptionHandler(NoHandlerFoundException.class)
+	public ResponseEntity<R<String>> handlerNoHandlerFoundException(NoHandlerFoundException e) {
+		log.warn("uri: {}, NoHandlerFoundException! {}", WebScopeHolder.uri(), e.getMessage());
+		return extract(R.failed(ApiResultCode.NOT_FOUND_ERROR));
 	}
 
 }
