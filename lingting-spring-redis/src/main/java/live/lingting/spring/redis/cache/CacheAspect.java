@@ -68,8 +68,7 @@ public class CacheAspect implements Ordered {
 				expireTime = properties.getCacheExpireTime();
 			}
 
-			RedisCache cache = new RedisCache(redis, properties.getNullValue(), expireTime, properties.getLockTimeout(),
-					properties.getLeaseTime());
+			RedisCache cache = redis.cache(expireTime, properties.getLockTimeout(), properties.getLeaseTime());
 
 			ThrowableSupplier<Object> onLockFailure = () -> cache.get(key, type);
 			result = cached.ifAbsent() ? cache.setIfAbsent(key, point::proceed, onLockFailure, type)

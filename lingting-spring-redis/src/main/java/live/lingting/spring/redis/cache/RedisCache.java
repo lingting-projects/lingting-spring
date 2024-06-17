@@ -17,6 +17,7 @@ import java.util.function.Function;
  * @author lingting 2024-04-17 19:11
  */
 @RequiredArgsConstructor
+@SuppressWarnings("unchecked")
 public class RedisCache {
 
 	private final Redis redis;
@@ -30,19 +31,21 @@ public class RedisCache {
 	private final Duration leaseTime;
 
 	protected String get(String key) {
-		ValueOperations<String, String> ops = redis.valueOps();
-		if (expireTime != null) {
-			return ops.getAndExpire(key, expireTime);
-		}
-		return ops.get(key);
+		return get(key, s -> s);
 	}
 
 	public <T> T get(String key, Class<T> tClass) {
-		return get(key, v -> JacksonUtils.toObj(v, tClass));
+		return get(key, v -> {
+			if (String.class.isAssignableFrom(tClass)) {
+				return (T) v;
+			}
+			return JacksonUtils.toObj(v, tClass);
+		});
 	}
 
 	public <T> T get(String key, Function<String, T> deserialize) {
-		String cache = get(key);
+		ValueOperations<String, String> ops = redis.valueOps();
+		String cache = expireTime != null ? ops.getAndExpire(key, expireTime) : ops.get(key);
 		if (Objects.equals(nullValue, cache)) {
 			return null;
 		}

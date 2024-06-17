@@ -127,8 +127,11 @@ public class Redis implements InitializingBean {
 	}
 
 	public RedisCache cache() {
-		return new RedisCache(this, properties.getNullValue(), properties.getCacheExpireTime(),
-				properties.getLockTimeout(), properties.getLeaseTime());
+		return cache(properties.getCacheExpireTime(), properties.getLockTimeout(), properties.getLeaseTime());
+	}
+
+	public RedisCache cache(Duration expireTime, Duration lockTimeout, Duration leaseTime) {
+		return new RedisCache(this, properties.getNullValue(), expireTime, lockTimeout, leaseTime);
 	}
 
 	@Override
