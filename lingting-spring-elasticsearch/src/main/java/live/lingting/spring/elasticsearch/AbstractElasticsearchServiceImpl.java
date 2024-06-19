@@ -23,6 +23,8 @@ import live.lingting.framework.api.ScrollCursor;
 import live.lingting.framework.api.ScrollParams;
 import live.lingting.framework.api.ScrollResult;
 import live.lingting.framework.elasticsearch.ElasticsearchApi;
+import live.lingting.framework.elasticsearch.builder.QueryBuilder;
+import live.lingting.framework.elasticsearch.builder.ScriptBuilder;
 import live.lingting.framework.function.ThrowingRunnable;
 import live.lingting.framework.function.ThrowingSupplier;
 import lombok.Getter;
@@ -60,6 +62,8 @@ public abstract class AbstractElasticsearchServiceImpl<T> {
 
 	public abstract String documentId(T t);
 
+	// region extend
+
 	public void retry(ThrowingRunnable runnable) throws Exception {
 		api.retry(runnable);
 	}
@@ -70,6 +74,19 @@ public abstract class AbstractElasticsearchServiceImpl<T> {
 
 	public Query merge(Query... arrays) {
 		return api.merge(arrays);
+	}
+
+	public ScriptBuilder<T> script() {
+		return new ScriptBuilder<>();
+	}
+
+	public QueryBuilder<T> query() {
+		return new QueryBuilder<>();
+	}
+
+	// endregion
+	public T get(String id) throws IOException {
+		return api.get(id);
 	}
 
 	protected T getByQuery(Query... queries) throws IOException {
