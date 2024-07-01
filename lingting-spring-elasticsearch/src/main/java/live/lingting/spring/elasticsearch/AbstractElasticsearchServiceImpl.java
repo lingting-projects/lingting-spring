@@ -64,6 +64,16 @@ public abstract class AbstractElasticsearchServiceImpl<T> {
 
 	// region extend
 
+	public ScriptBuilder<T> script() {
+		return ScriptBuilder.builder();
+	}
+
+	public QueryBuilder<T> query() {
+		return QueryBuilder.builder();
+	}
+
+	// endregion
+
 	public void retry(ThrowingRunnable runnable) throws Exception {
 		api.retry(runnable);
 	}
@@ -76,173 +86,217 @@ public abstract class AbstractElasticsearchServiceImpl<T> {
 		return api.merge(arrays);
 	}
 
-	public ScriptBuilder<T> script() {
-		return new ScriptBuilder<>();
+	public Query merge(QueryBuilder<T> builder) {
+		return api.merge(builder);
 	}
 
-	public QueryBuilder<T> query() {
-		return new QueryBuilder<>();
-	}
-
-	// endregion
 	public T get(String id) throws IOException {
 		return api.get(id);
 	}
 
-	protected T getByQuery(Query... queries) throws IOException {
+	public T getByQuery(Query... queries) throws IOException {
 		return api.getByQuery(queries);
 	}
 
-	protected T getByQuery(UnaryOperator<SearchRequest.Builder> operator, Query... queries) throws IOException {
+	public T getByQuery(QueryBuilder<T> queries) throws IOException {
+		return api.getByQuery(queries);
+	}
+
+	public T getByQuery(UnaryOperator<SearchRequest.Builder> operator, QueryBuilder<T> queries) throws IOException {
 		return api.getByQuery(operator, queries);
 	}
 
-	protected long count(Query... queries) throws IOException {
+	public long count(Query... queries) throws IOException {
 		return api.count(queries);
 	}
 
-	protected HitsMetadata<T> search(Query... queries) throws IOException {
+	public long count(QueryBuilder<T> queries) throws IOException {
+		return api.count(queries);
+	}
+
+	public HitsMetadata<T> search(Query... queries) throws IOException {
 		return api.search(queries);
 	}
 
-	protected HitsMetadata<T> search(UnaryOperator<SearchRequest.Builder> operator, Query... queries)
+	public HitsMetadata<T> search(QueryBuilder<T> queries) throws IOException {
+		return api.search(queries);
+	}
+
+	public HitsMetadata<T> search(UnaryOperator<SearchRequest.Builder> operator, QueryBuilder<T> queries)
 			throws IOException {
 		return api.search(operator, queries);
 	}
 
-	protected List<SortOptions> ofLimitSort(Collection<PaginationParams.Sort> sorts) {
+	public List<SortOptions> ofLimitSort(Collection<PaginationParams.Sort> sorts) {
 		return api.ofLimitSort(sorts);
 	}
 
-	protected PaginationResult<T> page(PaginationParams params, Query... queries) throws IOException {
+	public PaginationResult<T> page(PaginationParams params, QueryBuilder<T> queries) throws IOException {
 		return api.page(params, queries);
 	}
 
-	protected void aggs(BiConsumer<String, Aggregate> consumer, Map<String, Aggregation> aggregationMap,
-			Query... queries) throws IOException {
+	public void aggs(BiConsumer<String, Aggregate> consumer, Map<String, Aggregation> aggregationMap,
+			QueryBuilder<T> queries) throws IOException {
 		api.aggs(consumer, aggregationMap, queries);
 	}
 
-	protected void aggs(UnaryOperator<SearchRequest.Builder> operator, BiConsumer<String, Aggregate> consumer,
-			Map<String, Aggregation> aggregationMap, Query... queries) throws IOException {
+	public void aggs(UnaryOperator<SearchRequest.Builder> operator, BiConsumer<String, Aggregate> consumer,
+			Map<String, Aggregation> aggregationMap, QueryBuilder<T> queries) throws IOException {
 		api.aggs(operator, consumer, aggregationMap, queries);
 	}
 
-	protected void aggs(UnaryOperator<SearchRequest.Builder> operator, Consumer<SearchResponse<T>> consumer,
-			Map<String, Aggregation> aggregationMap, Query... queries) throws IOException {
+	public void aggs(UnaryOperator<SearchRequest.Builder> operator, Consumer<SearchResponse<T>> consumer,
+			Map<String, Aggregation> aggregationMap, QueryBuilder<T> queries) throws IOException {
 		api.aggs(operator, consumer, aggregationMap, queries);
 	}
 
-	protected boolean update(String documentId, Function<Script.Builder, ObjectBuilder<Script>> scriptOperator)
+	public boolean update(String documentId, Function<Script.Builder, ObjectBuilder<Script>> scriptOperator)
 			throws IOException {
 		return api.update(documentId, scriptOperator);
 	}
 
-	protected boolean update(String documentId, Script script) throws IOException {
+	public boolean update(String documentId, Script script) throws IOException {
 		return api.update(documentId, script);
 	}
 
-	protected boolean update(UnaryOperator<UpdateRequest.Builder<T, T>> operator, String documentId, Script script)
+	public boolean update(UnaryOperator<UpdateRequest.Builder<T, T>> operator, String documentId, Script script)
 			throws IOException {
 		return api.update(operator, documentId, script);
 	}
 
-	protected boolean update(T t) throws IOException {
+	public boolean update(T t) throws IOException {
 		return api.update(t);
 	}
 
-	protected boolean upsert(T doc) throws IOException {
+	public boolean upsert(T doc) throws IOException {
 		return api.upsert(doc);
 	}
 
-	protected boolean upsert(T doc, Script script) throws IOException {
+	public boolean upsert(T doc, Script script) throws IOException {
 		return api.upsert(doc, script);
 	}
 
-	protected boolean update(UnaryOperator<UpdateRequest.Builder<T, T>> operator, String documentId)
-			throws IOException {
+	public boolean update(UnaryOperator<UpdateRequest.Builder<T, T>> operator, String documentId) throws IOException {
 		return api.update(operator, documentId);
 	}
 
-	protected boolean updateByQuery(Function<Script.Builder, ObjectBuilder<Script>> scriptOperator, Query... queries)
-			throws IOException {
-		return api.updateByQuery(scriptOperator, queries);
-	}
-
-	protected boolean updateByQuery(Script script, Query... queries) throws IOException {
+	public boolean updateByQuery(Script script, Query... queries) throws IOException {
 		return api.updateByQuery(script, queries);
 	}
 
-	protected boolean updateByQuery(UnaryOperator<UpdateByQueryRequest.Builder> operator, Script script,
-			Query... queries) throws IOException {
+	public boolean updateByQuery(Function<Script.Builder, ObjectBuilder<Script>> scriptOperator,
+			QueryBuilder<T> queries) throws IOException {
+		return api.updateByQuery(scriptOperator, queries);
+	}
+
+	public boolean updateByQuery(Script script, QueryBuilder<T> queries) throws IOException {
+		return api.updateByQuery(script, queries);
+	}
+
+	public boolean updateByQuery(UnaryOperator<UpdateByQueryRequest.Builder> operator, Script script,
+			QueryBuilder<T> queries) throws IOException {
 		return api.updateByQuery(operator, script, queries);
 	}
 
-	protected BulkResponse bulk(BulkOperation... operations) throws IOException {
+	public BulkResponse bulk(BulkOperation... operations) throws IOException {
 		return api.bulk(operations);
 	}
 
-	protected BulkResponse bulk(List<BulkOperation> operations) throws IOException {
+	public BulkResponse bulk(List<BulkOperation> operations) throws IOException {
 		return api.bulk(operations);
 	}
 
-	protected BulkResponse bulk(UnaryOperator<BulkRequest.Builder> operator, List<BulkOperation> operations)
+	public BulkResponse bulk(UnaryOperator<BulkRequest.Builder> operator, List<BulkOperation> operations)
 			throws IOException {
 		return api.bulk(operator, operations);
 	}
 
-	protected void save(T t) throws IOException {
+	public void save(T t) throws IOException {
 		api.save(t);
 	}
 
-	protected void saveBatch(Collection<T> collection) throws IOException {
+	public void saveBatch(Collection<T> collection) throws IOException {
 		api.saveBatch(collection);
 	}
 
-	protected void saveBatch(UnaryOperator<BulkRequest.Builder> operator, Collection<T> collection) throws IOException {
+	public void saveBatch(UnaryOperator<BulkRequest.Builder> operator, Collection<T> collection) throws IOException {
 		api.saveBatch(operator, collection);
 	}
 
-	protected boolean deleteByQuery(Query... queries) throws IOException {
+	public <E> BulkResponse batch(Collection<E> collection, Function<E, BulkOperation> function) throws IOException {
+		return api.batch(collection, function);
+	}
+
+	public <E> BulkResponse batch(UnaryOperator<BulkRequest.Builder> operator, Collection<E> collection,
+			Function<E, BulkOperation> function) throws IOException {
+		return api.batch(operator, collection, function);
+	}
+
+	public boolean deleteByQuery(Query... queries) throws IOException {
 		return api.deleteByQuery(queries);
 	}
 
-	protected boolean deleteByQuery(UnaryOperator<DeleteByQueryRequest.Builder> operator, Query... queries)
+	public boolean deleteByQuery(QueryBuilder<T> queries) throws IOException {
+		return api.deleteByQuery(queries);
+	}
+
+	public boolean deleteByQuery(UnaryOperator<DeleteByQueryRequest.Builder> operator, QueryBuilder<T> queries)
 			throws IOException {
 		return api.deleteByQuery(operator, queries);
 	}
 
-	protected List<T> list(Query... queries) throws IOException {
+	public List<T> list(Query... queries) throws IOException {
 		return api.list(queries);
 	}
 
-	protected List<T> list(UnaryOperator<SearchRequest.Builder> operator, Query... queries) throws IOException {
+	public List<T> list(QueryBuilder<T> queries) throws IOException {
+		return api.list(queries);
+	}
+
+	public List<T> list(UnaryOperator<SearchRequest.Builder> operator, Query... queries) throws IOException {
 		return api.list(operator, queries);
 	}
 
-	protected ScrollResult<T, String> scroll(ScrollParams<String> params, Query... queries) throws IOException {
+	public List<T> list(UnaryOperator<SearchRequest.Builder> operator, QueryBuilder<T> queries) throws IOException {
+		return api.list(operator, queries);
+	}
+
+	public ScrollResult<T, String> scroll(ScrollParams<String> params, Query... queries) throws IOException {
 		return api.scroll(params, queries);
 	}
 
-	protected ScrollResult<T, String> scroll(UnaryOperator<SearchRequest.Builder> operator, ScrollParams<String> params,
-			Query... queries) throws IOException {
+	public ScrollResult<T, String> scroll(ScrollParams<String> params, QueryBuilder<T> queries) throws IOException {
+		return api.scroll(params, queries);
+	}
+
+	public ScrollResult<T, String> scroll(UnaryOperator<SearchRequest.Builder> operator, ScrollParams<String> params,
+			QueryBuilder<T> queries) throws IOException {
 		return api.scroll(operator, params, queries);
 	}
 
-	protected ScrollResult<T, String> scroll(UnaryOperator<ScrollRequest.Builder> operator, String scrollId)
+	public ScrollResult<T, String> scroll(UnaryOperator<ScrollRequest.Builder> operator, String scrollId)
 			throws IOException {
 		return api.scroll(operator, scrollId);
 	}
 
-	protected void clearScroll(String scrollId) throws IOException {
+	public void clearScroll(String scrollId) throws IOException {
 		api.clearScroll(scrollId);
 	}
 
-	protected LimitCursor<T> pageCursor(PaginationParams params, Query... queries) {
+	public LimitCursor<T> pageCursor(PaginationParams params, Query... queries) {
 		return api.pageCursor(params, queries);
 	}
 
-	protected ScrollCursor<T, String> scrollCursor(ScrollParams<String> params, Query... queries) throws IOException {
+	public LimitCursor<T> pageCursor(PaginationParams params, QueryBuilder<T> queries) {
+		return api.pageCursor(params, queries);
+	}
+
+	public ScrollCursor<T, String> scrollCursor(ScrollParams<String> params, Query... queries) throws IOException {
+		return api.scrollCursor(params, queries);
+	}
+
+	public ScrollCursor<T, String> scrollCursor(ScrollParams<String> params, QueryBuilder<T> queries)
+			throws IOException {
 		return api.scrollCursor(params, queries);
 	}
 
