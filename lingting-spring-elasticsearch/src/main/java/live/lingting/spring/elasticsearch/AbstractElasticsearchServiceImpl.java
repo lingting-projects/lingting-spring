@@ -38,6 +38,7 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
 import static live.lingting.framework.elasticsearch.ElasticsearchUtils.getEntityClass;
@@ -70,6 +71,42 @@ public abstract class AbstractElasticsearchServiceImpl<T> {
 
 	public QueryBuilder<T> query() {
 		return QueryBuilder.builder();
+	}
+
+	public void tryIgnore(ThrowingRunnable runnable) {
+		try {
+			runnable.run();
+		}
+		catch (Exception ignore) {
+			//
+		}
+	}
+
+	public <R> R tryElse(ThrowingSupplier<R> supplier, R defaultValue) {
+		try {
+			return supplier.get();
+		}
+		catch (Exception e) {
+			return defaultValue;
+		}
+	}
+
+	public <R> R tryGet(ThrowingSupplier<R> supplier, Supplier<R> defaultValue) {
+		try {
+			return supplier.get();
+		}
+		catch (Exception e) {
+			return defaultValue.get();
+		}
+	}
+
+	public <R> R tryGet(ThrowingSupplier<R> supplier, Function<Exception, R> defaultValue) {
+		try {
+			return supplier.get();
+		}
+		catch (Exception e) {
+			return defaultValue.apply(e);
+		}
 	}
 
 	// endregion
