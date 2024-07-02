@@ -77,27 +77,17 @@ public abstract class AbstractElasticsearchServiceImpl<T> {
 		try {
 			runnable.run();
 		}
-		catch (Exception ignore) {
-			//
+		catch (Exception e) {
+			log.warn("ignore error: {}", e.getMessage());
 		}
 	}
 
 	public <R> R tryElse(ThrowingSupplier<R> supplier, R defaultValue) {
-		try {
-			return supplier.get();
-		}
-		catch (Exception e) {
-			return defaultValue;
-		}
+		return tryGet(supplier, () -> defaultValue);
 	}
 
 	public <R> R tryGet(ThrowingSupplier<R> supplier, Supplier<R> defaultValue) {
-		try {
-			return supplier.get();
-		}
-		catch (Exception e) {
-			return defaultValue.get();
-		}
+		return tryGet(supplier, e -> defaultValue.get());
 	}
 
 	public <R> R tryGet(ThrowingSupplier<R> supplier, Function<Exception, R> defaultValue) {
@@ -105,6 +95,7 @@ public abstract class AbstractElasticsearchServiceImpl<T> {
 			return supplier.get();
 		}
 		catch (Exception e) {
+			log.warn("try error: {}", e.getMessage());
 			return defaultValue.apply(e);
 		}
 	}
