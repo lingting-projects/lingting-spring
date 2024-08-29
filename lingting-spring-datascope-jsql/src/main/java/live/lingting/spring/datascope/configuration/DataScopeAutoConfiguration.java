@@ -5,7 +5,6 @@ import live.lingting.framework.datascope.handler.DataPermissionHandler;
 import live.lingting.framework.datascope.handler.DefaultDataPermissionHandler;
 import live.lingting.framework.datascope.parser.DataScopeParser;
 import live.lingting.framework.datascope.parser.DefaultDataScopeParser;
-import live.lingting.framework.util.ClassUtils;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -27,11 +26,6 @@ public class DataScopeAutoConfiguration {
 	@Bean
 	@ConditionalOnMissingBean
 	public DataScopeParser dataScopeParser() {
-		// 如果使用底本jsql
-		if (ClassUtils.isPresent("net.sf.jsqlparser.statement.select.SelectBody",
-				DataScopeParser.class.getClassLoader())) {
-			return new JsqlLowerDataScopeParser();
-		}
 		return new DefaultDataScopeParser();
 	}
 

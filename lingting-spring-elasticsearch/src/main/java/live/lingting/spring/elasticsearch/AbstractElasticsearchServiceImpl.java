@@ -159,6 +159,10 @@ public abstract class AbstractElasticsearchServiceImpl<T> {
 		return api.ofLimitSort(sorts);
 	}
 
+	public PaginationResult<T> page(PaginationParams params) throws IOException {
+		return api.page(params, QueryBuilder.builder());
+	}
+
 	public PaginationResult<T> page(PaginationParams params, QueryBuilder<T> queries) throws IOException {
 		return api.page(params, queries);
 	}

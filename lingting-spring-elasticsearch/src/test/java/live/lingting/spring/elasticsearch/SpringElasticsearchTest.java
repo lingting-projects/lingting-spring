@@ -31,7 +31,8 @@ class SpringElasticsearchTest {
 	@SneakyThrows
 	@Test
 	void test() {
-		List<Entity> list = service.page(new PaginationParams(1, 10, null)).getRecords();
+		PaginationParams params = new PaginationParams();
+		List<Entity> list = service.page(params).getRecords();
 		assertFalse(list.isEmpty());
 		handler.enable();
 		Entity byQuery = service.getByQuery();

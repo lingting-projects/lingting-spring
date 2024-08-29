@@ -1,12 +1,9 @@
 dependencyResolutionManagement {
     val frameworkVersion = "2024.01.24-SNAPSHOT"
-    val jSqlParserLowerVersion = "4.6"
-    val redissonVersion = "3.27.2"
+    val redissonVersion = "3.34.1"
 
     versionCatalogs {
         create("libs") {
-            version("jSqlParserLower", jSqlParserLowerVersion)
-
             library("frameworkDependencies", "live.lingting.framework", "lingting-dependencies").version(frameworkVersion)
             library("redisson", "org.redisson", "redisson-spring-boot-starter").version(redissonVersion)
         }
