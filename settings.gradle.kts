@@ -1,5 +1,5 @@
 dependencyResolutionManagement {
-    val frameworkVersion = "2024.01.24-SNAPSHOT"
+    val frameworkVersion = "2024.01.24-Bata-1"
     val redissonVersion = "3.34.1"
 
     versionCatalogs {
