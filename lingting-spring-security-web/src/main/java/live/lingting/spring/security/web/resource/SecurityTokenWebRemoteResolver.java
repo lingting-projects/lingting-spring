@@ -1,7 +1,7 @@
 package live.lingting.spring.security.web.resource;
 
 import live.lingting.framework.Sequence;
-import live.lingting.framework.http.HttpDelegateClient;
+import live.lingting.framework.http.HttpClient;
 import live.lingting.framework.security.convert.SecurityConvert;
 import live.lingting.framework.security.domain.AuthorizationVO;
 import live.lingting.framework.security.domain.SecurityScope;
@@ -19,7 +19,7 @@ import java.net.http.HttpRequest;
  */
 public class SecurityTokenWebRemoteResolver implements SecurityTokenResolver, Sequence {
 
-	protected final HttpDelegateClient<?> client;
+	protected final HttpClient client;
 
 	protected final URI urlResolve;
 
@@ -27,7 +27,7 @@ public class SecurityTokenWebRemoteResolver implements SecurityTokenResolver, Se
 
 	protected final SecurityWebProperties properties;
 
-	public SecurityTokenWebRemoteResolver(String host, HttpDelegateClient<?> client, SecurityConvert convert,
+	public SecurityTokenWebRemoteResolver(String host, HttpClient client, SecurityConvert convert,
 			SecurityWebProperties properties) {
 		this.client = client;
 		this.urlResolve = URI.create(join(host, "authorization/resolve"));

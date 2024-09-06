@@ -1,7 +1,7 @@
 package live.lingting.spring.security.web.configuration;
 
 import jakarta.servlet.DispatcherType;
-import live.lingting.framework.http.HttpDelegateClient;
+import live.lingting.framework.http.HttpClient;
 import live.lingting.framework.security.authorize.SecurityAuthorize;
 import live.lingting.framework.security.convert.SecurityConvert;
 import live.lingting.framework.security.properties.SecurityProperties;
@@ -37,7 +37,7 @@ public class SecurityWebResourceAutoConfiguration {
 	@ConditionalOnUsingRemoteAuthorization
 	public SecurityTokenWebRemoteResolver securityTokenWebRemoteResolver(SecurityProperties properties,
 			SecurityConvert convert, SecurityWebProperties webProperties) {
-		HttpDelegateClient.Builder<?, ?, ?> builder = HttpDelegateClient.okhttp()
+		HttpClient.Builder<?, ?> builder = HttpClient.okhttp()
 			.disableSsl()
 			.timeout(Duration.ofSeconds(5), Duration.ofSeconds(10));
 

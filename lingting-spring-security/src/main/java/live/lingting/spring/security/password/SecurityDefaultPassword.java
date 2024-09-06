@@ -1,32 +1,31 @@
 package live.lingting.spring.security.password;
 
-import live.lingting.framework.cipher.AES;
-import live.lingting.framework.cipher.AbstractCrypt;
+import live.lingting.framework.crypto.cipher.Cipher;
 import live.lingting.framework.security.password.SecurityPassword;
 import live.lingting.framework.util.StringUtils;
-import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 /**
  * @author lingting 2024-02-05 17:26
  */
-@RequiredArgsConstructor
 public class SecurityDefaultPassword implements SecurityPassword {
 
-	private final String securityKey;
+	protected final String securityKey;
 
-	private final AES front = AES.builder().cbc().pkcs7().build();
+	protected final Cipher front;
 
-	private final BCryptPasswordEncoder encode = new BCryptPasswordEncoder();
+	protected final BCryptPasswordEncoder encode;
+
+	public SecurityDefaultPassword(String securityKey) {
+		this.securityKey = securityKey;
+		this.front = Cipher.aesBuilder().secret(securityKey).iv(securityKey).cbc().pkcs7().build();
+		this.encode = new BCryptPasswordEncoder();
+	}
 
 	@Override
 	public boolean valid(String plaintext) {
 		return StringUtils.hasText(plaintext);
-	}
-
-	<T extends AbstractCrypt<T>> T fill(T t) {
-		return t.secret(securityKey).iv(securityKey);
 	}
 
 	/**
@@ -35,7 +34,7 @@ public class SecurityDefaultPassword implements SecurityPassword {
 	@SneakyThrows
 	@Override
 	public String encodeFront(String plaintext) {
-		return fill(front.encrypt()).base64(plaintext);
+		return front.encryptBase64(plaintext);
 	}
 
 	/**
@@ -44,7 +43,7 @@ public class SecurityDefaultPassword implements SecurityPassword {
 	@SneakyThrows
 	@Override
 	public String decodeFront(String ciphertext) {
-		return fill(front.decrypt()).base64(ciphertext);
+		return front.decryptBase64(ciphertext);
 	}
 
 	/**
