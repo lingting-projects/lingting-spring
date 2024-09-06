@@ -77,7 +77,7 @@ public abstract class AbstractElasticsearchServiceImpl<T> {
 		try {
 			runnable.run();
 		}
-		catch (Exception e) {
+		catch (Throwable e) {
 			log.warn("ignore error: {}", e.getMessage());
 		}
 	}
@@ -90,11 +90,11 @@ public abstract class AbstractElasticsearchServiceImpl<T> {
 		return tryGet(supplier, e -> defaultValue.get());
 	}
 
-	public <R> R tryGet(ThrowingSupplier<R> supplier, Function<Exception, R> defaultValue) {
+	public <R> R tryGet(ThrowingSupplier<R> supplier, Function<Throwable, R> defaultValue) {
 		try {
 			return supplier.get();
 		}
-		catch (Exception e) {
+		catch (Throwable e) {
 			log.warn("try error: {}", e.getMessage());
 			return defaultValue.apply(e);
 		}
