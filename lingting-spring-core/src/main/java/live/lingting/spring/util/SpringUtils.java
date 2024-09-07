@@ -3,9 +3,11 @@ package live.lingting.spring.util;
 import jakarta.annotation.Resource;
 import live.lingting.framework.reflect.ClassField;
 import live.lingting.framework.util.ClassUtils;
+import live.lingting.framework.util.CollectionUtils;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.UtilityClass;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
@@ -26,6 +28,20 @@ public class SpringUtils {
 	@Setter
 	@Getter
 	private static ApplicationContext context;
+
+	public static boolean hasBean(String name) {
+		return context.containsBean(name);
+	}
+
+	public static boolean hasBean(Class<?> cls) {
+		try {
+			Map<String, ?> map = getBeansOfType(cls);
+			return !CollectionUtils.isEmpty(map);
+		}
+		catch (NoSuchBeanDefinitionException e) {
+			return false;
+		}
+	}
 
 	public static <T> T getBean(String name) {
 		return (T) context.getBean(name);

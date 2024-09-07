@@ -6,12 +6,15 @@ import live.lingting.framework.security.resolver.SecurityTokenDefaultResolver;
 import live.lingting.framework.security.resolver.SecurityTokenResolver;
 import live.lingting.framework.security.resource.SecurityDefaultResourceServiceImpl;
 import live.lingting.framework.security.resource.SecurityResourceService;
+import live.lingting.framework.security.store.SecurityMemoryStore;
 import live.lingting.framework.security.store.SecurityStore;
 import live.lingting.spring.security.conditional.ConditionalOnUsingLocalAuthorization;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author lingting 2023-03-29 21:09
@@ -32,8 +35,10 @@ public class SecurityResourceConfiguration {
 
 	@Bean
 	@ConditionalOnUsingLocalAuthorization
-	public SecurityTokenDefaultResolver securityTokenDefaultResolver(SecurityStore store) {
-		return new SecurityTokenDefaultResolver(store);
+	public SecurityTokenDefaultResolver securityTokenDefaultResolver(ObjectProvider<SecurityStore> provider) {
+		AtomicReference<SecurityStore> store = new AtomicReference<>(new SecurityMemoryStore());
+		provider.ifAvailable(store::set);
+		return new SecurityTokenDefaultResolver(store.get());
 	}
 
 }
