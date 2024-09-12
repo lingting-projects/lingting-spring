@@ -6,7 +6,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
 import live.lingting.framework.util.FileUtils;
 import live.lingting.framework.util.StreamUtils;
-import live.lingting.framework.util.SystemUtils;
 import lombok.Getter;
 
 import java.io.BufferedReader;
@@ -25,7 +24,7 @@ import java.util.Map;
  */
 public class RepeatBodyRequestWrapper extends HttpServletRequestWrapper implements Closeable {
 
-	public static final File TMP_DIR = new File(SystemUtils.tmpDirLingting(), "request");
+	public static final File TMP_DIR = FileUtils.createTempDir("request");
 
 	@Getter
 	private final File bodyFile;
@@ -37,20 +36,8 @@ public class RepeatBodyRequestWrapper extends HttpServletRequestWrapper implemen
 
 	public RepeatBodyRequestWrapper(HttpServletRequest request) throws IOException {
 		super(request);
-		if (!TMP_DIR.exists()) {
-			TMP_DIR.mkdirs();
-		}
-		/*
-		 * spring web 文件类型参数再 org.springframework.web.bind.ServletRequestDataBinder.bind
-		 * 这里处理的. 通过 org.springframework.web.util.WebUtils.getNativeRequest 获取并直接使用
-		 * MultipartRequest 进行处理, 并且内部实现使用的是 parts() 原始数据. 不会受request被规范性覆盖的影响. 这个类仅在
-		 * LogFilter 中进行实例化, 该 filter 优先级高, 不会覆盖 spring web 的
-		 * StandardMultipartHttpServletRequest 实现
-		 *
-		 * 综上, 支持文件类型请求的body复用. 但是目前的实现是否支持对请求中文件的复用未知, 后续有相应的需求时可以进行研究与实现
-		 */
 		paramsMap = request.getParameterMap();
-		bodyFile = File.createTempFile("repeat", ".tmp", TMP_DIR);
+		bodyFile = FileUtils.createTemp(".repeat", TMP_DIR);
 		try (FileOutputStream outputStream = new FileOutputStream(bodyFile)) {
 			StreamUtils.write(request.getInputStream(), outputStream);
 		}
