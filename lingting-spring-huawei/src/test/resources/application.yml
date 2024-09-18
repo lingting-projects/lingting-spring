@@ -1,0 +1,10 @@
+server:
+  port: 0
+
+lingting:
+  huawei:
+    iam:
+      username: username
+    obs:
+      ak: ak
+      acl: public_read
