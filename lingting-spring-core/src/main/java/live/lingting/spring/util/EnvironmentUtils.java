@@ -146,7 +146,7 @@ public class EnvironmentUtils {
 			}
 		}
 		else {
-			target = new MapPropertySource(replaceEnvironment, new HashMap<>(16));
+			target = new MapPropertySource(replaceEnvironment, new HashMap<>());
 			propertySources.addFirst(target);
 		}
 

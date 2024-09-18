@@ -22,7 +22,7 @@ public class SpringTestBean implements ContextComponent {
 
 	@Override
 	public void onApplicationStop() {
-
+		//
 	}
 
 }

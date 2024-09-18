@@ -47,6 +47,7 @@ import static live.lingting.framework.elasticsearch.ElasticsearchUtils.index;
 /**
  * @author lingting 2024-03-08 16:43
  */
+@SuppressWarnings("java:S1181")
 public abstract class AbstractElasticsearchServiceImpl<T> {
 
 	protected final Logger log = org.slf4j.LoggerFactory.getLogger(getClass());
