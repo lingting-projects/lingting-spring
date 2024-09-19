@@ -20,6 +20,11 @@ public class SpringWebProperties {
 
 	private int scopeFilterOrder = Integer.MIN_VALUE;
 
+	/**
+	 * 当spring启用虚拟线程时, web是否使用虚拟线程处理请求
+	 */
+	private Boolean useVirtualThread = true;
+
 	private Pagination pagination = new Pagination();
 
 	@Getter

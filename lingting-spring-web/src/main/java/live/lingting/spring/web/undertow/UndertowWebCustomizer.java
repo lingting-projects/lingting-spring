@@ -6,6 +6,8 @@ import io.undertow.websockets.jsr.WebSocketDeploymentInfo;
 import live.lingting.framework.thread.VirtualThread;
 import live.lingting.framework.util.BooleanUtils;
 import live.lingting.spring.util.EnvironmentUtils;
+import live.lingting.spring.web.properties.SpringWebProperties;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.web.embedded.undertow.UndertowDeploymentInfoCustomizer;
 
@@ -15,7 +17,10 @@ import java.util.concurrent.ExecutorService;
  * @author lingting 2024-03-20 16:01
  */
 @Slf4j
+@RequiredArgsConstructor
 public class UndertowWebCustomizer implements UndertowDeploymentInfoCustomizer {
+
+	private final SpringWebProperties properties;
 
 	@Override
 	public void customize(DeploymentInfo info) {
@@ -39,7 +44,7 @@ public class UndertowWebCustomizer implements UndertowDeploymentInfoCustomizer {
 	protected ExecutorService executor() {
 		String property = EnvironmentUtils.getProperty("spring.threads.virtual.enabled");
 		boolean enabled = BooleanUtils.isTrue(property);
-		return enabled ? VirtualThread.executor() : null;
+		return enabled && properties.getUseVirtualThread() ? VirtualThread.executor() : null;
 	}
 
 }
