@@ -1,0 +1,10 @@
+server:
+  port: 0
+
+lingting:
+  ali:
+    sts:
+      ak: username
+    oss:
+      ak: ak
+      acl: public_read
