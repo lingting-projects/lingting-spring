@@ -8,3 +8,7 @@ lingting:
     oss:
       ak: ak
       acl: public_read
+  aws:
+    s3:
+      ak: ak
+      acl: public_read
