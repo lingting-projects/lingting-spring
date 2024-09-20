@@ -12,7 +12,7 @@ public class ThreadPoolHealthIndicator extends AbstractHealthIndicator {
 
 	@Override
 	protected void doHealthCheck(Health.Builder builder) throws Exception {
-		ThreadPool instance = ThreadPool.instance();
+		ThreadPool.Impl instance = ThreadPool.instance();
 
 		builder.status(instance.isRunning() ? Status.UP : Status.DOWN)
 			.withDetail("CorePoolSize", instance.getCorePoolSize())
