@@ -26,7 +26,7 @@ class SpringHuaweiTest {
 	void test() {
 		assertNotNull(iam);
 		assertNotNull(obsBucket);
-		HuaweiObsObject obsObject = obsBucket.obsObject("key");
+		HuaweiObsObject obsObject = obsBucket.use("key");
 		assertTrue(obsObject.publicUrl().contains("key"));
 	}
 

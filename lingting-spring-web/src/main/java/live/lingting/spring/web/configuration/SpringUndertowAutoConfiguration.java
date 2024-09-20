@@ -2,6 +2,7 @@ package live.lingting.spring.web.configuration;
 
 import io.undertow.Undertow;
 import jakarta.servlet.ServletContext;
+import live.lingting.spring.web.properties.SpringWebProperties;
 import live.lingting.spring.web.undertow.UndertowTimer;
 import live.lingting.spring.web.undertow.UndertowWebCustomizer;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -21,8 +22,8 @@ public class SpringUndertowAutoConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
-	public UndertowWebCustomizer undertowWebCustomizer() {
-		return new UndertowWebCustomizer();
+	public UndertowWebCustomizer undertowWebCustomizer(SpringWebProperties properties) {
+		return new UndertowWebCustomizer(properties);
 	}
 
 	@Bean
