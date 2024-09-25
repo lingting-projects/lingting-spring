@@ -64,7 +64,7 @@ public class SpringWebAutoConfiguration {
 
 	@Bean
 	@Order(Ordered.HIGHEST_PRECEDENCE)
-	public ValidationConfigurationCustomizer validationConfigurationCustomizer() {
+	public ValidationConfigurationCustomizer lingtingSpringValidationConfigurationCustomizer() {
 		return configuration -> configuration.addProperty(FAIL_FAST, "true");
 	}
 
