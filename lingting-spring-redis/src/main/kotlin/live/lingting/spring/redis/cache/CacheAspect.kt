@@ -4,7 +4,7 @@ import java.time.Duration
 import live.lingting.framework.function.ThrowableSupplier
 import live.lingting.spring.redis.Redis
 import live.lingting.spring.redis.properties.RedisProperties
-import live.lingting.spring.util.AspectUtils.getMethod
+import live.lingting.spring.util.AspectUtils.findMethod
 import org.aspectj.lang.ProceedingJoinPoint
 import org.aspectj.lang.annotation.Around
 import org.aspectj.lang.annotation.Aspect
@@ -26,37 +26,36 @@ class CacheAspect(private val redis: Redis, private val properties: RedisPropert
     }
 
     @Around("pointCut()")
-
-    fun around(point: ProceedingJoinPoint): Any {
-        val target = point.getTarget()
-        val method = getMethod(point)
-        val args = point.getArgs()
+    fun around(point: ProceedingJoinPoint): Any? {
+        val target = point.target
+        val method = findMethod(point)
+        val args = point.args
 
         if (method == null) {
             return point.proceed()
         }
 
-        val type = method.getReturnType() as Class<Any>
-        val generator = CacheKeyGenerator(properties.getKeyDelimiter(), target, method, args)
+        val type = method.returnType as Class<Any>
+        val generator = CacheKeyGenerator(properties.keyDelimiter, target, method, args)
         val cached = method.getAnnotation<Cached>(Cached::class.java)
         val cacheClear = method.getAnnotation<CacheClear>(CacheClear::class.java)
         val cacheBatchClear = method.getAnnotation<CacheBatchClear>(CacheBatchClear::class.java)
 
-        var result: Any = null
+        var result: Any? = null
         if (cached != null) {
             val key = generator.cached(cached)
             Assert.hasText(key, "Cached key is required!")
             val ttl = cached.ttl
-            val expireTime: Duration
+            val expireTime: Duration?
             if (ttl > 0) {
                 expireTime = Duration.ofSeconds(ttl)
             } else if (ttl < 0) {
                 expireTime = null
             } else {
-                expireTime = properties.getCacheExpireTime()
+                expireTime = properties.cacheExpireTime
             }
 
-            val cache = redis.cache(expireTime, properties.getLockTimeout(), properties.getLeaseTime())
+            val cache = redis.cache(expireTime, properties.lockTimeout, properties.leaseTime)
 
             val onLockFailure = ThrowableSupplier { cache.get<Any>(key, type) }
             result = if (cached.ifAbsent)

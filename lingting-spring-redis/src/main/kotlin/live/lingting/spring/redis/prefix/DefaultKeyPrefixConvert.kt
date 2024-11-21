@@ -13,7 +13,7 @@ class DefaultKeyPrefixConvert(properties: RedisProperties) : KeyPrefixConvert {
     val bytes: ByteArray
 
     init {
-        this.prefix = properties.getKeyPrefix()
+        this.prefix = properties.keyPrefix
         this.bytes = prefix.toByteArray(StandardCharsets.UTF_8)
     }
 
@@ -26,7 +26,7 @@ class DefaultKeyPrefixConvert(properties: RedisProperties) : KeyPrefixConvert {
             return key
         }
 
-        val target = ByteArray(key!!.size + bytes.size)
+        val target = ByteArray(key.size + bytes.size)
         System.arraycopy(bytes, 0, target, 0, bytes.size)
         System.arraycopy(key, 0, target, bytes.size, key.size)
         return target
@@ -37,7 +37,7 @@ class DefaultKeyPrefixConvert(properties: RedisProperties) : KeyPrefixConvert {
             return key
         }
 
-        if (key!!.size < bytes.size) {
+        if (key.size < bytes.size) {
             return key
         }
 

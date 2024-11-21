@@ -17,7 +17,7 @@ object AspectUtils {
      * @return java.lang.reflect.Method
      */
     @JvmStatic
-    fun getMethod(point: ProceedingJoinPoint): Method? {
+    fun findMethod(point: ProceedingJoinPoint): Method? {
         val signature = point.signature
         if (signature is MethodSignature) {
             return signature.method
@@ -32,8 +32,8 @@ object AspectUtils {
      * @return T 注解类型
      */
     @JvmStatic
-    fun <T : Annotation> getAnnotation(point: ProceedingJoinPoint, cls: Class<T>): T? {
-        val method = getMethod(point)
+    fun <T : Annotation> findAnnotation(point: ProceedingJoinPoint, cls: Class<T>): T? {
+        val method = findMethod(point)
         var t: T? = null
         if (method != null) {
             t = AnnotationUtils.findAnnotation<T>(method, cls)

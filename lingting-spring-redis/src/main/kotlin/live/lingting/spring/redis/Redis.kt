@@ -103,8 +103,8 @@ class Redis(
     }
 
     @JvmOverloads
-    fun cache(expireTime: Duration = properties.getCacheExpireTime(), lockTimeout: Duration = properties.getLockTimeout(), leaseTime: Duration = properties.getLeaseTime()): RedisCache {
-        return RedisCache(this, properties.getNullValue(), expireTime, lockTimeout, leaseTime)
+    fun cache(expireTime: Duration? = properties.cacheExpireTime, lockTimeout: Duration = properties.lockTimeout, leaseTime: Duration = properties.leaseTime): RedisCache {
+        return RedisCache(this, properties.nullValue, expireTime, lockTimeout, leaseTime)
     }
 
 
@@ -114,12 +114,12 @@ class Redis(
 
     // region script
     fun loadScript(script: RepeatRedisScript<*>) {
-        if (!script.isLoad()) {
+        if (!script.isLoad) {
             script.load(redisson)
         }
     }
 
-    fun loadScripts(scripts: MutableCollection<RepeatRedisScript<*>>) {
+    fun loadScripts(scripts: Collection<RepeatRedisScript<*>>) {
         if (isEmpty(scripts)) {
             return
         }
@@ -137,7 +137,7 @@ class Redis(
      * @see [Del Command](http://redis.io/commands/del)
      */
     fun delete(key: String): Boolean {
-        return Boolean.TRUE == template().delete(key)
+        return true == template().delete(key)
     }
 
     /**
@@ -149,7 +149,7 @@ class Redis(
         return delete(Arrays.asList<String>(*keys))
     }
 
-    fun delete(keys: MutableCollection<String>): Long {
+    fun delete(keys: Collection<String>): Long {
         val l = template().delete(keys)
         return if (l == null) 0 else l
     }
@@ -160,8 +160,8 @@ class Redis(
      * @return 如果 key 存在 `true` , 否则返回 `false`
      * @see [Exists Command](http://redis.io/commands/exists)
      */
-    fun exists(key: String): kotlin.Boolean {
-        return Boolean.TRUE == template().hasKey(key)
+    fun exists(key: String): Boolean {
+        return true == template().hasKey(key)
     }
 
     /**
@@ -171,15 +171,15 @@ class Redis(
      * @see [Exists Command](http://redis.io/commands/exists)
      */
     fun exists(vararg keys: String): Long {
-        return exists(Arrays.asList<String>(*keys))
+        return exists(keys.toList())
     }
 
-    fun exists(keys: MutableCollection<String>): Long {
+    fun exists(keys: Collection<String>): Long {
         val l = template().countExistingKeys(keys)
         return if (l == null) 0 else l
     }
 
-    fun expire(key: String, timeout: Duration): kotlin.Boolean {
+    fun expire(key: String, timeout: Duration): Boolean {
         return expire(key, timeout.toSeconds(), TimeUnit.SECONDS)
     }
 
@@ -196,8 +196,8 @@ class Redis(
      * @see [Expire Command](http://redis.io/commands/expire)
      */
     @JvmOverloads
-    fun expire(key: String, timeout: Long, timeUnit: TimeUnit = TimeUnit.SECONDS): kotlin.Boolean {
-        return Boolean.TRUE == template().expire(key, timeout, timeUnit)
+    fun expire(key: String, timeout: Long, timeUnit: TimeUnit = TimeUnit.SECONDS): Boolean {
+        return true == template().expire(key, timeout, timeUnit)
     }
 
     /**
@@ -207,12 +207,12 @@ class Redis(
      * @return 修改成功返回 true
      * @see [ExpireAt Command](https://redis.io/commands/expireat/)
      */
-    fun expireAt(key: String, date: Date): kotlin.Boolean {
-        return Boolean.TRUE == template().expireAt(key, date)
+    fun expireAt(key: String, date: Date): Boolean {
+        return true == template().expireAt(key, date)
     }
 
-    fun expireAt(key: String, expireAt: Instant): kotlin.Boolean {
-        return Boolean.TRUE == template().expireAt(key, expireAt)
+    fun expireAt(key: String, expireAt: Instant): Boolean {
+        return true == template().expireAt(key, expireAt)
     }
 
     /**
@@ -236,7 +236,7 @@ class Redis(
      */
     fun ttl(key: String): Long {
         val l = template().getExpire(key)
-        return if (l == null) 0 else l
+        return l ?: 0
     }
 
     /**
@@ -387,7 +387,7 @@ class Redis(
      * @return values list，当值为空时，该 key 对应的 value 为 null
      * @see [MGet Command](http://redis.io/commands/mget)
      */
-    fun multiGet(keys: MutableCollection<String>): MutableList<String> {
+    fun multiGet(keys: Collection<String>): MutableList<String> {
         return valueOps().multiGet(keys)
     }
 
@@ -403,7 +403,7 @@ class Redis(
      * @param keys keys
      * @return map，key 和 value 的键值对集合，当 value 获取为 null 时，不存入此 map
      */
-    fun multiGetMap(keys: MutableCollection<String>): MutableMap<String, String> {
+    fun multiGetMap(keys: Collection<String>): Map<String, String> {
         return multiGetMap<String>(keys, Function { t: String -> t })
     }
 
@@ -414,7 +414,7 @@ class Redis(
      * @return java.util.Map<java.lang.String></java.lang.String>, T> map，key 和 value 的键值对集合，当 value 获取为 null
      * 时，不存入此 map
      */
-    fun <T> multiGetMap(keys: MutableCollection<String>, convert: Function<String, T>): MutableMap<String, T> {
+    fun <T> multiGetMap(keys: Collection<String>, convert: Function<String, T>): Map<String, T> {
         val map: MutableMap<String, T> = HashMap<String, T>()
         if (isEmpty(keys)) {
             return map
@@ -423,8 +423,8 @@ class Redis(
         if (values == null || isEmpty(values)) {
             return map
         }
-        val keysIterator: MutableIterator<String> = keys!!.iterator()
-        val valuesIterator: MutableIterator<String> = values.iterator()
+        val keysIterator: Iterator<String> = keys.iterator()
+        val valuesIterator: Iterator<String?> = values.iterator()
         while (keysIterator.hasNext()) {
             val key = keysIterator.next()
             val value = valuesIterator.next()
@@ -440,8 +440,8 @@ class Redis(
     /**
      * @see this.multiGetMap
      */
-    fun multiGetMap(vararg keys: String): MutableMap<String, String> {
-        return multiGetMap(Arrays.asList<String>(*keys))
+    fun multiGetMap(vararg keys: String): Map<String, String> {
+        return multiGetMap(keys.toList())
     }
 
     /**
@@ -496,12 +496,12 @@ class Redis(
      * @return boolean
      * @see [SetNX Command](https://redis.io/commands/setnx)
      */
-    fun setIfAbsent(key: String, value: String): kotlin.Boolean {
-        return Boolean.TRUE == valueOps().setIfAbsent(key, value)
+    fun setIfAbsent(key: String, value: String): Boolean {
+        return true == valueOps().setIfAbsent(key, value)
     }
 
-    fun setIfAbsent(key: String, value: String, duration: Duration): kotlin.Boolean {
-        return Boolean.TRUE == valueOps().setIfAbsent(key, value, duration)
+    fun setIfAbsent(key: String, value: String, duration: Duration): Boolean {
+        return true == valueOps().setIfAbsent(key, value, duration)
     }
 
     /**
@@ -512,7 +512,7 @@ class Redis(
      * @return boolean 操作是否成功
      * @see [SetNX Command](https://redis.io/commands/setnx)
      */
-    fun setIfAbsent(key: String, value: String, timeout: Long): kotlin.Boolean {
+    fun setIfAbsent(key: String, value: String, timeout: Long): Boolean {
         return setIfAbsent(key, value, timeout, TimeUnit.SECONDS)
     }
 
@@ -525,15 +525,16 @@ class Redis(
      * @return boolean 操作是否成功
      * @see [SetNX Command](https://redis.io/commands/setnx)
      */
-    fun setIfAbsent(key: String, value: String, timeout: Long, timeUnit: TimeUnit): kotlin.Boolean {
-        return Boolean.TRUE == valueOps().setIfAbsent(key, value, timeout, timeUnit)
+    fun setIfAbsent(key: String, value: String, timeout: Long, timeUnit: TimeUnit): Boolean {
+        return true == valueOps().setIfAbsent(key, value, timeout, timeUnit)
     } // endregion
 
     companion object {
         private val INSTANCE = WaitValue<Redis>()
 
+        @JvmStatic
         fun instance(): Redis {
-            return Redis.INSTANCE.notNull()
+            return INSTANCE.notNull()
         }
     }
 }

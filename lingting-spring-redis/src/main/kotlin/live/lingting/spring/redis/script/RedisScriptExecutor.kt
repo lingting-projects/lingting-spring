@@ -13,55 +13,58 @@ import org.springframework.data.redis.serializer.RedisSerializer
  */
 class RedisScriptExecutor<K>(protected val template: RedisTemplate<K, *>) : DefaultScriptExecutor<K>(template) {
     override fun <T> execute(
-        script: RedisScript<T>, argsSerializer: RedisSerializer<*>, resultSerializer: RedisSerializer<T>,
-        keys: MutableList<K>, vararg args: Any
-    ): T {
+        script: RedisScript<T>,
+        argsSerializer: RedisSerializer<*>,
+        resultSerializer: RedisSerializer<T>,
+        keys: MutableList<K>,
+        vararg args: Any
+    ): T? {
         return template.execute<T>(RedisCallback { connection ->
-            val returnType = ReturnType.fromJavaType(script!!.getResultType())
+            val returnType = ReturnType.fromJavaType(script.getResultType())
             eval<T>(connection, returnType, argsSerializer, resultSerializer, scriptBytes(script), keys, *args)
-        } as RedisCallback<T>)
+        })
     }
 
     fun <T> execute(
         connection: RedisConnection, script: RedisScript<T>, keys: MutableList<K>,
         vararg args: Any
-    ): T {
+    ): T? {
         val returnType = ReturnType.fromJavaType(script.getResultType())
         return eval<T>(connection, returnType, scriptBytes(script), keys, *args)
     }
 
-    fun <T> execute(script: RepeatRedisScript<T>, keys: MutableList<K>, vararg args: Any): T {
-        return template.execute<T>(RedisCallback { connection -> execute<T>(connection!!, script, keys, *args) })
+    fun <T> execute(script: RepeatRedisScript<T>, keys: MutableList<K>, vararg args: Any): T? {
+        return template.execute<T>(RedisCallback { connection -> execute<T>(connection, script, keys, *args) })
     }
 
-    fun <T> execute(connection: RedisConnection, script: RepeatRedisScript<T>, keys: MutableList<K>, vararg args: Any): T {
-        if (script.isLoad()) {
-            return evalSha1<T>(connection, script.getType(), script.getSha1(), keys, *args)
+    fun <T> execute(connection: RedisConnection, script: RepeatRedisScript<T>, keys: MutableList<K>, vararg args: Any): T? {
+        if (script.isLoad) {
+            return evalSha1<T>(connection, script.type, script.sha1, keys, *args)
         }
         val serializer = template.getStringSerializer()
-        val bytes = serializer.serialize(script.getSource())
-        return eval<T>(connection, script.getType(), bytes!!, keys, *args)
+        val bytes = serializer.serialize(script.source)
+        return eval<T>(connection, script.type, bytes!!, keys, *args)
     }
 
     fun <T> eval(
         connection: RedisConnection, returnType: ReturnType, script: ByteArray, keys: MutableList<K>,
         vararg args: Any
-    ): T {
+    ): T? {
         return eval<T>(
-            connection, returnType, template.getValueSerializer(),
-            template.getValueSerializer() as RedisSerializer<T>, script, keys, *args
+            connection, returnType, template.valueSerializer,
+            template.valueSerializer as RedisSerializer<T>, script, keys, *args
         )
     }
 
     fun <T> eval(
         connection: RedisConnection, returnType: ReturnType, argsSerializer: RedisSerializer<*>,
         resultSerializer: RedisSerializer<T>, script: ByteArray, keys: MutableList<K>, vararg args: Any
-    ): T {
+    ): T? {
         val keysAndArgs = keysAndArgs(argsSerializer, keys, args)
         val keySize = keys.size
         val commands = connection.scriptingCommands()
         val result = commands.eval<Any>(script, returnType, keySize, *keysAndArgs)
-        if (connection.isQueueing() || connection.isPipelined() || result == null) {
+        if (connection.isQueueing || connection.isPipelined || result == null) {
             return null
         }
         return deserializeResult<T>(resultSerializer, result)
@@ -70,17 +73,17 @@ class RedisScriptExecutor<K>(protected val template: RedisTemplate<K, *>) : Defa
     fun <T> evalSha1(
         connection: RedisConnection, returnType: ReturnType, sha1: String, keys: MutableList<K>,
         vararg args: Any
-    ): T {
+    ): T? {
         return evalSha1<T>(
             connection, returnType, template.getValueSerializer(),
-            template.getValueSerializer() as RedisSerializer<T>, sha1, keys, *args
+            template.valueSerializer as RedisSerializer<T>, sha1, keys, *args
         )
     }
 
     fun <T> evalSha1(
         connection: RedisConnection, returnType: ReturnType, argsSerializer: RedisSerializer<*>,
         resultSerializer: RedisSerializer<T>, sha1: String, keys: MutableList<K>, vararg args: Any
-    ): T {
+    ): T? {
         val keysAndArgs = keysAndArgs(argsSerializer, keys, args)
         val keySize = keys.size
         val commands = connection.scriptingCommands()

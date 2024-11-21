@@ -30,11 +30,11 @@ class RepeatRedisScript<T> @JvmOverloads constructor(source: String, type: Retur
         this.type = type
     }
 
-    fun execute(keys: MutableList<String>, vararg args: Any): T {
+    fun execute(keys: MutableList<String>, vararg args: Any): T? {
         return Redis.instance().scriptExecutor().execute<T>(this, keys, *args)
     }
 
-    fun execute(connection: RedisConnection, keys: MutableList<String>, vararg args: Any): T {
+    fun execute(connection: RedisConnection, keys: MutableList<String>, vararg args: Any): T? {
         return Redis.instance().scriptExecutor().execute<T>(connection, this, keys, *args)
     }
 

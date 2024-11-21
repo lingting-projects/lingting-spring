@@ -31,31 +31,31 @@ import org.springframework.data.redis.core.ZSetOperations
  */
 @EnableConfigurationProperties(RedisProperties::class)
 @AutoConfiguration(before = [RedissonAutoConfiguration::class, RedissonAutoConfigurationV2::class])
-class SpringRedisAutoConfiguration {
+open class SpringRedisAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
-    fun keyPrefixConvert(properties: RedisProperties): KeyPrefixConvert {
+    open fun keyPrefixConvert(properties: RedisProperties): KeyPrefixConvert {
         return DefaultKeyPrefixConvert(properties)
     }
 
     @Bean
     @ConditionalOnMissingBean
     @ConditionalOnBean(KeyPrefixConvert::class)
-    fun jdkKeyPrefixSerializer(convert: KeyPrefixConvert): JdkKeyPrefixSerializer {
+    open fun jdkKeyPrefixSerializer(convert: KeyPrefixConvert): JdkKeyPrefixSerializer {
         return JdkKeyPrefixSerializer(convert)
     }
 
     @Bean
     @ConditionalOnMissingBean
     @ConditionalOnBean(KeyPrefixConvert::class)
-    fun stringKeyPrefixSerializer(convert: KeyPrefixConvert): StringKeyPrefixSerializer {
+    open fun stringKeyPrefixSerializer(convert: KeyPrefixConvert): StringKeyPrefixSerializer {
         return StringKeyPrefixSerializer(convert)
     }
 
     @Bean
     @ConditionalOnBean(JdkKeyPrefixSerializer::class)
     @ConditionalOnMissingBean(name = ["redisTemplate"])
-    fun redisTemplate(
+    open fun redisTemplate(
         redisConnectionFactory: RedisConnectionFactory,
         serializer: JdkKeyPrefixSerializer
     ): RedisTemplate<Any, Any> {
@@ -68,7 +68,7 @@ class SpringRedisAutoConfiguration {
     @Bean
     @ConditionalOnBean(StringKeyPrefixSerializer::class)
     @ConditionalOnMissingBean(StringRedisTemplate::class)
-    fun stringRedisTemplate(
+    open fun stringRedisTemplate(
         redisConnectionFactory: RedisConnectionFactory,
         serializer: StringKeyPrefixSerializer
     ): StringRedisTemplate {
@@ -80,43 +80,43 @@ class SpringRedisAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    fun hashOps(template: StringRedisTemplate): HashOperations<String, String, String> {
+    open fun hashOps(template: StringRedisTemplate): HashOperations<String, String, String> {
         return template.opsForHash<String, String>()
     }
 
     @Bean
     @ConditionalOnMissingBean
-    fun valueOps(template: StringRedisTemplate): ValueOperations<String, String> {
+    open fun valueOps(template: StringRedisTemplate): ValueOperations<String, String> {
         return template.opsForValue()
     }
 
     @Bean
     @ConditionalOnMissingBean
-    fun listOps(template: StringRedisTemplate): ListOperations<String, String> {
+    open fun listOps(template: StringRedisTemplate): ListOperations<String, String> {
         return template.opsForList()
     }
 
     @Bean
     @ConditionalOnMissingBean
-    fun setOps(template: StringRedisTemplate): SetOperations<String, String> {
+    open fun setOps(template: StringRedisTemplate): SetOperations<String, String> {
         return template.opsForSet()
     }
 
     @Bean
     @ConditionalOnMissingBean
-    fun zSetOps(template: StringRedisTemplate): ZSetOperations<String, String> {
+    open fun zSetOps(template: StringRedisTemplate): ZSetOperations<String, String> {
         return template.opsForZSet()
     }
 
     @Bean
     @ConditionalOnMissingBean
-    fun streamOps(template: StringRedisTemplate): StreamOperations<String, String, String> {
+    open fun streamOps(template: StringRedisTemplate): StreamOperations<String, String, String> {
         return template.opsForStream<String, String>()
     }
 
     @Bean
     @ConditionalOnMissingBean
-    fun redis(
+    open fun redis(
         template: StringRedisTemplate, redisson: Redisson, properties: RedisProperties,
         providers: MutableList<RedisScriptProvider>
     ): Redis {
@@ -126,7 +126,7 @@ class SpringRedisAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     @ConditionalOnBean(Redis::class)
-    fun cacheAspect(redis: Redis, properties: RedisProperties): CacheAspect {
+    open fun cacheAspect(redis: Redis, properties: RedisProperties): CacheAspect {
         return CacheAspect(redis, properties)
     }
 }
