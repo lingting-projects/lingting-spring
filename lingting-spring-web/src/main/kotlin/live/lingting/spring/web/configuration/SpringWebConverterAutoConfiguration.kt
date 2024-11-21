@@ -14,7 +14,7 @@ import org.springframework.core.convert.converter.ConverterRegistry
 @AutoConfiguration
 @ComponentScan("live.lingting.spring.web.converter")
 @ConditionalOnBean(ConverterRegistry::class, ConversionService::class)
-class SpringWebConverterAutoConfiguration(
+open class SpringWebConverterAutoConfiguration(
     service: ConversionService, registry: ConverterRegistry,
     converters: MutableList<Converter<*>>
 ) {
@@ -22,7 +22,7 @@ class SpringWebConverterAutoConfiguration(
         for (converter in converters) {
             registry.addConverter(converter)
             if (converter is AbstractConverter<*>) {
-                converter.setService(service)
+                converter.service = service
             }
         }
     }

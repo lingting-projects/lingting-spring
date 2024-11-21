@@ -23,11 +23,11 @@ class StringToCollectionConverter : AbstractConverter<MutableCollection<Any>>() 
             return true
         }
 
-        return service.canConvert(sourceType, targetDescriptor)
+        return service!!.canConvert(sourceType, targetDescriptor)
     }
 
     @Nullable
-    override fun convert(@Nullable source: Any, sourceType: TypeDescriptor, targetType: TypeDescriptor): MutableCollection<Any> {
+    override fun convert(@Nullable source: Any?, sourceType: TypeDescriptor, targetType: TypeDescriptor): MutableCollection<Any> {
         val fields = toArray(source)
 
         val elementDesc = targetType.getElementTypeDescriptor()
@@ -42,7 +42,7 @@ class StringToCollectionConverter : AbstractConverter<MutableCollection<Any>>() 
             }
         } else {
             for (field in fields) {
-                val targetElement = service.convert(field.trim { it <= ' ' }, sourceType, elementDesc)
+                val targetElement = service!!.convert(field.trim { it <= ' ' }, sourceType, elementDesc)
                 target.add(targetElement)
             }
         }

@@ -8,9 +8,9 @@ import org.springframework.util.StringUtils
  * @author lingting 2022/9/28 11:14
  */
 interface Converter<T> : ConditionalGenericConverter {
-    fun toArray(source: Any): Array<String> {
+    fun toArray(source: Any?): Array<String> {
         if (source == null) {
-            return arrayOfNulls<String>(0)
+            return arrayOf()
         }
         var string = (source as String).trim { it <= ' ' }
 
@@ -20,5 +20,6 @@ interface Converter<T> : ConditionalGenericConverter {
         return StringUtils.commaDelimitedListToStringArray(string)
     }
 
-    override fun convert(source: Any, sourceType: TypeDescriptor, targetType: TypeDescriptor): T
+    override fun convert(source: Any?, sourceType: TypeDescriptor, targetType: TypeDescriptor): T?
+
 }

@@ -13,18 +13,18 @@ import org.springframework.stereotype.Component
 @Component
 class MoneyConverter : ConditionalGenericConverter {
     override fun matches(sourceType: TypeDescriptor, targetType: TypeDescriptor): Boolean {
-        return Any::class.java.isAssignableFrom(sourceType.getType())
-                && Money::class.java.isAssignableFrom(targetType!!.getType())
+        return Any::class.java.isAssignableFrom(sourceType.type)
+                && Money::class.java.isAssignableFrom(targetType.type)
     }
 
     override fun getConvertibleTypes(): MutableSet<ConvertiblePair> {
         return mutableSetOf<ConvertiblePair>(ConvertiblePair(Any::class.java, Money::class.java))
     }
 
-    override fun convert(source: Any, sourceType: TypeDescriptor, targetType: TypeDescriptor): Any {
+    override fun convert(source: Any?, sourceType: TypeDescriptor, targetType: TypeDescriptor): Any? {
         if (source == null || !hasText(source.toString())) {
             return null
         }
-        return of.of(source.toString())
+        return Money.of(source.toString())
     }
 }

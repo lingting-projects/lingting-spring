@@ -11,31 +11,28 @@ import live.lingting.framework.util.StringUtils.hasText
  * @author lingting 2024-03-20 16:01
  */
 class UndertowTimer(context: ServletContext) : AbstractTimer() {
-    private val file: File
-
-    init {
-        this.file = getFile(context)
-    }
-
+    private val file = getFile(context)
 
     override fun process() {
         try {
-            createDir(file)
-        } catch (e: Exception) {
+            if (file != null) {
+                createDir(file)
+            }
+        } catch (_: Exception) {
             //
         }
     }
 
-    protected fun getFile(context: ServletContext): File {
-        var dir: File = null
+    protected fun getFile(context: ServletContext): File? {
+        var dir: File? = null
         if (context is ServletContextImpl) {
-            val deployment = context.getDeployment()
-            val deploymentInfo = deployment.getDeploymentInfo()
-            val config = deploymentInfo.getDefaultMultipartConfig()
-            if (config != null && hasText(config.getLocation())) {
-                dir = File(config.getLocation())
+            val deployment = context.deployment
+            val deploymentInfo = deployment.deploymentInfo
+            val config = deploymentInfo.defaultMultipartConfig
+            if (config != null && hasText(config.location)) {
+                dir = File(config.location)
             } else {
-                dir = deploymentInfo.getTempDir()
+                dir = deploymentInfo.tempDir
             }
         }
         return dir

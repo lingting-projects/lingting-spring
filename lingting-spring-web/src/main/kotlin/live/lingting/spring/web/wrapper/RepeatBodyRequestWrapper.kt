@@ -20,17 +20,15 @@ import live.lingting.framework.util.StreamUtils.write
  * @author lingting 2024-03-20 15:08
  */
 class RepeatBodyRequestWrapper(request: HttpServletRequest) : HttpServletRequestWrapper(request), Closeable {
-    val bodyFile: File
+    val bodyFile: File = createTemp(".repeat", TMP_DIR)
 
-    private val paramsMap: MutableMap<String, Array<String>>
+    private val paramsMap: MutableMap<String, Array<String>> = request.parameterMap
 
     val closeableList: MutableList<Closeable>
 
     init {
-        paramsMap = request.getParameterMap()
-        bodyFile = createTemp(".repeat", TMP_DIR)
         FileOutputStream(bodyFile).use { outputStream ->
-            write(request.getInputStream(), outputStream)
+            write(request.inputStream, outputStream)
         }
         closeableList = ArrayList<Closeable>()
     }
@@ -85,9 +83,10 @@ class RepeatBodyRequestWrapper(request: HttpServletRequest) : HttpServletRequest
     }
 
     companion object {
+        @JvmField
         val TMP_DIR: File = createTempDir("request")
 
-
+        @JvmStatic
         fun of(request: HttpServletRequest): RepeatBodyRequestWrapper {
             if (request !is RepeatBodyRequestWrapper) {
                 return RepeatBodyRequestWrapper(request)

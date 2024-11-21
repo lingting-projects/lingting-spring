@@ -17,10 +17,10 @@ import org.springframework.context.annotation.Bean
  */
 @ConditionalOnAuthorization
 @AutoConfiguration(before = [SecurityAuthorizationConfiguration::class])
-class SecurityGrpcAuthorizationAutoConfiguration {
+open class SecurityGrpcAuthorizationAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
-    fun securityGrpcAuthorizationServiceImplBase(
+    open fun securityGrpcAuthorizationServiceImplBase(
         service: SecurityAuthorizationService, store: SecurityStore, password: SecurityPassword,
         convert: SecurityGrpcConvert
     ): SecurityGrpcAuthorizationServiceImplBase {

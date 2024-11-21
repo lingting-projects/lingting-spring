@@ -7,10 +7,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties
  */
 @ConfigurationProperties(SpringWebProperties.PREFIX)
 class SpringWebProperties {
-    @JvmField
     var headerTraceId: String = "X-Trace-Id"
 
-    @JvmField
     var headerRequestId: String = "X-Request-Id"
 
     var scopeFilterOrder: Int = Int.MIN_VALUE

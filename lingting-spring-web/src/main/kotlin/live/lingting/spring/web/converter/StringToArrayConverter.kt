@@ -33,15 +33,15 @@ import org.springframework.util.Assert
 @Component
 class StringToArrayConverter : AbstractConverter<Any>() {
     override fun getConvertibleTypes(): MutableSet<ConvertiblePair> {
-        return mutableSetOf<ConvertiblePair>(ConvertiblePair(String::class.java, Array<Any>::class.java))
+        return mutableSetOf<ConvertiblePair>(ConvertiblePair(String::class.java, kotlin.Array::class.java))
     }
 
     override fun matches(sourceType: TypeDescriptor, targetType: TypeDescriptor): Boolean {
-        return ConversionUtils.canConvertElements(sourceType, targetType.getElementTypeDescriptor(), service)
+        return ConversionUtils.canConvertElements(sourceType, targetType.getElementTypeDescriptor(), service!!)
     }
 
     @Nullable
-    override fun convert(@Nullable source: Any, sourceType: TypeDescriptor, targetType: TypeDescriptor): Any {
+    override fun convert(@Nullable source: Any?, sourceType: TypeDescriptor, targetType: TypeDescriptor): Any {
         val fields = toArray(source)
 
         val targetElementType = targetType.getElementTypeDescriptor()
@@ -49,7 +49,7 @@ class StringToArrayConverter : AbstractConverter<Any>() {
         val target = Array.newInstance(targetElementType!!.getType(), fields.size)
         for (i in fields.indices) {
             val sourceElement = fields[i]
-            val targetElement = service.convert(sourceElement.trim { it <= ' ' }, sourceType, targetElementType)
+            val targetElement = service!!.convert(sourceElement.trim { it <= ' ' }, sourceType, targetElementType)
             Array.set(target, i, targetElement)
         }
         return target

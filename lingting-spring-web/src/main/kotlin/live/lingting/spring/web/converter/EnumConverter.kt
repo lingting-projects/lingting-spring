@@ -13,9 +13,10 @@ import org.springframework.stereotype.Component
 class EnumConverter : AbstractConverter<Enum<*>>() {
     override fun matches(sourceType: TypeDescriptor, targetType: TypeDescriptor): Boolean {
         // 来源类型判断
-        return (String::class.java.isAssignableFrom(sourceType.getType())
-                || Number::class.java.isAssignableFrom(sourceType.getType())) // 目标类型判断
-                && targetType!!.getType().isEnum()
+        return (String::class.java.isAssignableFrom(sourceType.type)
+                || Number::class.java.isAssignableFrom(sourceType.type))
+                // 目标类型判断
+                && targetType.type.isEnum
     }
 
     override fun getConvertibleTypes(): MutableSet<ConvertiblePair> {
@@ -25,19 +26,19 @@ class EnumConverter : AbstractConverter<Enum<*>>() {
         return set
     }
 
-    override fun convert(source: Any, sourceType: TypeDescriptor, targetType: TypeDescriptor): Enum<*> {
+    override fun convert(source: Any?, sourceType: TypeDescriptor, targetType: TypeDescriptor): Enum<*>? {
         var source = source
         if (source == null) {
             return null
         }
 
-        val cf = getCf(targetType!!.getType())
+        val cf = getCf(targetType.type)
 
         // 来源 转化成 目标类型
         if (cf == null || (convert(source, cf.valueType).also { source = it }) == null) {
             return null
         }
-        for (o in targetType.getType().getEnumConstants()) {
+        for (o in targetType.type.getEnumConstants()) {
             val value = getValue(o as Enum<*>)
             if (source == value) {
                 return o as Enum<*>

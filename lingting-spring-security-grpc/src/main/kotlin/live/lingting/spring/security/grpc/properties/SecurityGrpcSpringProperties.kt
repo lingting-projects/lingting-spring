@@ -18,6 +18,6 @@ class SecurityGrpcSpringProperties {
     }
 
     companion object {
-        val PREFIX: String = SecuritySpringProperties.PREFIX + ".grpc"
+        const val PREFIX: String = SecuritySpringProperties.PREFIX + ".grpc"
     }
 }

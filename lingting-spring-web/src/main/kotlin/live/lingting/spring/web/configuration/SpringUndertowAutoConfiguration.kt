@@ -18,17 +18,17 @@ import org.springframework.context.annotation.Bean
 @AutoConfiguration
 @ConditionalOnClass(Undertow::class)
 @ConditionalOnBean(UndertowServletWebServerFactory::class)
-class SpringUndertowAutoConfiguration {
+open class SpringUndertowAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
-    fun undertowWebCustomizer(properties: SpringWebProperties): UndertowWebCustomizer {
+    open fun undertowWebCustomizer(properties: SpringWebProperties): UndertowWebCustomizer {
         return UndertowWebCustomizer(properties)
     }
 
     @Bean
     @ConditionalOnMissingBean
     @ConditionalOnBean(ServletContext::class)
-    fun undertowTimer(context: ServletContext): UndertowTimer {
+    open fun undertowTimer(context: ServletContext): UndertowTimer {
         return UndertowTimer(context)
     }
 }

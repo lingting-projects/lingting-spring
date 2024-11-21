@@ -1,6 +1,7 @@
 package live.lingting.spring.security.password
 
-import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 /**
@@ -15,15 +16,15 @@ class SecurityDefaultPasswordTest {
 
     @Test
     fun test() {
-        Assertions.assertTrue(password.valid(raw))
+        assertTrue(password.valid(raw))
         val encodeFront = password.encodeFront(raw)
-        println("encodeFront: " + encodeFront)
+        println("encodeFront: $encodeFront")
         val decodeFront = password.decodeFront(encodeFront)
-        println("decodeFront: " + decodeFront)
+        println("decodeFront: $decodeFront")
 
-        Assertions.assertEquals(raw, decodeFront)
+        assertEquals(raw, decodeFront)
         val encode = password.encode(raw)
-        println("encode: " + encode)
-        Assertions.assertTrue(password.match(raw, encode))
+        println("encode: $encode")
+        assertTrue(password.match(raw, encode))
     }
 }

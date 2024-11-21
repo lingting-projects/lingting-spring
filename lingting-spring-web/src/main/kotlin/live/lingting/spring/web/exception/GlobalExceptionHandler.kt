@@ -37,11 +37,11 @@ class GlobalExceptionHandler : AbstractExceptionHandler() {
      */
     @ExceptionHandler(BizException::class)
     fun handle2BizException(e: BizException): ResponseEntity<R<String>> {
-        GlobalExceptionHandler.log.error(
-            "uri: {}, Business error! code: {}; message: {};", WebScopeHolder.uri(), e.getCode(), e.message,
+        log.error(
+            "uri: {}, Business error! code: {}; message: {};", WebScopeHolder.uri(), e.code, e.message,
             e.cause
         )
-        return extract<R<String>>(R.failed<String>(e.getCode(), e.message))
+        return extract<R<String>>(R.failed<String>(e.code, e.message))
     }
 
     /**
@@ -51,7 +51,7 @@ class GlobalExceptionHandler : AbstractExceptionHandler() {
      */
     @ExceptionHandler(NullPointerException::class)
     fun handleNullPointerException(e: NullPointerException): ResponseEntity<R<String>> {
-        GlobalExceptionHandler.log.error("uri: {}, NullPointerException!", WebScopeHolder.uri(), e)
+        log.error("uri: {}, NullPointerException!", WebScopeHolder.uri(), e)
         return extract<R<String>>(R.failed<String>(ApiResultCode.SERVER_ERROR))
     }
 
@@ -62,7 +62,7 @@ class GlobalExceptionHandler : AbstractExceptionHandler() {
      */
     @ExceptionHandler(MethodArgumentTypeMismatchException::class)
     fun handleMethodArgumentTypeMismatchException(e: Exception): ResponseEntity<R<String>> {
-        GlobalExceptionHandler.log.error("uri: {}, ArgumentTypeMismatchException! {}", WebScopeHolder.uri(), e.message)
+        log.error("uri: {}, ArgumentTypeMismatchException! {}", WebScopeHolder.uri(), e.message)
         return extract<R<String>>(R.failed<String>(ApiResultCode.SERVER_PARAM_CONVERT_ERROR))
     }
 
@@ -72,7 +72,7 @@ class GlobalExceptionHandler : AbstractExceptionHandler() {
      */
     @ExceptionHandler(HttpMediaTypeNotSupportedException::class, HttpRequestMethodNotSupportedException::class)
     fun requestNotSupportedException(e: Exception): ResponseEntity<R<String>> {
-        GlobalExceptionHandler.log.error("uri: {}, MethodNotSupportedException! {}", WebScopeHolder.uri(), e.message)
+        log.error("uri: {}, MethodNotSupportedException! {}", WebScopeHolder.uri(), e.message)
         return extract<R<String>>(R.failed<String>(ApiResultCode.SERVER_METHOD_ERROR))
     }
 
@@ -83,7 +83,7 @@ class GlobalExceptionHandler : AbstractExceptionHandler() {
      */
     @ExceptionHandler(IllegalArgumentException::class)
     fun handleIllegalArgumentException(e: IllegalArgumentException): ResponseEntity<R<String>> {
-        GlobalExceptionHandler.log.error("uri: {}, IllegalArgumentException! {}", WebScopeHolder.uri(), e.message)
+        log.error("uri: {}, IllegalArgumentException! {}", WebScopeHolder.uri(), e.message)
         return extract<R<String>>(R.failed<String>(ApiResultCode.SERVER_PARAM_INVALID_ERROR))
     }
 
@@ -94,18 +94,18 @@ class GlobalExceptionHandler : AbstractExceptionHandler() {
      */
     @ExceptionHandler(ValidationException::class, MethodArgumentNotValidException::class, BindException::class)
     fun handleValidationException(e: Exception): ResponseEntity<R<String>> {
-        var message = e.getLocalizedMessage()
-        var fe: FieldError = null
+        var message = e.localizedMessage
+        var fe: FieldError? = null
         if (e is MethodArgumentNotValidException) {
-            fe = e.getFieldError()
+            fe = e.fieldError
         } else if (e is BindException) {
-            fe = e.getFieldError()
+            fe = e.fieldError
         }
 
         if (fe != null) {
-            message = fe.getDefaultMessage()
+            message = fe.defaultMessage
         }
-        GlobalExceptionHandler.log.error("uri: {}, ValidationException! {}", WebScopeHolder.uri(), e.message)
+        log.error("uri: {}, ValidationException! {}", WebScopeHolder.uri(), e.message)
         return extract<R<String>>(R.failed<String>(ApiResultCode.PARAMS_ERROR, message!!))
     }
 
@@ -114,7 +114,7 @@ class GlobalExceptionHandler : AbstractExceptionHandler() {
      */
     @ExceptionHandler(ConversionFailedException::class)
     fun handlerConversionFailedException(e: ConversionFailedException): ResponseEntity<R<String>> {
-        GlobalExceptionHandler.log.error("uri: {}; ConversionFailedException!", WebScopeHolder.uri(), e)
+        log.error("uri: {}; ConversionFailedException!", WebScopeHolder.uri(), e)
         return extract<R<String>>(R.failed<String>(ApiResultCode.PARAMS_ERROR))
     }
 
@@ -125,7 +125,7 @@ class GlobalExceptionHandler : AbstractExceptionHandler() {
      */
     @ExceptionHandler(HttpMessageNotReadableException::class)
     fun handleHttpBodyException(e: HttpMessageNotReadableException): ResponseEntity<R<String>> {
-        GlobalExceptionHandler.log.error("uri: {}, HttpBodyException! {}", WebScopeHolder.uri(), e.message)
+        log.error("uri: {}, HttpBodyException! {}", WebScopeHolder.uri(), e.message)
         return extract<R<String>>(R.failed<String>(ApiResultCode.PARAM_BODY_ERROR))
     }
 
@@ -136,7 +136,7 @@ class GlobalExceptionHandler : AbstractExceptionHandler() {
      */
     @ExceptionHandler(MissingServletRequestParameterException::class)
     fun handleParamsMissingException(e: MissingServletRequestParameterException): ResponseEntity<R<String>> {
-        GlobalExceptionHandler.log.error("uri: {}, ParamsMissingException! {}", WebScopeHolder.uri(), e.message)
+        log.error("uri: {}, ParamsMissingException! {}", WebScopeHolder.uri(), e.message)
         return extract<R<String>>(R.failed<String>(ApiResultCode.PARAM_MISSING_ERROR))
     }
 
@@ -155,13 +155,13 @@ class GlobalExceptionHandler : AbstractExceptionHandler() {
     fun handlerSQLIntegrityConstraintViolationException(
         e: SQLIntegrityConstraintViolationException
     ): ResponseEntity<R<String>> {
-        GlobalExceptionHandler.log.error("uri: {}; SQLIntegrityConstraintViolationException! {}", WebScopeHolder.uri(), e.message)
+        log.error("uri: {}; SQLIntegrityConstraintViolationException! {}", WebScopeHolder.uri(), e.message)
         return extract<R<String>>(R.failed<String>(ApiResultCode.DB_CONSTRAINT_VIOLATION_ERROR))
     }
 
     @ExceptionHandler(NoResourceFoundException::class)
     fun handlerNoResourceFoundException(e: NoResourceFoundException): ResponseEntity<R<String>> {
-        GlobalExceptionHandler.log.warn("uri: {}, NoResourceFoundException! {}", WebScopeHolder.uri(), e.message)
+        log.warn("uri: {}, NoResourceFoundException! {}", WebScopeHolder.uri(), e.message)
         return extract<R<String>>(R.failed<String>(ApiResultCode.NOT_FOUND))
     }
 
@@ -178,12 +178,12 @@ class GlobalExceptionHandler : AbstractExceptionHandler() {
      */
     @ExceptionHandler(NoHandlerFoundException::class)
     fun handlerNoHandlerFoundException(e: NoHandlerFoundException): ResponseEntity<R<String>> {
-        GlobalExceptionHandler.log.warn("uri: {}, NoHandlerFoundException! {}", WebScopeHolder.uri(), e.message)
+        log.warn("uri: {}, NoHandlerFoundException! {}", WebScopeHolder.uri(), e.message)
         return extract<R<String>>(R.failed<String>(ApiResultCode.NOT_FOUND_ERROR))
     }
 
     companion object {
-        val ORDER: Int = -100
+        const val ORDER: Int = -100
 
         private val log: Logger = LoggerFactory.getLogger(GlobalExceptionHandler::class.java)
     }

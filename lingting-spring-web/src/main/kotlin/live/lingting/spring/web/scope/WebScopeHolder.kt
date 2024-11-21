@@ -4,54 +4,57 @@ import jakarta.servlet.http.HttpServletRequest
 import java.util.Optional
 import java.util.function.Function
 import live.lingting.framework.thread.StackThreadLocal
+import live.lingting.framework.util.HttpUtils
 import live.lingting.framework.util.IpUtils.getFirstIp
 
 /**
  * @author lingting 2024-03-20 15:09
  */
-class WebScopeHolder private constructor() {
-    init {
-        throw UnsupportedOperationException("This is a utility class and cannot be instantiated")
+object WebScopeHolder {
+    val LOCAL: StackThreadLocal<WebScope> = StackThreadLocal<WebScope>()
+
+    @JvmStatic
+    fun get(): WebScope? {
+        return LOCAL.get()
     }
 
-    companion object {
-        val LOCAL: StackThreadLocal<WebScope> = StackThreadLocal<WebScope>()
+    val optional: Optional<WebScope>
+        get() = Optional.ofNullable<WebScope>(LOCAL.get())
 
-        @JvmStatic
-        fun get(): WebScope {
-            return LOCAL.get()
-        }
-
-        val optional: Optional<WebScope>
-            get() = Optional.ofNullable<WebScope>(LOCAL.get())
-
-        fun put(webScope: WebScope) {
-            LOCAL.put(webScope)
-        }
-
-        fun pop() {
-            LOCAL.pop()
-        }
-
-        fun of(request: HttpServletRequest, traceId: String, requestId: String): WebScope {
-            return WebScope(
-                request.getScheme(), request.getHeader("Host"), request.getHeader("Origin"),
-                getFirstIp(request), request.getRequestURI(), traceId, requestId,
-                request.getHeader("Accept-Language"), request.getHeader("Authorization"),
-                request.getHeader("User-Agent")
-            )
-        }
-
-        fun <T> map(function: Function<WebScope, T>): T {
-            return map<T>(function, null)
-        }
-
-        fun <T> map(function: Function<WebScope, T>, other: T): T {
-            return optional.map<T>(function).orElse(other)
-        }
-
-        fun uri(): String {
-            return WebScopeHolder.map<String>(java.util.function.Function { obj -> obj.getUri() }, "")!!
-        }
+    @JvmStatic
+    fun put(webScope: WebScope) {
+        LOCAL.put(webScope)
     }
+
+    @JvmStatic
+    fun pop() {
+        LOCAL.pop()
+    }
+
+    @JvmStatic
+    fun of(request: HttpServletRequest, traceId: String, requestId: String): WebScope {
+        val headers = HttpUtils.headers(request)
+        return WebScope(
+            request.scheme, headers.host() ?: "", headers.origin() ?: "",
+            getFirstIp(request), request.requestURI, traceId, requestId,
+            headers.language() ?: "", headers.authorization() ?: "",
+            headers.ua() ?: ""
+        )
+    }
+
+    @JvmStatic
+    fun <T> map(function: Function<WebScope, T>): T? {
+        return optional.map(function).orElse(null)
+    }
+
+    @JvmStatic
+    fun <T> map(function: Function<WebScope, T>, other: T): T {
+        return optional.map<T>(function).orElse(other)
+    }
+
+    @JvmStatic
+    fun uri(): String {
+        return map<String>(Function { obj -> obj.uri }, "")
+    }
+
 }

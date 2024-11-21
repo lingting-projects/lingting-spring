@@ -12,15 +12,15 @@ import org.springframework.stereotype.Component
 @Component
 class StringToLocalDateTimeConverter : Converter<LocalDateTime> {
     override fun matches(sourceType: TypeDescriptor, targetType: TypeDescriptor): Boolean {
-        return String::class.java.isAssignableFrom(sourceType.getType())
-                && LocalDateTime::class.java.isAssignableFrom(targetType!!.getType())
+        return String::class.java.isAssignableFrom(sourceType.type)
+                && LocalDateTime::class.java.isAssignableFrom(targetType.type)
     }
 
     override fun getConvertibleTypes(): MutableSet<ConvertiblePair> {
         return mutableSetOf<ConvertiblePair>(ConvertiblePair(String::class.java, LocalDateTime::class.java))
     }
 
-    override fun convert(source: Any, sourceType: TypeDescriptor, targetType: TypeDescriptor): LocalDateTime {
+    override fun convert(source: Any?, sourceType: TypeDescriptor, targetType: TypeDescriptor): LocalDateTime {
         val string = source as String
         return parse(string)
     }

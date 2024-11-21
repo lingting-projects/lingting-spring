@@ -30,7 +30,7 @@ class SpringTestController {
     }
 
     @GetMapping("validation")
-    fun validation(p: @Valid P): R<P> {
+    fun validation(@Valid p: P): R<P> {
         return R.ok<P>(p)
     }
 
@@ -40,7 +40,8 @@ class SpringTestController {
     }
 
     class P {
-        var name: @NotEmpty(message = MESSAGE) String = null
+        @NotEmpty(message = MESSAGE)
+        var name: String = ""
 
         companion object {
             const val MESSAGE: String = "name must not be empty."

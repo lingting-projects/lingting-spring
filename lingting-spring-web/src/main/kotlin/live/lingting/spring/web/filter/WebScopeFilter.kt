@@ -7,7 +7,6 @@ import live.lingting.framework.util.MdcUtils.fillTraceId
 import live.lingting.framework.util.MdcUtils.removeTraceId
 import live.lingting.framework.util.MdcUtils.traceId
 import live.lingting.spring.web.properties.SpringWebProperties
-import live.lingting.spring.web.scope.WebScope
 import live.lingting.spring.web.scope.WebScopeHolder
 import live.lingting.spring.web.wrapper.RepeatBodyRequestWrapper
 import org.springframework.util.StringUtils
@@ -29,12 +28,12 @@ class WebScopeFilter(private val properties: SpringWebProperties) : OncePerReque
         val traceId = traceId(request)
         val requestId = requestId()
 
-        val scope: WebScope = WebScopeHolder.of(request, traceId, requestId)
+        val scope = WebScopeHolder.of(request, traceId, requestId)
         WebScopeHolder.put(scope)
-        fillTraceId(scope.getTraceId())
+        fillTraceId(scope.traceId)
         try {
-            response.addHeader(properties.getHeaderTraceId(), scope.getTraceId())
-            response.addHeader(properties.getHeaderRequestId(), scope.getRequestId())
+            response.addHeader(properties.headerTraceId, scope.traceId)
+            response.addHeader(properties.headerRequestId, scope.requestId)
             filterChain.doFilter(request, response)
         } finally {
             // 写入返回值
@@ -47,7 +46,7 @@ class WebScopeFilter(private val properties: SpringWebProperties) : OncePerReque
     }
 
     protected fun traceId(request: HttpServletRequest): String {
-        val traceId = request.getHeader(properties.getHeaderTraceId())
+        val traceId = request.getHeader(properties.headerTraceId)
         if (StringUtils.hasText(traceId)) {
             return traceId
         }

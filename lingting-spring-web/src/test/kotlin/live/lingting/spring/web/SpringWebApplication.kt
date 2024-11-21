@@ -13,8 +13,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 @SpringBootApplication
 @EnableWebExceptionHandler
 @ImportAutoConfiguration(SpringJacksonModuleAutoConfiguration::class, SpringObjectMapperAutoConfiguration::class)
-object SpringWebApplication {
-    @JvmStatic
+open class SpringWebApplication {
     fun main(args: Array<String>) {
         SpringApplication.run(SpringWebApplication::class.java, *args)
     }

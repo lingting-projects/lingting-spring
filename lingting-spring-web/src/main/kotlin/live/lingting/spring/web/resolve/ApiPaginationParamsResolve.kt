@@ -2,7 +2,6 @@ package live.lingting.spring.web.resolve
 
 import jakarta.servlet.http.HttpServletRequest
 import java.lang.reflect.InvocationTargetException
-import java.util.Arrays
 import live.lingting.framework.api.PaginationParams
 import live.lingting.framework.util.ArrayUtils.isEmpty
 import live.lingting.framework.util.StringUtils.hasText
@@ -29,28 +28,30 @@ class ApiPaginationParamsResolve(private val pagination: Pagination) : HandlerMe
 
 
     override fun resolveArgument(
-        parameter: MethodParameter, mavContainer: ModelAndViewContainer,
-        webRequest: NativeWebRequest, binderFactory: WebDataBinderFactory
+        parameter: MethodParameter,
+        mavContainer: ModelAndViewContainer?,
+        webRequest: NativeWebRequest,
+        binderFactory: WebDataBinderFactory?,
     ): Any {
         val request = webRequest.getNativeRequest<HttpServletRequest>(HttpServletRequest::class.java)
-        val params = resolve(request, parameter!!)
+        val params = resolve(request, parameter)
         validate(params, parameter, mavContainer, webRequest, binderFactory)
         return params
     }
 
-    fun resolve(request: HttpServletRequest, parameter: MethodParameter): PaginationParams {
+    fun resolve(request: HttpServletRequest?, parameter: MethodParameter): PaginationParams {
         if (request == null) {
             return PaginationParams()
         }
-        val pageParameterValue = request.getParameter(pagination.getFieldPage())
-        val sizeParameterValue = request.getParameter(pagination.getFieldSize())
+        val pageParameterValue = request.getParameter(pagination.fieldPage)
+        val sizeParameterValue = request.getParameter(pagination.fieldSize)
 
         val params = instance(parameter)
 
         val pageValue = convert(pageParameterValue, 1)
         params.page = pageValue
 
-        val sizeValue = convert(sizeParameterValue, pagination.getPageSize())
+        val sizeValue = convert(sizeParameterValue, pagination.pageSize)
         params.size = sizeValue
 
         params.sorts = sorts(request)
@@ -72,26 +73,26 @@ class ApiPaginationParamsResolve(private val pagination: Pagination) : HandlerMe
     }
 
     fun sorts(request: HttpServletRequest): MutableList<PaginationParams.Sort> {
-        val parameterMap = request.getParameterMap()
+        val parameterMap = request.parameterMap
         // 原始sort字符串
         val strings: MutableList<String> = ArrayList<String>()
         // sort 可以传多个，所以同时支持 sort 和 sort[]
-        val sortArray1: Array<String> = parameterMap.get(pagination.getFieldSort())!!
+        val sortArray1 = parameterMap[pagination.fieldSort]
         if (!isEmpty<String>(sortArray1)) {
-            strings.addAll(Arrays.asList<String>(*sortArray1))
+            strings.addAll(sortArray1!!)
         }
-        val sortArray2: Array<String> = parameterMap.get(pagination.getFieldSort() + "[]")!!
+        val sortArray2 = parameterMap[pagination.fieldSort + "[]"]
         if (!isEmpty<String>(sortArray2)) {
-            strings.addAll(Arrays.asList<String>(*sortArray2))
+            strings.addAll(sortArray2!!)
         }
 
-        val sorts: MutableList<PaginationParams.Sort> = ArrayList<PaginationParams.Sort>()
+        val sorts = ArrayList<PaginationParams.Sort>()
         for (string in strings) {
             if (!hasText(string)) {
                 continue
             }
 
-            val sort = sort(string!!)
+            val sort = sort(string)
             sorts.add(sort)
         }
         return sorts
@@ -109,21 +110,24 @@ class ApiPaginationParamsResolve(private val pagination: Pagination) : HandlerMe
         return PaginationParams.Sort(field, isDesc)
     }
 
-    fun convert(obj: Any, defaultValue: Long): Long {
+    fun convert(obj: Any?, defaultValue: Long): Long {
         if (obj == null) {
             return defaultValue
         }
-        try {
-            return obj.toString().toLong()
-        } catch (e: Exception) {
-            return defaultValue
+        return try {
+            obj.toString().toLong()
+        } catch (_: Exception) {
+            defaultValue
         }
     }
 
 
     fun validate(
-        params: PaginationParams, parameter: MethodParameter, mavContainer: ModelAndViewContainer,
-        webRequest: NativeWebRequest, binderFactory: WebDataBinderFactory
+        params: PaginationParams,
+        parameter: MethodParameter,
+        mavContainer: ModelAndViewContainer?,
+        webRequest: NativeWebRequest,
+        binderFactory: WebDataBinderFactory?
     ) {
         if (binderFactory == null) {
             return
@@ -134,18 +138,16 @@ class ApiPaginationParamsResolve(private val pagination: Pagination) : HandlerMe
         val bindingResult = binder.getBindingResult()
 
         val size = params.size
-        if (size > pagination.getMaxPageSize()) {
+        if (size > pagination.maxPageSize) {
             bindingResult.addError(
-                ObjectError("size", "Pagination size cannot be greater than " + pagination.getMaxPageSize())
+                ObjectError("size", "Pagination size cannot be greater than " + pagination.maxPageSize)
             )
         }
 
         if (bindingResult.hasErrors() && isBindExceptionRequired(parameter)) {
             throw MethodArgumentNotValidException(parameter, bindingResult)
         }
-        if (mavContainer != null) {
-            mavContainer.addAttribute(BindingResult.MODEL_KEY_PREFIX + objectName, bindingResult)
-        }
+        mavContainer?.addAttribute(BindingResult.MODEL_KEY_PREFIX + objectName, bindingResult)
     }
 
     fun validationAnnotation(parameter: MethodParameter, binder: WebDataBinder) {
@@ -160,8 +162,8 @@ class ApiPaginationParamsResolve(private val pagination: Pagination) : HandlerMe
     }
 
     protected fun isBindExceptionRequired(parameter: MethodParameter): Boolean {
-        val i = parameter.getParameterIndex()
-        val paramTypes = parameter.getExecutable().getParameterTypes()
+        val i = parameter.parameterIndex
+        val paramTypes = parameter.executable.parameterTypes
         val hasBindingResult = (paramTypes.size > (i + 1) && Errors::class.java.isAssignableFrom(paramTypes[i + 1]))
         return !hasBindingResult
     }

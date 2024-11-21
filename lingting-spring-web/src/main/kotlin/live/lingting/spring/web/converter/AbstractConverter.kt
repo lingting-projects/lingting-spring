@@ -10,9 +10,9 @@ import org.springframework.core.convert.ConversionService
 abstract class AbstractConverter<T> : Converter<T> {
     private val log: Logger = LoggerFactory.getLogger(javaClass)
 
-    protected var service: ConversionService = null
+    var service: ConversionService? = null
 
-    fun <E> convert(source: Any, target: Class<E>): E {
+    fun <E> convert(source: Any?, target: Class<E>): E? {
         if (source == null) {
             return null
         }
@@ -23,7 +23,4 @@ abstract class AbstractConverter<T> : Converter<T> {
         return service!!.convert<E>(source, target)
     }
 
-    fun setService(service: ConversionService) {
-        this.service = service
-    }
 }

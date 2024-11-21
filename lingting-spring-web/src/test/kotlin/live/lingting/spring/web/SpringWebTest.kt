@@ -1,8 +1,23 @@
 package live.lingting.spring.web
 
+
 import com.fasterxml.jackson.core.type.TypeReference
+import live.lingting.framework.api.ApiResultCode
+import live.lingting.framework.api.R
+import live.lingting.framework.jackson.JacksonUtils
+import live.lingting.spring.web.properties.SpringWebProperties
+import live.lingting.spring.web.scope.WebScope
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.mock.web.MockHttpServletResponse
+import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers.print
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 /**
  * @author lingting 2024-03-20 17:29
@@ -11,14 +26,14 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 @AutoConfigureMockMvc
 class SpringWebTest {
     @Autowired
-    private val mock: MockMvc = null
+    private val mock: MockMvc? = null
 
     @Autowired
-    private val properties: SpringWebProperties = null
+    private val properties: SpringWebProperties? = null
 
     @Test
     fun test() {
-        mock.perform(get("/hello"))
+        mock!!.perform(get("/hello"))
             .andDo(print())
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.code").value(200))
@@ -26,7 +41,7 @@ class SpringWebTest {
 
 
 
-        mock.perform(get("/paginationpage=2&size=30&sort=id,desc"))
+        mock.perform(get("/pagination?page=2&size=30&sort=id,desc"))
             .andDo(print())
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.data.page").value(2))
@@ -52,7 +67,7 @@ class SpringWebTest {
 
 
 
-        mock.perform(get("/validationname=lingting"))
+        mock.perform(get("/validation?name=lingting"))
             .andDo(print())
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.code").value(200))
@@ -65,14 +80,14 @@ class SpringWebTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.code").value(200))
             .andExpect(jsonPath("$.data.uri").value("/scope"))
-            .andExpect({ result ->
-                val response: MockHttpServletResponse = result.getResponse()
-                val content: String = response.getContentAsString()
-                val scope: WebScope = toObj<R<WebScope>>(content, object : TypeReference<R<WebScope>>() {
-                }).data()
+            .andExpect { result ->
+                val response: MockHttpServletResponse = result.response
+                val content: String = response.contentAsString
+                val scope = JacksonUtils.toObj(content, object : TypeReference<R<WebScope>>() {
+                }).data
 
-                assertEquals(scope.traceId, response.getHeader(properties.headerTraceId))
+                assertEquals(scope!!.traceId, response.getHeader(properties!!.headerTraceId))
                 assertEquals(scope.requestId, response.getHeader(properties.headerRequestId))
-            })
+            }
     }
 }

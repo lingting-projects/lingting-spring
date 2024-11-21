@@ -19,10 +19,10 @@ import org.springframework.context.annotation.Bean
 
 @ConditionalOnResource
 @AutoConfiguration(after = [GrpcAutoConfiguration::class], beforeName = ["SecurityWebResourceAutoConfiguration"])
-class SecurityGrpcResourceAutoConfiguration {
+open class SecurityGrpcResourceAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
-    fun securityGrpcResourceServerInterceptor(
+    open fun securityGrpcResourceServerInterceptor(
         properties: SecurityGrpcProperties, service: SecurityResourceService, authorize: SecurityAuthorize
     ): SecurityGrpcResourceServerInterceptor {
         return SecurityGrpcResourceServerInterceptor(properties.authorizationKey(), service, authorize)
@@ -31,7 +31,7 @@ class SecurityGrpcResourceAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     @ConditionalOnUsingRemoteAuthorization
-    fun securityGrpcRemoteResourceClientInterceptor(
+    open fun securityGrpcRemoteResourceClientInterceptor(
         properties: SecurityGrpcProperties
     ): SecurityGrpcRemoteResourceClientInterceptor {
         return SecurityGrpcRemoteResourceClientInterceptor(properties)
@@ -41,7 +41,7 @@ class SecurityGrpcResourceAutoConfiguration {
     @ConditionalOnMissingBean
     @ConditionalOnUsingRemoteAuthorization
     @ConditionalOnBean(GrpcClientProvide::class)
-    fun securityTokenGrpcRemoteResolver(
+    open fun securityTokenGrpcRemoteResolver(
         properties: SecurityProperties,
         interceptor: SecurityGrpcRemoteResourceClientInterceptor, provide: GrpcClientProvide,
         convert: SecurityGrpcConvert

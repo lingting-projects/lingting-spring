@@ -1,7 +1,6 @@
 package live.lingting.spring.web.configuration
 
 import jakarta.servlet.DispatcherType
-import jakarta.validation.Configuration
 import java.util.EnumSet
 import live.lingting.spring.web.filter.WebScopeFilter
 import live.lingting.spring.web.properties.SpringWebProperties
@@ -29,30 +28,30 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 @AutoConfigureBefore(ValidationAutoConfiguration::class)
 @EnableConfigurationProperties(SpringWebProperties::class)
 @AutoConfiguration(before = [ValidationAutoConfiguration::class])
-class SpringWebAutoConfiguration {
+open class SpringWebAutoConfiguration {
     @Bean
     @ConditionalOnMissingFilterBean
     @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
-    fun webScopeFilter(properties: SpringWebProperties): FilterRegistrationBean<WebScopeFilter> {
+    open fun webScopeFilter(properties: SpringWebProperties): FilterRegistrationBean<WebScopeFilter> {
         val filter = WebScopeFilter(properties)
         val bean = FilterRegistrationBean<WebScopeFilter>(filter)
         bean.setDispatcherTypes(EnumSet.allOf<DispatcherType>(DispatcherType::class.java))
-        bean.setOrder(properties.getScopeFilterOrder())
+        bean.order = properties.scopeFilterOrder
         return bean
     }
 
     @Bean
     @ConditionalOnMissingBean
-    fun apiPaginationParamsResolve(properties: SpringWebProperties): ApiPaginationParamsResolve {
-        return ApiPaginationParamsResolve(properties.getPagination())
+    open fun apiPaginationParamsResolve(properties: SpringWebProperties): ApiPaginationParamsResolve {
+        return ApiPaginationParamsResolve(properties.pagination)
     }
 
     @Bean
     @ConditionalOnBean(ApiPaginationParamsResolve::class)
-    fun webMvcConfigurer(resolve: ApiPaginationParamsResolve): WebMvcConfigurer {
+    open fun webMvcConfigurer(resolve: ApiPaginationParamsResolve): WebMvcConfigurer {
         return object : WebMvcConfigurer {
             override fun addArgumentResolvers(resolvers: MutableList<HandlerMethodArgumentResolver>) {
-                resolvers!!.add(resolve)
+                resolvers.add(resolve)
             }
         }
     }
@@ -60,7 +59,9 @@ class SpringWebAutoConfiguration {
 
     @Bean
     @Order(Ordered.HIGHEST_PRECEDENCE)
-    fun lingtingSpringValidationConfigurationCustomizer(): ValidationConfigurationCustomizer {
-        return ValidationConfigurationCustomizer { configuration: Configuration<*> -> configuration!!.addProperty(BaseHibernateValidatorConfiguration.FAIL_FAST, "true") }
+    open fun lingtingSpringValidationConfigurationCustomizer(): ValidationConfigurationCustomizer {
+        return ValidationConfigurationCustomizer { configuration ->
+            configuration.addProperty(BaseHibernateValidatorConfiguration.FAIL_FAST, "true")
+        }
     }
 }

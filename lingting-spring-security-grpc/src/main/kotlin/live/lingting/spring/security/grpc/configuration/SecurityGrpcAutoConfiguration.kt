@@ -15,22 +15,22 @@ import org.springframework.context.annotation.Bean
  */
 @AutoConfiguration(beforeName = ["SecurityWebAutoConfiguration"])
 @EnableConfigurationProperties(SecurityGrpcSpringProperties::class)
-class SecurityGrpcAutoConfiguration {
+open class SecurityGrpcAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
-    fun securityGrpcProperties(springProperties: SecurityGrpcSpringProperties): SecurityGrpcProperties {
+    open fun securityGrpcProperties(springProperties: SecurityGrpcSpringProperties): SecurityGrpcProperties {
         return springProperties.properties()
     }
 
     @Bean
     @ConditionalOnMissingBean(SecurityConvert::class)
-    fun securityGrpcConvert(): SecurityGrpcConvert {
+    open fun securityGrpcConvert(): SecurityGrpcConvert {
         return SecurityGrpcConvert()
     }
 
     @Bean
     @ConditionalOnMissingBean
-    fun securityGrpcExceptionInstance(): SecurityGrpcExceptionInstance {
+    open fun securityGrpcExceptionInstance(): SecurityGrpcExceptionInstance {
         return SecurityGrpcExceptionInstance()
     }
 }
