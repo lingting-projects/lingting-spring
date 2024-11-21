@@ -12,10 +12,10 @@ import org.springframework.context.annotation.Bean
  */
 @AutoConfiguration
 @EnableConfigurationProperties(SecuritySpringProperties::class)
-class SecurityAutoConfiguration {
+open class SecurityAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
-    fun securityProperties(springProperties: SecuritySpringProperties): SecurityProperties {
+    open fun securityProperties(springProperties: SecuritySpringProperties): SecurityProperties {
         return springProperties.properties()
     }
 }

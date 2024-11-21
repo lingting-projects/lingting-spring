@@ -18,7 +18,7 @@ import org.springframework.context.annotation.Bean
 /**
  * @author lingting 2023-03-29 21:09
  */
-class SecurityResourceConfiguration {
+open class SecurityResourceConfiguration {
     @Bean
     @ConditionalOnMissingBean
     fun securityAuthorize(properties: SecurityProperties): SecurityAuthorize {

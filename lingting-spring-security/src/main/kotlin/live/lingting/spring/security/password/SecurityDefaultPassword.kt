@@ -1,11 +1,6 @@
 package live.lingting.spring.security.password
 
-import live.lingting.framework.crypto.AbstractCryptoBuilder.build
-import live.lingting.framework.crypto.AbstractCryptoBuilder.iv
-import live.lingting.framework.crypto.AbstractCryptoBuilder.secret
 import live.lingting.framework.crypto.cipher.Cipher
-import live.lingting.framework.crypto.cipher.CipherBuilder.AES.cbc
-import live.lingting.framework.crypto.cipher.CipherBuilder.AES.pkcs7
 import live.lingting.framework.security.password.SecurityPassword
 import live.lingting.framework.util.StringUtils.hasText
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
@@ -22,11 +17,11 @@ class SecurityDefaultPassword(securityKey: String) : SecurityPassword {
 
     init {
         this.securityKey = securityKey
-        this.front = aesBuilder.aesBuilder().secret(securityKey).iv(securityKey).cbc().pkcs7().build()
+        this.front = Cipher.aesBuilder().secret(securityKey).iv(securityKey).cbc().pkcs7().build()
         this.encode = BCryptPasswordEncoder()
     }
 
-    override fun valid(plaintext: String): Boolean {
+    override fun valid(plaintext: String?): Boolean {
         return hasText(plaintext)
     }
 

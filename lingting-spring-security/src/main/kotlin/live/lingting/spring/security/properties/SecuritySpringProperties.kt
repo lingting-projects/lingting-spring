@@ -18,10 +18,8 @@ class SecuritySpringProperties {
     fun properties(): SecurityProperties {
         val sa = SecurityProperties.Authorization()
         val a = this.authorization
-        if (a != null) {
-            sa.isRemote = a.isRemote
-            sa.remoteHost = a.remoteHost
-        }
+        sa.isRemote = a.isRemote
+        sa.remoteHost = a.remoteHost
 
         val properties = SecurityProperties()
         properties.authorization = sa
@@ -32,12 +30,12 @@ class SecuritySpringProperties {
     class Authorization {
         var isRemote: Boolean = false
 
-        var remoteHost: String = null
+        var remoteHost: String? = null
 
         /**
          * 前后端交互使用的对称加密算法的密钥，必须 16 位字符
          */
-        var passwordSecretKey: String = null
+        var passwordSecretKey: String = "1234567890123456"
     }
 
     companion object {

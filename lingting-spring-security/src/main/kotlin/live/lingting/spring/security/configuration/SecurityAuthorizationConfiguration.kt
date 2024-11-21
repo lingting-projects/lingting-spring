@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Bean
 /**
  * @author lingting 2023-04-06 15:56
  */
-class SecurityAuthorizationConfiguration {
+open class SecurityAuthorizationConfiguration {
     @Bean
     @ConditionalOnMissingBean
     fun securityStore(): SecurityStore {
@@ -26,7 +26,7 @@ class SecurityAuthorizationConfiguration {
     @ConditionalOnMissingBean
     @ConditionalOnProperty(prefix = SecuritySpringProperties.PREFIX + ".authorization", name = ["password-secret-key"])
     fun securityPassword(properties: SecuritySpringProperties): SecurityPassword {
-        val authorization = properties.getAuthorization()
-        return SecurityDefaultPassword(authorization.getPasswordSecretKey())
+        val authorization = properties.authorization
+        return SecurityDefaultPassword(authorization.passwordSecretKey)
     }
 }
