@@ -24,7 +24,7 @@ class SecurityWebExceptionHandler : AbstractExceptionHandler() {
      */
     @ExceptionHandler(AuthorizationException::class)
     fun handlerAuthorizationException(e: AuthorizationException): ResponseEntity<R<String>> {
-        SecurityWebExceptionHandler.log.error("AuthorizationException! {}", e.message)
+        log.error("AuthorizationException! {}", e.message)
         return extract<R<String>>(R.failed<String>(ApiResultCode.UNAUTHORIZED_ERROR))
     }
 
@@ -33,7 +33,7 @@ class SecurityWebExceptionHandler : AbstractExceptionHandler() {
      */
     @ExceptionHandler(PermissionsException::class)
     fun handlerPermissionsException(e: PermissionsException): ResponseEntity<R<String>> {
-        SecurityWebExceptionHandler.log.error("PermissionsException! {}", e.message)
+        log.error("PermissionsException! {}", e.message)
         return extract<R<String>>(R.failed<String>(ApiResultCode.FORBIDDEN_ERROR))
     }
 

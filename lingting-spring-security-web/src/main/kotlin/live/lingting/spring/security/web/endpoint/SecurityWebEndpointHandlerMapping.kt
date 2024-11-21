@@ -17,9 +17,9 @@ class SecurityWebEndpointHandlerMapping(
      * @see WebMvcConfigurationSupport.getInterceptors
      */
     init {
-        setOrder(LOWEST_PRECEDENCE - 100)
+        order = LOWEST_PRECEDENCE - 100
         val handlerInterceptors = getInterceptors(conversionService, interceptors)
-        setInterceptors(*handlerInterceptors as Array<Any>)
+        setInterceptors(*handlerInterceptors as Array<*>)
     }
 
     override fun isHandler(beanType: Class<*>): Boolean {

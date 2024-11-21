@@ -15,17 +15,17 @@ import org.springframework.context.annotation.Bean
  */
 @AutoConfiguration
 @EnableConfigurationProperties(SecurityWebProperties::class)
-class SecurityWebAutoConfiguration {
+open class SecurityWebAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     @ConditionalOnBean(DefaultExceptionHandler::class)
-    fun securityWebExceptionHandler(): SecurityWebExceptionHandler {
+    open fun securityWebExceptionHandler(): SecurityWebExceptionHandler {
         return SecurityWebExceptionHandler()
     }
 
     @Bean
     @ConditionalOnMissingBean(SecurityConvert::class)
-    fun securityConvert(): SecurityConvert {
+    open fun securityConvert(): SecurityConvert {
         return object : SecurityConvert {
         }
     }

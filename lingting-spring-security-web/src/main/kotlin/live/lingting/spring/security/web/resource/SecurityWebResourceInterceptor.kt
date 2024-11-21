@@ -14,10 +14,13 @@ import org.springframework.web.servlet.HandlerInterceptor
 /**
  * @author lingting 2024-03-21 19:59
  */
-class SecurityWebResourceInterceptor(protected val properties: SecurityWebProperties, protected val authorize: SecurityAuthorize) : HandlerInterceptor, Ordered, Sequence {
+class SecurityWebResourceInterceptor(
+    protected val properties: SecurityWebProperties,
+    protected val authorize: SecurityAuthorize
+) : HandlerInterceptor, Ordered, Sequence {
 
     override fun preHandle(request: HttpServletRequest, response: HttpServletResponse, handler: Any): Boolean {
-        if (handler is HandlerMethod && !isIgnoreUri(request!!.getRequestURI())) {
+        if (handler is HandlerMethod && !isIgnoreUri(request.requestURI)) {
             validAuthority(handler)
         }
 
@@ -25,18 +28,18 @@ class SecurityWebResourceInterceptor(protected val properties: SecurityWebProper
     }
 
     protected fun validAuthority(handlerMethod: HandlerMethod) {
-        val cls = handlerMethod.getBeanType()
-        val method = handlerMethod.getMethod()
+        val cls = handlerMethod.beanType
+        val method = handlerMethod.method
         authorize.valid(cls, method)
     }
 
     protected fun isIgnoreUri(uri: String): Boolean {
-        val ignoreAntPatterns = properties.getIgnoreUris()
+        val ignoreAntPatterns = properties.ignoreUris
         if (CollectionUtils.isEmpty(ignoreAntPatterns)) {
             return false
         }
 
-        for (antPattern in ignoreAntPatterns!!) {
+        for (antPattern in ignoreAntPatterns) {
             if (ANT_PATH_MATCHER.match(antPattern, uri)) {
                 return true
             }
@@ -45,14 +48,12 @@ class SecurityWebResourceInterceptor(protected val properties: SecurityWebProper
         return false
     }
 
-    val sequence: Int
-        get() = getOrder()
+    override val sequence: Int = order
 
-    override fun getOrder(): Int {
-        return authorize.getOrder()
-    }
+    override fun getOrder(): Int = authorize.order
 
     companion object {
+        @JvmField
         protected val ANT_PATH_MATCHER: AntPathMatcher = AntPathMatcher()
     }
 }

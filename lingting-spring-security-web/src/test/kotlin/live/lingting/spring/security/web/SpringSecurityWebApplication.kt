@@ -20,8 +20,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 @ImportAutoConfiguration(
     SpringWebAutoConfiguration::class, SpringWebConverterAutoConfiguration::class, SecurityAutoConfiguration::class
 )
-object SpringSecurityWebApplication {
-    @JvmStatic
+open class SpringSecurityWebApplication {
     fun main(args: Array<String>) {
         SpringApplication.run(SpringSecurityWebApplication::class.java, *args)
     }

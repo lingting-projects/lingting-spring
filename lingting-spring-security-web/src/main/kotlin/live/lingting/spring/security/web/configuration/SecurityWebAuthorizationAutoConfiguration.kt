@@ -19,10 +19,10 @@ import org.springframework.web.servlet.HandlerInterceptor
  */
 @AutoConfiguration
 @ConditionalOnAuthorization
-class SecurityWebAuthorizationAutoConfiguration {
+open class SecurityWebAuthorizationAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
-    fun securityWebEndpoint(
+    open fun securityWebEndpoint(
         service: SecurityAuthorizationService, store: SecurityStore,
         password: SecurityPassword, convert: SecurityConvert
     ): SecurityWebEndpoint {
@@ -31,7 +31,7 @@ class SecurityWebAuthorizationAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    fun securityWebEndpointHandlerMapping(
+    open fun securityWebEndpointHandlerMapping(
         @Qualifier("mvcConversionService") conversionService: WebConversionService,
         interceptors: MutableList<HandlerInterceptor>
     ): SecurityWebEndpointHandlerMapping {

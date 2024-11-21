@@ -32,7 +32,7 @@ class SecurityWebResourceFilter(private val properties: SecurityWebProperties, p
         }
     }
 
-    protected fun getScope(request: HttpServletRequest): SecurityScope {
+    protected fun getScope(request: HttpServletRequest): SecurityScope? {
         val token = getToken(request)
         // token有效, 设置上下文
         if (!token.isAvailable) {
@@ -45,13 +45,13 @@ class SecurityWebResourceFilter(private val properties: SecurityWebProperties, p
         } catch (e: PermissionsException) {
             return null
         } catch (e: Exception) {
-            SecurityWebResourceFilter.log.debug("resolve token error!", e)
+            log.debug("resolve token error!", e)
         }
         return null
     }
 
     fun getToken(request: HttpServletRequest): SecurityToken {
-        val raw = request.getHeader(properties.getHeaderAuthorization())
+        val raw = request.getHeader(properties.headerAuthorization)
 
         // 走参数
         if (!hasText(raw)) {
@@ -62,7 +62,7 @@ class SecurityWebResourceFilter(private val properties: SecurityWebProperties, p
     }
 
     fun getTokenByParams(request: HttpServletRequest): SecurityToken {
-        val value = request.getParameter(properties.getParamAuthorization())
+        val value = request.getParameter(properties.paramAuthorization)
         return SecurityToken.ofDelimiter(value, " ")
     }
 

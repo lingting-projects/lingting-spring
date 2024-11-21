@@ -1,11 +1,8 @@
 package live.lingting.spring.security.web.configuration
 
 import jakarta.servlet.DispatcherType
-import java.time.Duration
 import java.util.EnumSet
-import live.lingting.framework.http.HttpClient
-import live.lingting.framework.http.HttpClient.Builder.disableSsl
-import live.lingting.framework.http.HttpClient.Builder.timeout
+import live.lingting.framework.http.api.ApiClient
 import live.lingting.framework.security.authorize.SecurityAuthorize
 import live.lingting.framework.security.convert.SecurityConvert
 import live.lingting.framework.security.properties.SecurityProperties
@@ -31,27 +28,23 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
  */
 @AutoConfiguration
 @ConditionalOnResource
-class SecurityWebResourceAutoConfiguration {
+open class SecurityWebResourceAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     @ConditionalOnUsingRemoteAuthorization
-    fun securityTokenWebRemoteResolver(
+    open fun securityTokenWebRemoteResolver(
         properties: SecurityProperties,
         convert: SecurityConvert, webProperties: SecurityWebProperties
     ): SecurityTokenWebRemoteResolver {
-        val builder: HttpClient.Builder<*, *> = okhttp.okhttp()
-            .disableSsl()
-            .timeout(Duration.ofSeconds(5), Duration.ofSeconds(10))
-
         val authorization = properties.authorization
         val remoteHost = authorization.remoteHost
-        return SecurityTokenWebRemoteResolver(remoteHost, builder.build(), convert, webProperties)
+        return SecurityTokenWebRemoteResolver(remoteHost!!, ApiClient.CLIENT, convert, webProperties)
     }
 
     @Bean
     @ConditionalOnMissingFilterBean
     @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
-    fun securityWebResourceFilter(
+    open fun securityWebResourceFilter(
         properties: SecurityProperties,
         webProperties: SecurityWebProperties, service: SecurityResourceService
     ): FilterRegistrationBean<SecurityWebResourceFilter> {
@@ -64,7 +57,7 @@ class SecurityWebResourceAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    fun securityWebResourceInterceptor(
+    open fun securityWebResourceInterceptor(
         properties: SecurityWebProperties,
         authorize: SecurityAuthorize
     ): SecurityWebResourceInterceptor {
@@ -73,7 +66,7 @@ class SecurityWebResourceAutoConfiguration {
 
     @Bean
     @ConditionalOnBean(SecurityWebResourceInterceptor::class)
-    fun securityWebResourceWebMvcConfigurer(interceptor: SecurityWebResourceInterceptor): WebMvcConfigurer {
+    open fun securityWebResourceWebMvcConfigurer(interceptor: SecurityWebResourceInterceptor): WebMvcConfigurer {
         return object : WebMvcConfigurer {
             override fun addInterceptors(registry: InterceptorRegistry) {
                 registry!!.addInterceptor(interceptor).addPathPatterns("/**")

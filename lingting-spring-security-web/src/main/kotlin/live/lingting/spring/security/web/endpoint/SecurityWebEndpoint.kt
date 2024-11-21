@@ -35,7 +35,7 @@ class SecurityWebEndpoint(
     fun password(po: AuthorizationPasswordPO): AuthorizationVO {
         val username = po.username
         val rawPassword = po.password
-        val password = securityPassword.decodeFront(rawPassword)
+        val password = securityPassword.decodeFront(rawPassword!!)
         val scope = service.validAndBuildScope(username, password)
         if (scope == null) {
             throw AuthorizationException("Username or password is incorrect!")

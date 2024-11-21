@@ -15,7 +15,8 @@ import org.springframework.stereotype.Component
 @Component
 class SecurityAuthorizationServiceImpl(private val store: SecurityStore) : SecurityAuthorizationService {
 
-    override fun validAndBuildScope(username: String, password: String): SecurityScope {
+    override fun validAndBuildScope(username: String?, password: String?): SecurityScope {
+        username!!
         if (username == password) {
             val scope = SecurityScope()
             scope.token = username
@@ -35,7 +36,7 @@ class SecurityAuthorizationServiceImpl(private val store: SecurityStore) : Secur
         throw AuthorizationException("用户名或密码错误!")
     }
 
-    override fun refresh(token: String): SecurityScope {
+    override fun refresh(token: String?): SecurityScope {
         val scope = store.get(token)
         scope!!.expireTime = System.currentTimeMillis() * 2
         return scope

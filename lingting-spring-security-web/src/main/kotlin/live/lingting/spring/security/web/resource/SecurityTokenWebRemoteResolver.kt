@@ -1,9 +1,9 @@
 package live.lingting.spring.security.web.resource
 
 import java.net.URI
-import java.net.http.HttpRequest
 import live.lingting.framework.Sequence
 import live.lingting.framework.http.HttpClient
+import live.lingting.framework.http.HttpRequest
 import live.lingting.framework.security.convert.SecurityConvert
 import live.lingting.framework.security.domain.AuthorizationVO
 import live.lingting.framework.security.domain.SecurityScope
@@ -26,14 +26,14 @@ class SecurityTokenWebRemoteResolver(
     }
 
     fun resolveBuilder(token: SecurityToken): HttpRequest.Builder {
-        var builder = HttpRequest.newBuilder()
-        builder.GET().uri(urlResolve)
+        var builder = HttpRequest.builder()
+        builder.get().url(urlResolve)
         builder = fillSecurity(builder, token)
         return builder
     }
 
     protected fun fillSecurity(builder: HttpRequest.Builder, token: SecurityToken): HttpRequest.Builder {
-        builder.header(properties.getHeaderAuthorization(), token.raw)
+        builder.header(properties.headerAuthorization, token.raw)
         return builder
     }
 
@@ -41,7 +41,7 @@ class SecurityTokenWebRemoteResolver(
         var uri = uri
         require(hasText(host)) { "remoteHost is not Null!" }
         val builder = StringBuilder(host)
-        if (!host!!.startsWith("http")) {
+        if (!host.startsWith("http")) {
             builder.append("http").append("://")
         }
 
@@ -56,16 +56,16 @@ class SecurityTokenWebRemoteResolver(
         return builder.toString()
     }
 
-    override fun isSupport(token: SecurityToken): Boolean {
+    override fun isSupport(token: SecurityToken?): Boolean {
         return true
     }
 
     override fun resolver(token: SecurityToken): SecurityScope {
         val builder = resolveBuilder(token)
-        val vo: AuthorizationVO = client.request(builder.build(), AuthorizationVO::class.java)
+        val request = builder.build()
+        val vo = client.request(request, AuthorizationVO::class.java)
         return convert.voToScope(vo)
     }
 
-    val sequence: Int
-        get() = Int.MAX_VALUE
+    override val sequence: Int = Int.MAX_VALUE
 }
