@@ -7,8 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
  * @author lingting 2024-02-02 15:56
  */
 @SpringBootApplication
-object SpringJacksonApplication {
-    @JvmStatic
+open class SpringJacksonApplication {
     fun main(args: Array<String>) {
         SpringApplication.run(SpringJacksonApplication::class.java, *args)
     }

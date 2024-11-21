@@ -15,46 +15,46 @@ import org.springframework.context.annotation.Bean
  * @author lingting 2024-02-02 13:52
  */
 @AutoConfiguration
-class SpringJacksonModuleAutoConfiguration {
+open class SpringJacksonModuleAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
-    fun javaTimeModule(): JavaTimeModule {
+    open fun javaTimeModule(): JavaTimeModule {
         return JavaTimeModule()
     }
 
     @Bean
     @ConditionalOnMissingBean
-    fun enumModule(): EnumModule {
+    open fun enumModule(): EnumModule {
         return EnumModule()
     }
 
     @Bean
     @ConditionalOnMissingBean
-    fun booleanModule(): BooleanModule {
+    open fun booleanModule(): BooleanModule {
         return BooleanModule()
     }
 
     @Bean
     @ConditionalOnMissingBean
-    fun rModule(): RModule {
+    open fun rModule(): RModule {
         return RModule()
     }
 
     @Bean
     @ConditionalOnMissingBean
-    fun sensitiveModule(): SensitiveModule {
+    open fun sensitiveModule(): SensitiveModule {
         return SensitiveModule()
     }
 
     @Bean
     @ConditionalOnMissingBean
-    fun moneyModule(): MoneyModule {
+    open fun moneyModule(): MoneyModule {
         return MoneyModule()
     }
 
     @Bean
     @ConditionalOnMissingBean
-    fun nullSerializerProvider(): NullSerializerProvider {
+    open fun nullSerializerProvider(): NullSerializerProvider {
         return NullSerializerProvider()
     }
 }

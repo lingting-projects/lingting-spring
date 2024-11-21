@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.Module
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.databind.ser.DefaultSerializerProvider
-import live.lingting.framework.jackson.JacksonUtils.config
+import live.lingting.framework.jackson.JacksonUtils
 import live.lingting.spring.jackson.ObjectMapperAfter
 import live.lingting.spring.jackson.ObjectMapperCustomizer
 import org.springframework.boot.autoconfigure.AutoConfiguration
@@ -21,15 +21,15 @@ import org.springframework.core.annotation.AnnotationAwareOrderComparator
  */
 @ConditionalOnClass(ObjectMapper::class)
 @AutoConfiguration(before = [JacksonAutoConfiguration::class])
-class SpringObjectMapperAutoConfiguration {
+open class SpringObjectMapperAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean(ObjectMapper::class)
-    fun objectMapper(
+    open fun objectMapper(
         serializerProviders: MutableList<DefaultSerializerProvider>, modules: MutableList<Module>,
         customizers: MutableList<ObjectMapperCustomizer>, afters: MutableList<ObjectMapperAfter>
     ): ObjectMapper {
-        customizers.sort(AnnotationAwareOrderComparator.INSTANCE)
-        afters.sort(AnnotationAwareOrderComparator.INSTANCE)
+        customizers.sortWith(AnnotationAwareOrderComparator.INSTANCE)
+        afters.sortWith(AnnotationAwareOrderComparator.INSTANCE)
 
         var mapper = ObjectMapper()
 
@@ -54,7 +54,7 @@ class SpringObjectMapperAutoConfiguration {
             mapper = mapperCustomizer.apply(mapper)
         }
 
-        config(mapper)
+        JacksonUtils.mapper = mapper
         for (after in afters) {
             after.apply(mapper)
         }

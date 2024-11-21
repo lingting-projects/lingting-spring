@@ -8,11 +8,11 @@ import org.springframework.stereotype.Component
  */
 @Component
 class TestObjectMapperCustomizer : ObjectMapperCustomizer {
-    var objectMapper: ObjectMapper = null
+    var objectMapper: ObjectMapper? = null
         private set
 
     override fun apply(mapper: ObjectMapper): ObjectMapper {
         objectMapper = mapper.copy()
-        return objectMapper
+        return objectMapper!!
     }
 }
