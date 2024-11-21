@@ -1,179 +1,184 @@
-package live.lingting.spring.util;
+package live.lingting.spring.util
 
-import live.lingting.framework.util.ArrayUtils;
-import org.springframework.core.convert.support.ConfigurableConversionService;
-import org.springframework.core.env.ConfigurableEnvironment;
-import org.springframework.core.env.MapPropertySource;
-import org.springframework.core.env.MissingRequiredPropertiesException;
-import org.springframework.core.env.MutablePropertySources;
-import org.springframework.core.env.Profiles;
-import org.springframework.core.env.PropertySource;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.Optional
+import java.util.function.Function
+import live.lingting.framework.util.ArrayUtils.containsIgnoreCase
+import org.springframework.core.convert.support.ConfigurableConversionService
+import org.springframework.core.env.ConfigurableEnvironment
+import org.springframework.core.env.MapPropertySource
+import org.springframework.core.env.MutablePropertySources
+import org.springframework.core.env.Profiles
 
 /**
  * @author lingting 2022/10/15 11:33
  */
-public final class EnvironmentUtils {
+object EnvironmentUtils {
+    @JvmStatic
+    var environment: ConfigurableEnvironment? = null
 
-	private static ConfigurableEnvironment environment;
+    @JvmStatic
+    fun containsProperty(key: String): Boolean {
+        return environment!!.containsProperty(key)
+    }
 
-	private EnvironmentUtils() {
-		throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
-	}
+    @JvmStatic
+    fun getProperty(key: String): String {
+        return environment!!.getProperty(key)
+    }
 
-	public static boolean containsProperty(String key) {
-		return environment.containsProperty(key);
-	}
+    @JvmStatic
+    fun getProperty(key: String, defaultValue: String): String {
+        return environment!!.getProperty(key, defaultValue)
+    }
 
-	public static String getProperty(String key) {
-		return environment.getProperty(key);
-	}
+    @JvmStatic
+    fun <T> getProperty(key: String, targetType: Class<T>): T {
+        return environment!!.getProperty<T>(key, targetType)
+    }
 
-	public static String getProperty(String key, String defaultValue) {
-		return environment.getProperty(key, defaultValue);
-	}
+    @JvmStatic
+    fun <T : Any> getProperty(key: String, targetType: Class<T>, defaultValue: T): T {
+        return environment!!.getProperty<T>(key, targetType, defaultValue)
+    }
 
-	public static <T> T getProperty(String key, Class<T> targetType) {
-		return environment.getProperty(key, targetType);
-	}
 
-	public static <T> T getProperty(String key, Class<T> targetType, T defaultValue) {
-		return environment.getProperty(key, targetType, defaultValue);
-	}
+    @JvmStatic
+    fun getRequiredProperty(key: String): String {
+        return environment!!.getRequiredProperty(key)
+    }
 
-	public static String getRequiredProperty(String key) throws IllegalStateException {
-		return environment.getRequiredProperty(key);
-	}
+    @JvmStatic
+    fun <T> getRequiredProperty(key: String, targetType: Class<T>): T {
+        return environment!!.getRequiredProperty<T>(key, targetType)
+    }
 
-	public static <T> T getRequiredProperty(String key, Class<T> targetType) throws IllegalStateException {
-		return environment.getRequiredProperty(key, targetType);
-	}
+    @JvmStatic
+    fun resolvePlaceholders(text: String): String {
+        return environment!!.resolvePlaceholders(text)
+    }
 
-	public static String resolvePlaceholders(String text) {
-		return environment.resolvePlaceholders(text);
-	}
+    @JvmStatic
+    fun resolveRequiredPlaceholders(text: String): String {
+        return environment!!.resolveRequiredPlaceholders(text)
+    }
 
-	public static String resolveRequiredPlaceholders(String text) throws IllegalArgumentException {
-		return environment.resolveRequiredPlaceholders(text);
-	}
+    @JvmStatic
+    fun addActiveProfile(profile: String) {
+        environment!!.addActiveProfile(profile)
+    }
 
-	public static void addActiveProfile(String profile) {
-		environment.addActiveProfile(profile);
-	}
+    @JvmStatic
+    val propertySources: MutablePropertySources
+        get() = environment!!.propertySources
 
-	public static MutablePropertySources getPropertySources() {
-		return environment.getPropertySources();
-	}
+    @JvmStatic
+    val systemProperties: MutableMap<String, Any>
+        get() = environment!!.systemProperties
 
-	public static Map<String, Object> getSystemProperties() {
-		return environment.getSystemProperties();
-	}
+    @JvmStatic
+    val systemEnvironment: MutableMap<String, Any>
+        get() = environment!!.systemEnvironment
 
-	public static Map<String, Object> getSystemEnvironment() {
-		return environment.getSystemEnvironment();
-	}
+    @JvmStatic
+    fun merge(parent: ConfigurableEnvironment) {
+        environment!!.merge(parent)
+    }
 
-	public static void merge(ConfigurableEnvironment parent) {
-		environment.merge(parent);
-	}
+    @JvmStatic
+    var conversionService: ConfigurableConversionService
+        get() = environment!!.conversionService
+        set(conversionService) {
+            environment!!.setConversionService(conversionService)
+        }
 
-	public static ConfigurableConversionService getConversionService() {
-		return environment.getConversionService();
-	}
+    @JvmStatic
+    fun setPlaceholderPrefix(placeholderPrefix: String) {
+        environment!!.setPlaceholderPrefix(placeholderPrefix)
+    }
 
-	public static void setConversionService(ConfigurableConversionService conversionService) {
-		environment.setConversionService(conversionService);
-	}
+    @JvmStatic
+    fun setPlaceholderSuffix(placeholderSuffix: String) {
+        environment!!.setPlaceholderSuffix(placeholderSuffix)
+    }
 
-	public static void setPlaceholderPrefix(String placeholderPrefix) {
-		environment.setPlaceholderPrefix(placeholderPrefix);
-	}
+    @JvmStatic
+    fun setValueSeparator(valueSeparator: String) {
+        environment!!.setValueSeparator(valueSeparator)
+    }
 
-	public static void setPlaceholderSuffix(String placeholderSuffix) {
-		environment.setPlaceholderSuffix(placeholderSuffix);
-	}
+    @JvmStatic
+    fun setIgnoreUnresolvableNestedPlaceholders(ignoreUnresolvableNestedPlaceholders: Boolean) {
+        environment!!.setIgnoreUnresolvableNestedPlaceholders(ignoreUnresolvableNestedPlaceholders)
+    }
 
-	public static void setValueSeparator(String valueSeparator) {
-		environment.setValueSeparator(valueSeparator);
-	}
+    @JvmStatic
+    fun setRequiredProperties(vararg requiredProperties: String) {
+        environment!!.setRequiredProperties(*requiredProperties)
+    }
 
-	public static void setIgnoreUnresolvableNestedPlaceholders(boolean ignoreUnresolvableNestedPlaceholders) {
-		environment.setIgnoreUnresolvableNestedPlaceholders(ignoreUnresolvableNestedPlaceholders);
-	}
 
-	public static void setRequiredProperties(String... requiredProperties) {
-		environment.setRequiredProperties(requiredProperties);
-	}
+    @JvmStatic
+    fun validateRequiredProperties() {
+        environment!!.validateRequiredProperties()
+    }
 
-	public static void validateRequiredProperties() throws MissingRequiredPropertiesException {
-		environment.validateRequiredProperties();
-	}
+    val activeProfiles: Array<String>
+        get() = environment!!.activeProfiles
 
-	public static String[] getActiveProfiles() {
-		return environment.getActiveProfiles();
-	}
+    @JvmStatic
+    fun setActiveProfiles(vararg profiles: String) {
+        environment!!.setActiveProfiles(*profiles)
+    }
 
-	public static void setActiveProfiles(String... profiles) {
-		environment.setActiveProfiles(profiles);
-	}
+    val defaultProfiles: Array<String>
+        get() = environment!!.defaultProfiles
 
-	public static String[] getDefaultProfiles() {
-		return environment.getDefaultProfiles();
-	}
+    @JvmStatic
+    fun setDefaultProfiles(vararg profiles: String) {
+        environment!!.setDefaultProfiles(*profiles)
+    }
 
-	public static void setDefaultProfiles(String... profiles) {
-		environment.setDefaultProfiles(profiles);
-	}
+    @JvmStatic
+    fun acceptsProfiles(profiles: Profiles): Boolean {
+        return environment!!.acceptsProfiles(profiles)
+    }
 
-	public static boolean acceptsProfiles(Profiles profiles) {
-		return environment.acceptsProfiles(profiles);
-	}
+    @JvmStatic
+    val replaceMapPropertySource: MutableMap<String, Any>
+        get() {
+            val replaceEnvironment = "replaceEnvironment"
+            val propertySources: MutablePropertySources = propertySources
+            var target: MapPropertySource? = null
 
-	public static Map<String, Object> getReplaceMapPropertySource() {
-		String replaceEnvironment = "replaceEnvironment";
-		MutablePropertySources propertySources = getPropertySources();
-		MapPropertySource target = null;
+            if (propertySources.contains(replaceEnvironment)) {
+                val source = propertySources.get(replaceEnvironment)
+                if (source is MapPropertySource) {
+                    target = source
+                }
+            } else {
+                target = MapPropertySource(replaceEnvironment, HashMap<String, Any>())
+                propertySources.addFirst(target)
+            }
 
-		if (propertySources.contains(replaceEnvironment)) {
-			PropertySource<?> source = propertySources.get(replaceEnvironment);
-			if (source instanceof MapPropertySource propertySource) {
-				target = propertySource;
-			}
-		}
-		else {
-			target = new MapPropertySource(replaceEnvironment, new HashMap<>());
-			propertySources.addFirst(target);
-		}
+            return Optional.ofNullable<MapPropertySource>(target).map<MutableMap<String, Any>>(Function { obj -> obj.getSource() }).orElse(null)
+        }
 
-		return Optional.ofNullable(target).map(MapPropertySource::getSource).orElse(null);
-	}
+    /**
+     * 检测指定环境是否已激活
+     * @return true 表示为为指定环境
+     */
+    @JvmStatic
+    fun isActiveProfiles(vararg profiles: String): Boolean {
+        val activeProfiles: Array<String> = environment!!.activeProfiles
 
-	/**
-	 * 检测指定环境是否已激活
-	 * @return true 表示为为指定环境
-	 */
-	public static boolean isActiveProfiles(String... profiles) {
-		String[] activeProfiles = getEnvironment().getActiveProfiles();
+        for (profile in profiles) {
+            // 未激活指定环境
+            if (!containsIgnoreCase(activeProfiles, profile)) {
+                return false
+            }
+        }
 
-		for (String profile : profiles) {
-			// 未激活指定环境
-			if (!ArrayUtils.containsIgnoreCase(activeProfiles, profile)) {
-				return false;
-			}
-		}
-
-		return true;
-	}
-
-	public static ConfigurableEnvironment getEnvironment() {
-		return EnvironmentUtils.environment;
-	}
-
-	public static void setEnvironment(ConfigurableEnvironment environment) {
-		EnvironmentUtils.environment = environment;
-	}
+        return true
+    }
 
 }

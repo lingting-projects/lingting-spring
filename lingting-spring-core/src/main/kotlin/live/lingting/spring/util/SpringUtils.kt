@@ -1,105 +1,93 @@
-package live.lingting.spring.util;
+package live.lingting.spring.util
 
-import jakarta.annotation.Resource;
-import live.lingting.framework.reflect.ClassField;
-import live.lingting.framework.util.ClassUtils;
-import live.lingting.framework.util.CollectionUtils;
-import org.springframework.beans.factory.NoSuchBeanDefinitionException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
+import jakarta.annotation.Resource
+import java.lang.reflect.Constructor
+import java.util.function.Function
+import live.lingting.framework.util.ClassUtils.classFields
+import live.lingting.framework.util.ClassUtils.constructors
+import live.lingting.framework.util.CollectionUtils.isEmpty
+import org.springframework.beans.factory.NoSuchBeanDefinitionException
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.ApplicationContext
 
 /**
  * @author lingting 2022/10/15 15:21
  */
-@SuppressWarnings("unchecked")
-public final class SpringUtils {
+@Suppress("UNCHECKED_CAST")
+object SpringUtils {
+    var context: ApplicationContext? = null
 
-	private static ApplicationContext context;
+    @JvmStatic
+    fun hasBean(name: String): Boolean {
+        return context!!.containsBean(name)
+    }
 
-	private SpringUtils() {
-		throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
-	}
+    @JvmStatic
+    fun hasBean(cls: Class<*>): Boolean {
+        try {
+            val map: MutableMap<String, *> = getBeansOfType(cls)
+            return !isEmpty(map)
+        } catch (e: NoSuchBeanDefinitionException) {
+            return false
+        }
+    }
 
-	public static boolean hasBean(String name) {
-		return context.containsBean(name);
-	}
+    @JvmStatic
+    fun <T> getBean(name: String): T {
+        return context!!.getBean(name) as T
+    }
 
-	public static boolean hasBean(Class<?> cls) {
-		try {
-			Map<String, ?> map = getBeansOfType(cls);
-			return !CollectionUtils.isEmpty(map);
-		}
-		catch (NoSuchBeanDefinitionException e) {
-			return false;
-		}
-	}
+    @JvmStatic
+    fun <T> getBean(clazz: Class<T>): T {
+        return context!!.getBean<T>(clazz)
+    }
 
-	public static <T> T getBean(String name) {
-		return (T) context.getBean(name);
-	}
+    @JvmStatic
+    fun <T> getBean(name: String, clazz: Class<T>): T {
+        return context!!.getBean<T>(name, clazz)
+    }
 
-	public static <T> T getBean(Class<T> clazz) {
-		return context.getBean(clazz);
-	}
+    @JvmStatic
+    fun <T> getBeansOfType(type: Class<T>): MutableMap<String, T> {
+        return context!!.getBeansOfType<T>(type)
+    }
 
-	public static <T> T getBean(String name, Class<T> clazz) {
-		return context.getBean(name, clazz);
-	}
+    @JvmStatic
+    fun getBeanNamesForType(type: Class<*>): Array<String> {
+        return context!!.getBeanNamesForType(type)
+    }
 
-	public static <T> Map<String, T> getBeansOfType(Class<T> type) {
-		return context.getBeansOfType(type);
-	}
+    @JvmStatic
+    fun <T> ofBean(cls: Class<T>): T {
+        val constructors: Array<Constructor<T>> = constructors<T>(cls)
+        return ofBean<T>(constructors[0], Function { clazz: Class<*> -> getBean(clazz) })
+    }
 
-	public static String[] getBeanNamesForType(Class<?> type) {
-		return context.getBeanNamesForType(type);
-	}
+    @JvmStatic
+    fun <T> ofBean(constructor: Constructor<T>, getArgument: Function<Class<*>, Any>): T {
+        val types = constructor.parameterTypes
+        val arguments: MutableList<Any> = ArrayList<Any>()
 
-	public static <T> T ofBean(Class<T> cls)
-			throws InvocationTargetException, InstantiationException, IllegalAccessException {
-		Constructor<T>[] constructors = ClassUtils.constructors(cls);
-		return ofBean(constructors[0], SpringUtils::getBean);
-	}
+        for (cls in types) {
+            val argument = getArgument.apply(cls)
+            arguments.add(argument)
+        }
 
-	public static <T> T ofBean(Constructor<T> constructor, Function<Class<?>, Object> getArgument)
-			throws InvocationTargetException, InstantiationException, IllegalAccessException {
-		Class<?>[] types = constructor.getParameterTypes();
-		List<Object> arguments = new ArrayList<>();
-
-		for (Class<?> cls : types) {
-			Object argument = getArgument.apply(cls);
-			arguments.add(argument);
-		}
-
-		T t = constructor.newInstance(arguments.toArray());
-		// 自动注入
-		ClassField[] cfs = ClassUtils.classFields(t.getClass());
-		for (ClassField cf : cfs) {
-			if (!cf.hasField() || cf.isFinalField()) {
-				continue;
-			}
-			boolean isAutowired = cf.getAnnotation(Autowired.class) != null || cf.getAnnotation(Resource.class) != null;
-			if (isAutowired) {
-				Class<?> cls = cf.getValueType();
-				Object arg = getArgument.apply(cls);
-				cf.set(t, arg);
-			}
-		}
-		return t;
-	}
-
-	public static ApplicationContext getContext() {
-		return SpringUtils.context;
-	}
-
-	public static void setContext(ApplicationContext context) {
-		SpringUtils.context = context;
-	}
+        val t = constructor.newInstance(*arguments.toTypedArray())
+        // 自动注入
+        val cfs = classFields(t::class.java)
+        for (cf in cfs) {
+            if (!cf.hasField || cf.isFinalField) {
+                continue
+            }
+            val isAutowired = cf.getAnnotation(Autowired::class.java) != null || cf.getAnnotation(Resource::class.java) != null
+            if (isAutowired) {
+                val cls = cf.valueType
+                val arg = getArgument.apply(cls)
+                cf.set(t as Any, arg)
+            }
+        }
+        return t
+    }
 
 }

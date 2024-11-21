@@ -1,21 +1,11 @@
-package live.lingting.spring.redis.cache;
-
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+package live.lingting.spring.redis.cache
 
 /**
  * 删除
  *
  * @author lishangbu
  */
-@Documented
-@Target(ElementType.METHOD)
-@Retention(RetentionPolicy.RUNTIME)
-public @interface CacheBatchClear {
-
-	CacheClear[] value();
-
-}
+@MustBeDocumented
+@Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER)
+@Retention(AnnotationRetention.RUNTIME)
+annotation class CacheBatchClear(vararg val value: CacheClear)

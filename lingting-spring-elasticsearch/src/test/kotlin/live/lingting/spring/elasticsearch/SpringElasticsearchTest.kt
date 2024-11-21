@@ -1,83 +1,40 @@
-package live.lingting.spring.elasticsearch;
+package live.lingting.spring.elasticsearch
 
-import live.lingting.framework.api.PaginationParams;
-import live.lingting.framework.elasticsearch.annotation.Document;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-
-import java.util.List;
-import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import live.lingting.framework.elasticsearch.annotation.Document
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Test
+import org.springframework.boot.test.context.SpringBootTest
 
 /**
  * @author lingting 2024-03-08 17:32
  */
 @SpringBootTest
-class SpringElasticsearchTest {
+internal class SpringElasticsearchTest {
+    @Autowired
+    private val handler: SwitchElasticsearchDataPermissionHandler = null
 
-	@Autowired
-	private SwitchElasticsearchDataPermissionHandler handler;
+    @Autowired
+    private val service: EntityServiceImpl = null
 
-	@Autowired
-	private EntityServiceImpl service;
+    @Test
+    fun test() {
+        val params: PaginationParams = PaginationParams()
+        val list: MutableList<Entity> = service!!.page(params).records
+        Assertions.assertFalse(list.isEmpty())
+        handler!!.enable()
+        val byQuery = service.getByQuery()
+        Assertions.assertNotNull(byQuery)
+        assertEquals("Default", byQuery!!.space!!.get("name"))
+    }
 
-	@Test
-	void test() {
-		PaginationParams params = new PaginationParams();
-		List<Entity> list = service.page(params).getRecords();
-		assertFalse(list.isEmpty());
-		handler.enable();
-		Entity byQuery = service.getByQuery();
-		assertNotNull(byQuery);
-		assertEquals("Default", byQuery.getSpace().get("name"));
-	}
+    @Document(index = ".kibana_8.12.2_001")
+    class Entity {
+        var id: String = null
 
-	@Document(index = ".kibana_8.12.2_001")
-	public static class Entity {
+        var space: MutableMap<String, Any> = null
 
-		private String id;
+        var config: MutableMap<String, Any> = null
 
-		private Map<String, Object> space;
-
-		private Map<String, Object> config;
-
-		private Object references;
-
-		public String getId() {
-			return this.id;
-		}
-
-		public Map<String, Object> getSpace() {
-			return this.space;
-		}
-
-		public Map<String, Object> getConfig() {
-			return this.config;
-		}
-
-		public Object getReferences() {
-			return this.references;
-		}
-
-		public void setId(String id) {
-			this.id = id;
-		}
-
-		public void setSpace(Map<String, Object> space) {
-			this.space = space;
-		}
-
-		public void setConfig(Map<String, Object> config) {
-			this.config = config;
-		}
-
-		public void setReferences(Object references) {
-			this.references = references;
-		}
-
-	}
-
+        var references: Any = null
+    }
 }

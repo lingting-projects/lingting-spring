@@ -1,346 +1,382 @@
-package live.lingting.spring.elasticsearch;
+package live.lingting.spring.elasticsearch
 
-import co.elastic.clients.elasticsearch._types.Script;
-import co.elastic.clients.elasticsearch._types.SortOptions;
-import co.elastic.clients.elasticsearch._types.aggregations.Aggregate;
-import co.elastic.clients.elasticsearch._types.aggregations.Aggregation;
-import co.elastic.clients.elasticsearch._types.query_dsl.Query;
-import co.elastic.clients.elasticsearch.core.BulkRequest;
-import co.elastic.clients.elasticsearch.core.BulkResponse;
-import co.elastic.clients.elasticsearch.core.DeleteByQueryRequest;
-import co.elastic.clients.elasticsearch.core.ScrollRequest;
-import co.elastic.clients.elasticsearch.core.SearchRequest;
-import co.elastic.clients.elasticsearch.core.SearchResponse;
-import co.elastic.clients.elasticsearch.core.UpdateByQueryRequest;
-import co.elastic.clients.elasticsearch.core.UpdateRequest;
-import co.elastic.clients.elasticsearch.core.bulk.BulkOperation;
-import co.elastic.clients.elasticsearch.core.search.HitsMetadata;
-import co.elastic.clients.util.ObjectBuilder;
-import live.lingting.framework.api.LimitCursor;
-import live.lingting.framework.api.PaginationParams;
-import live.lingting.framework.api.PaginationResult;
-import live.lingting.framework.api.ScrollCursor;
-import live.lingting.framework.api.ScrollParams;
-import live.lingting.framework.api.ScrollResult;
-import live.lingting.framework.elasticsearch.ElasticsearchApi;
-import live.lingting.framework.elasticsearch.builder.QueryBuilder;
-import live.lingting.framework.elasticsearch.builder.ScriptBuilder;
-import live.lingting.framework.function.ThrowingRunnable;
-import live.lingting.framework.function.ThrowingSupplier;
-import org.slf4j.Logger;
-
-import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
-import java.util.function.UnaryOperator;
-
-import static live.lingting.framework.elasticsearch.ElasticsearchUtils.getEntityClass;
-import static live.lingting.framework.elasticsearch.ElasticsearchUtils.index;
+import co.elastic.clients.elasticsearch._types.Script
+import co.elastic.clients.elasticsearch._types.SortOptions
+import co.elastic.clients.elasticsearch._types.aggregations.Aggregate
+import co.elastic.clients.elasticsearch._types.aggregations.Aggregation
+import co.elastic.clients.elasticsearch._types.query_dsl.Query
+import co.elastic.clients.elasticsearch.core.BulkRequest
+import co.elastic.clients.elasticsearch.core.BulkResponse
+import co.elastic.clients.elasticsearch.core.DeleteByQueryRequest
+import co.elastic.clients.elasticsearch.core.ScrollRequest
+import co.elastic.clients.elasticsearch.core.SearchRequest
+import co.elastic.clients.elasticsearch.core.SearchResponse
+import co.elastic.clients.elasticsearch.core.UpdateByQueryRequest
+import co.elastic.clients.elasticsearch.core.UpdateRequest
+import co.elastic.clients.elasticsearch.core.bulk.BulkOperation
+import co.elastic.clients.elasticsearch.core.search.HitsMetadata
+import co.elastic.clients.util.ObjectBuilder
+import java.util.function.BiConsumer
+import java.util.function.Consumer
+import java.util.function.Function
+import java.util.function.Supplier
+import java.util.function.UnaryOperator
+import live.lingting.framework.api.LimitCursor
+import live.lingting.framework.api.PaginationParams
+import live.lingting.framework.api.PaginationResult
+import live.lingting.framework.api.ScrollCursor
+import live.lingting.framework.api.ScrollParams
+import live.lingting.framework.api.ScrollResult
+import live.lingting.framework.elasticsearch.ElasticsearchApi
+import live.lingting.framework.elasticsearch.ElasticsearchUtils.getEntityClass
+import live.lingting.framework.elasticsearch.ElasticsearchUtils.index
+import live.lingting.framework.elasticsearch.builder.QueryBuilder
+import live.lingting.framework.elasticsearch.builder.ScriptBuilder
+import live.lingting.framework.function.ThrowingRunnable
+import live.lingting.framework.function.ThrowingSupplier
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 /**
  * @author lingting 2024-03-08 16:43
  */
-@SuppressWarnings("java:S1181")
-public abstract class AbstractElasticsearchServiceImpl<T> {
+abstract class AbstractElasticsearchServiceImpl<T> {
+    protected val log: Logger = LoggerFactory.getLogger(javaClass)
 
-	protected final Logger log = org.slf4j.LoggerFactory.getLogger(getClass());
+    val index: String = index(getEntityClass<Any>(javaClass))
 
-	protected final String index = index(getEntityClass(getClass()));
+    val cls: Class<T> = getEntityClass<T>(javaClass)
 
-	protected final Class<T> cls = getEntityClass(getClass());
+    protected var api: ElasticsearchApi<T> = null
 
-	protected ElasticsearchApi<T> api;
+    abstract fun documentId(t: T): String
 
-	public abstract String documentId(T t);
+    // region extend
+    fun script(): ScriptBuilder<T> {
+        return ScriptBuilder.builder<T>()
+    }
 
-	// region extend
+    fun query(): QueryBuilder<T> {
+        return builder()
+    }
 
-	public ScriptBuilder<T> script() {
-		return ScriptBuilder.builder();
-	}
+    fun tryIgnore(runnable: ThrowingRunnable) {
+        try {
+            runnable.run()
+        } catch (e: Throwable) {
+            log.warn("ignore error: {}", e.message)
+        }
+    }
 
-	public QueryBuilder<T> query() {
-		return QueryBuilder.builder();
-	}
+    fun <R> tryElse(supplier: ThrowingSupplier<R>, defaultValue: R): R {
+        return tryGet<R>(supplier, Supplier { defaultValue })
+    }
 
-	public void tryIgnore(ThrowingRunnable runnable) {
-		try {
-			runnable.run();
-		}
-		catch (Throwable e) {
-			log.warn("ignore error: {}", e.getMessage());
-		}
-	}
-
-	public <R> R tryElse(ThrowingSupplier<R> supplier, R defaultValue) {
-		return tryGet(supplier, () -> defaultValue);
-	}
-
-	public <R> R tryGet(ThrowingSupplier<R> supplier, Supplier<R> defaultValue) {
-		return tryGet(supplier, e -> defaultValue.get());
-	}
-
-	public <R> R tryGet(ThrowingSupplier<R> supplier, Function<Throwable, R> defaultValue) {
-		try {
-			return supplier.get();
-		}
-		catch (Throwable e) {
-			log.warn("try error: {}", e.getMessage());
-			return defaultValue.apply(e);
-		}
-	}
-
-	// endregion
-
-	public void retry(ThrowingRunnable runnable) throws Exception {
-		api.retry(runnable);
-	}
-
-	public <R> R retry(ThrowingSupplier<R> supplier) throws Exception {
-		return api.retry(supplier);
-	}
-
-	public Query merge(Query... arrays) {
-		return api.merge(arrays);
-	}
-
-	public Query merge(QueryBuilder<T> builder) {
-		return api.merge(builder);
-	}
-
-	public T get(String id) throws IOException {
-		return api.get(id);
-	}
-
-	public T getByQuery(Query... queries) throws IOException {
-		return api.getByQuery(queries);
-	}
-
-	public T getByQuery(QueryBuilder<T> queries) throws IOException {
-		return api.getByQuery(queries);
-	}
-
-	public T getByQuery(UnaryOperator<SearchRequest.Builder> operator, QueryBuilder<T> queries) throws IOException {
-		return api.getByQuery(operator, queries);
-	}
-
-	public long count(Query... queries) throws IOException {
-		return api.count(queries);
-	}
-
-	public long count(QueryBuilder<T> queries) throws IOException {
-		return api.count(queries);
-	}
-
-	public HitsMetadata<T> search(Query... queries) throws IOException {
-		return api.search(queries);
-	}
-
-	public HitsMetadata<T> search(QueryBuilder<T> queries) throws IOException {
-		return api.search(queries);
-	}
-
-	public HitsMetadata<T> search(UnaryOperator<SearchRequest.Builder> operator, QueryBuilder<T> queries)
-			throws IOException {
-		return api.search(operator, queries);
-	}
-
-	public List<SortOptions> ofLimitSort(Collection<PaginationParams.Sort> sorts) {
-		return api.ofLimitSort(sorts);
-	}
-
-	public PaginationResult<T> page(PaginationParams params) throws IOException {
-		return api.page(params, QueryBuilder.builder());
-	}
-
-	public PaginationResult<T> page(PaginationParams params, QueryBuilder<T> queries) throws IOException {
-		return api.page(params, queries);
-	}
-
-	public void aggs(BiConsumer<String, Aggregate> consumer, Map<String, Aggregation> aggregationMap,
-			QueryBuilder<T> queries) throws IOException {
-		api.aggs(consumer, aggregationMap, queries);
-	}
-
-	public void aggs(UnaryOperator<SearchRequest.Builder> operator, BiConsumer<String, Aggregate> consumer,
-			Map<String, Aggregation> aggregationMap, QueryBuilder<T> queries) throws IOException {
-		api.aggs(operator, consumer, aggregationMap, queries);
-	}
-
-	public void aggs(UnaryOperator<SearchRequest.Builder> operator, Consumer<SearchResponse<T>> consumer,
-			Map<String, Aggregation> aggregationMap, QueryBuilder<T> queries) throws IOException {
-		api.aggs(operator, consumer, aggregationMap, queries);
-	}
-
-	public boolean update(String documentId, Function<Script.Builder, ObjectBuilder<Script>> scriptOperator)
-			throws IOException {
-		return api.update(documentId, scriptOperator);
-	}
-
-	public boolean update(String documentId, Script script) throws IOException {
-		return api.update(documentId, script);
-	}
-
-	public boolean update(UnaryOperator<UpdateRequest.Builder<T, T>> operator, String documentId, Script script)
-			throws IOException {
-		return api.update(operator, documentId, script);
-	}
-
-	public boolean update(T t) throws IOException {
-		return api.update(t);
-	}
-
-	public boolean upsert(T doc) throws IOException {
-		return api.upsert(doc);
-	}
-
-	public boolean upsert(T doc, Script script) throws IOException {
-		return api.upsert(doc, script);
-	}
-
-	public boolean update(UnaryOperator<UpdateRequest.Builder<T, T>> operator, String documentId) throws IOException {
-		return api.update(operator, documentId);
-	}
-
-	public boolean updateByQuery(Script script, Query... queries) throws IOException {
-		return api.updateByQuery(script, queries);
-	}
-
-	public boolean updateByQuery(Function<Script.Builder, ObjectBuilder<Script>> scriptOperator,
-			QueryBuilder<T> queries) throws IOException {
-		return api.updateByQuery(scriptOperator, queries);
-	}
-
-	public boolean updateByQuery(Script script, QueryBuilder<T> queries) throws IOException {
-		return api.updateByQuery(script, queries);
-	}
-
-	public boolean updateByQuery(UnaryOperator<UpdateByQueryRequest.Builder> operator, Script script,
-			QueryBuilder<T> queries) throws IOException {
-		return api.updateByQuery(operator, script, queries);
-	}
-
-	public BulkResponse bulk(BulkOperation... operations) throws IOException {
-		return api.bulk(operations);
-	}
-
-	public BulkResponse bulk(List<BulkOperation> operations) throws IOException {
-		return api.bulk(operations);
-	}
-
-	public BulkResponse bulk(UnaryOperator<BulkRequest.Builder> operator, List<BulkOperation> operations)
-			throws IOException {
-		return api.bulk(operator, operations);
-	}
-
-	public void save(T t) throws IOException {
-		api.save(t);
-	}
-
-	public void saveBatch(Collection<T> collection) throws IOException {
-		api.saveBatch(collection);
-	}
-
-	public void saveBatch(UnaryOperator<BulkRequest.Builder> operator, Collection<T> collection) throws IOException {
-		api.saveBatch(operator, collection);
-	}
-
-	public <E> BulkResponse batch(Collection<E> collection, Function<E, BulkOperation> function) throws IOException {
-		return api.batch(collection, function);
-	}
-
-	public <E> BulkResponse batch(UnaryOperator<BulkRequest.Builder> operator, Collection<E> collection,
-			Function<E, BulkOperation> function) throws IOException {
-		return api.batch(operator, collection, function);
-	}
-
-	public boolean deleteByQuery(Query... queries) throws IOException {
-		return api.deleteByQuery(queries);
-	}
-
-	public boolean deleteByQuery(QueryBuilder<T> queries) throws IOException {
-		return api.deleteByQuery(queries);
-	}
-
-	public boolean deleteByQuery(UnaryOperator<DeleteByQueryRequest.Builder> operator, QueryBuilder<T> queries)
-			throws IOException {
-		return api.deleteByQuery(operator, queries);
-	}
-
-	public List<T> list(Query... queries) throws IOException {
-		return api.list(queries);
-	}
-
-	public List<T> list(QueryBuilder<T> queries) throws IOException {
-		return api.list(queries);
-	}
-
-	public List<T> list(UnaryOperator<SearchRequest.Builder> operator, Query... queries) throws IOException {
-		return api.list(operator, queries);
-	}
-
-	public List<T> list(UnaryOperator<SearchRequest.Builder> operator, QueryBuilder<T> queries) throws IOException {
-		return api.list(operator, queries);
-	}
-
-	public ScrollResult<T, String> scroll(ScrollParams<String> params, Query... queries) throws IOException {
-		return api.scroll(params, queries);
-	}
-
-	public ScrollResult<T, String> scroll(ScrollParams<String> params, QueryBuilder<T> queries) throws IOException {
-		return api.scroll(params, queries);
-	}
-
-	public ScrollResult<T, String> scroll(UnaryOperator<SearchRequest.Builder> operator, ScrollParams<String> params,
-			QueryBuilder<T> queries) throws IOException {
-		return api.scroll(operator, params, queries);
-	}
-
-	public ScrollResult<T, String> scroll(UnaryOperator<ScrollRequest.Builder> operator, String scrollId)
-			throws IOException {
-		return api.scroll(operator, scrollId);
-	}
-
-	public void clearScroll(String scrollId) throws IOException {
-		api.clearScroll(scrollId);
-	}
-
-	public LimitCursor<T> pageCursor(PaginationParams params, Query... queries) {
-		return api.pageCursor(params, queries);
-	}
-
-	public LimitCursor<T> pageCursor(PaginationParams params, QueryBuilder<T> queries) {
-		return api.pageCursor(params, queries);
-	}
-
-	public ScrollCursor<T, String> scrollCursor(ScrollParams<String> params, Query... queries) throws IOException {
-		return api.scrollCursor(params, queries);
-	}
-
-	public ScrollCursor<T, String> scrollCursor(ScrollParams<String> params, QueryBuilder<T> queries)
-			throws IOException {
-		return api.scrollCursor(params, queries);
-	}
-
-	public String getIndex() {
-		return this.index;
-	}
-
-	public Class<T> getCls() {
-		return this.cls;
-	}
-
-	public ElasticsearchApi<T> getApi() {
-		return this.api;
-	}
-
-	public void setApi(ElasticsearchApi<T> api) {
-		this.api = api;
-	}
+    fun <R> tryGet(supplier: ThrowingSupplier<R>, defaultValue: Supplier<R>): R {
+        return tryGet<R>(supplier, Function { e -> defaultValue.get() })
+    }
 
+    fun <R> tryGet(supplier: ThrowingSupplier<R>, defaultValue: Function<Throwable, R>): R {
+        try {
+            return supplier.get()
+        } catch (e: Throwable) {
+            log.warn("try error: {}", e.message)
+            return defaultValue.apply(e)
+        }
+    }
+
+    // endregion
+
+    fun retry(runnable: ThrowingRunnable) {
+        api!!.retry(runnable)
+    }
+
+
+    fun <R> retry(supplier: ThrowingSupplier<R>): R {
+        return api!!.retry<R>(supplier)
+    }
+
+    fun merge(vararg arrays: Query): Query {
+        return api!!.merge(*arrays)
+    }
+
+    fun merge(builder: QueryBuilder<T>): Query {
+        return api!!.merge(builder)
+    }
+
+
+    fun get(id: String): T {
+        return api!!.get(id)
+    }
+
+
+    fun getByQuery(vararg queries: Query): T {
+        return api!!.getByQuery(*queries)
+    }
+
+
+    fun getByQuery(queries: QueryBuilder<T>): T {
+        return api!!.getByQuery(queries)
+    }
+
+
+    fun getByQuery(operator: UnaryOperator<SearchRequest.Builder>, queries: QueryBuilder<T>): T {
+        return api.getByQuery(operator, queries)
+    }
+
+
+    fun count(vararg queries: Query): Long {
+        return api!!.count(*queries)
+    }
+
+
+    fun count(queries: QueryBuilder<T>): Long {
+        return api!!.count(queries)
+    }
+
+
+    fun search(vararg queries: Query): HitsMetadata<T> {
+        return api!!.search(*queries)
+    }
+
+
+    fun search(queries: QueryBuilder<T>): HitsMetadata<T> {
+        return api!!.search(queries)
+    }
+
+
+    fun search(operator: UnaryOperator<SearchRequest.Builder>, queries: QueryBuilder<T>): HitsMetadata<T> {
+        return api.search(operator, queries)
+    }
+
+    fun ofLimitSort(sorts: MutableCollection<PaginationParams.Sort>): MutableList<SortOptions> {
+        return api!!.ofLimitSort(sorts)
+    }
+
+
+    fun page(params: PaginationParams): PaginationResult<T> {
+        return api!!.page(params, builder())
+    }
+
+
+    fun page(params: PaginationParams, queries: QueryBuilder<T>): PaginationResult<T> {
+        return api!!.page(params, queries)
+    }
+
+
+    fun aggs(
+        consumer: BiConsumer<String, Aggregate>, aggregationMap: MutableMap<String, Aggregation>,
+        queries: QueryBuilder<T>
+    ) {
+        api!!.aggs(consumer, aggregationMap, queries)
+    }
+
+
+    fun aggs(
+        operator: UnaryOperator<SearchRequest.Builder>, consumer: BiConsumer<String, Aggregate>,
+        aggregationMap: MutableMap<String, Aggregation>, queries: QueryBuilder<T>
+    ) {
+        api.aggs(operator, consumer, aggregationMap, queries)
+    }
+
+
+    fun aggs(
+        operator: UnaryOperator<SearchRequest.Builder>, consumer: Consumer<SearchResponse<T>>,
+        aggregationMap: MutableMap<String, Aggregation>, queries: QueryBuilder<T>
+    ) {
+        api.aggs(operator, consumer, aggregationMap, queries)
+    }
+
+
+    fun update(documentId: String, scriptOperator: Function<Script.Builder, ObjectBuilder<Script>>): Boolean {
+        return api.update(documentId, scriptOperator)
+    }
+
+
+    fun update(documentId: String, script: Script): Boolean {
+        return api!!.update(documentId, script)
+    }
+
+
+    fun update(operator: UnaryOperator<UpdateRequest.Builder<T, T>>, documentId: String, script: Script): Boolean {
+        return api!!.update(operator, documentId, script)
+    }
+
+
+    fun update(t: T): Boolean {
+        return api!!.update(t)
+    }
+
+
+    fun upsert(doc: T): Boolean {
+        return api!!.upsert(doc)
+    }
+
+
+    fun upsert(doc: T, script: Script): Boolean {
+        return api!!.upsert(doc, script)
+    }
+
+
+    fun update(operator: UnaryOperator<UpdateRequest.Builder<T, T>>, documentId: String): Boolean {
+        return api.update(operator, documentId)
+    }
+
+
+    fun updateByQuery(script: Script, vararg queries: Query): Boolean {
+        return api!!.updateByQuery(script, *queries)
+    }
+
+
+    fun updateByQuery(
+        scriptOperator: Function<Script.Builder, ObjectBuilder<Script>>,
+        queries: QueryBuilder<T>
+    ): Boolean {
+        return api.updateByQuery(scriptOperator, queries)
+    }
+
+
+    fun updateByQuery(script: Script, queries: QueryBuilder<T>): Boolean {
+        return api!!.updateByQuery(script, queries)
+    }
+
+
+    fun updateByQuery(
+        operator: UnaryOperator<UpdateByQueryRequest.Builder>, script: Script,
+        queries: QueryBuilder<T>
+    ): Boolean {
+        return api.updateByQuery(operator, script, queries)
+    }
+
+
+    fun bulk(vararg operations: BulkOperation): BulkResponse {
+        return api!!.bulk(*operations)
+    }
+
+
+    fun bulk(operations: MutableList<BulkOperation>): BulkResponse {
+        return api.bulk(operations)
+    }
+
+
+    fun bulk(operator: UnaryOperator<BulkRequest.Builder>, operations: MutableList<BulkOperation>): BulkResponse {
+        return api.bulk(operator, operations)
+    }
+
+
+    fun save(t: T) {
+        api!!.save(t)
+    }
+
+
+    fun saveBatch(collection: MutableCollection<T>) {
+        api!!.saveBatch(collection)
+    }
+
+
+    fun saveBatch(operator: UnaryOperator<BulkRequest.Builder>, collection: MutableCollection<T>) {
+        api!!.saveBatch(operator, collection)
+    }
+
+
+    fun <E> batch(collection: MutableCollection<E>, function: Function<E, BulkOperation>): BulkResponse {
+        return api!!.batch<E>(collection, function)
+    }
+
+
+    fun <E> batch(
+        operator: UnaryOperator<BulkRequest.Builder>, collection: MutableCollection<E>,
+        function: Function<E, BulkOperation>
+    ): BulkResponse {
+        return api!!.batch<E>(operator, collection, function)
+    }
+
+
+    fun deleteByQuery(vararg queries: Query): Boolean {
+        return api!!.deleteByQuery(*queries)
+    }
+
+
+    fun deleteByQuery(queries: QueryBuilder<T>): Boolean {
+        return api!!.deleteByQuery(queries)
+    }
+
+
+    fun deleteByQuery(operator: UnaryOperator<DeleteByQueryRequest.Builder>, queries: QueryBuilder<T>): Boolean {
+        return api.deleteByQuery(operator, queries)
+    }
+
+
+    fun list(vararg queries: Query): MutableList<T> {
+        return api!!.list(*queries)
+    }
+
+
+    fun list(queries: QueryBuilder<T>): MutableList<T> {
+        return api!!.list(queries)
+    }
+
+
+    fun list(operator: UnaryOperator<SearchRequest.Builder>, vararg queries: Query): MutableList<T> {
+        return api.list(operator, *queries)
+    }
+
+
+    fun list(operator: UnaryOperator<SearchRequest.Builder>, queries: QueryBuilder<T>): MutableList<T> {
+        return api.list(operator, queries)
+    }
+
+
+    fun scroll(params: ScrollParams<String>, vararg queries: Query): ScrollResult<T, String> {
+        return api!!.scroll(params, *queries)
+    }
+
+
+    fun scroll(params: ScrollParams<String>, queries: QueryBuilder<T>): ScrollResult<T, String> {
+        return api.scroll(params, queries)
+    }
+
+
+    fun scroll(
+        operator: UnaryOperator<SearchRequest.Builder>, params: ScrollParams<String>,
+        queries: QueryBuilder<T>
+    ): ScrollResult<T, String> {
+        return api.scroll(operator, params, queries)
+    }
+
+
+    fun scroll(operator: UnaryOperator<ScrollRequest.Builder>, scrollId: String): ScrollResult<T, String> {
+        return api.scroll(operator, scrollId)
+    }
+
+
+    fun clearScroll(scrollId: String) {
+        api!!.clearScroll(scrollId)
+    }
+
+    fun pageCursor(params: PaginationParams, vararg queries: Query): LimitCursor<T> {
+        return api!!.pageCursor(params, *queries)
+    }
+
+    fun pageCursor(params: PaginationParams, queries: QueryBuilder<T>): LimitCursor<T> {
+        return api!!.pageCursor(params, queries)
+    }
+
+
+    fun scrollCursor(params: ScrollParams<String>, vararg queries: Query): ScrollCursor<T, String> {
+        return api!!.scrollCursor(params, *queries)
+    }
+
+
+    fun scrollCursor(params: ScrollParams<String>, queries: QueryBuilder<T>): ScrollCursor<T, String> {
+        return api.scrollCursor(params, queries)
+    }
+
+    fun getApi(): ElasticsearchApi<T> {
+        return this.api!!
+    }
+
+    fun setApi(api: ElasticsearchApi<T>) {
+        this.api = api
+    }
 }

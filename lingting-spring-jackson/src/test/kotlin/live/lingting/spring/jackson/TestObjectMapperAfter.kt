@@ -1,26 +1,19 @@
-package live.lingting.spring.jackson;
+package live.lingting.spring.jackson
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.stereotype.Component;
-
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import com.fasterxml.jackson.databind.ObjectMapper
+import org.junit.jupiter.api.Assertions
+import org.springframework.stereotype.Component
 
 /**
  * @author lingting 2024-02-02 16:00
  */
 @Component
-public class TestObjectMapperAfter implements ObjectMapperAfter {
+class TestObjectMapperAfter : ObjectMapperAfter {
+    var isAfter: Boolean = false
+        private set
 
-	private boolean after = false;
-
-	@Override
-	public void apply(ObjectMapper mapper) {
-		assertFalse(after);
-		after = true;
-	}
-
-	public boolean isAfter() {
-		return this.after;
-	}
-
+    override fun apply(mapper: ObjectMapper) {
+        Assertions.assertFalse(this.isAfter)
+        this.isAfter = true
+    }
 }

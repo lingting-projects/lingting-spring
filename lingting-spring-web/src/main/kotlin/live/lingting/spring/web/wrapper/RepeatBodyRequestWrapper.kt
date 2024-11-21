@@ -1,113 +1,98 @@
-package live.lingting.spring.web.wrapper;
+package live.lingting.spring.web.wrapper
 
-import jakarta.servlet.ReadListener;
-import jakarta.servlet.ServletInputStream;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletRequestWrapper;
-import live.lingting.framework.util.FileUtils;
-import live.lingting.framework.util.StreamUtils;
-
-import java.io.BufferedReader;
-import java.io.Closeable;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import jakarta.servlet.ReadListener
+import jakarta.servlet.ServletInputStream
+import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletRequestWrapper
+import java.io.BufferedReader
+import java.io.Closeable
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.io.FileReader
+import live.lingting.framework.util.FileUtils.createTemp
+import live.lingting.framework.util.FileUtils.createTempDir
+import live.lingting.framework.util.FileUtils.delete
+import live.lingting.framework.util.StreamUtils.close
+import live.lingting.framework.util.StreamUtils.write
 
 /**
  * @author lingting 2024-03-20 15:08
  */
-public class RepeatBodyRequestWrapper extends HttpServletRequestWrapper implements Closeable {
+class RepeatBodyRequestWrapper(request: HttpServletRequest) : HttpServletRequestWrapper(request), Closeable {
+    val bodyFile: File
 
-	public static final File TMP_DIR = FileUtils.createTempDir("request");
+    private val paramsMap: MutableMap<String, Array<String>>
 
-	private final File bodyFile;
+    val closeableList: MutableList<Closeable>
 
-	private final Map<String, String[]> paramsMap;
+    init {
+        paramsMap = request.getParameterMap()
+        bodyFile = createTemp(".repeat", TMP_DIR)
+        FileOutputStream(bodyFile).use { outputStream ->
+            write(request.getInputStream(), outputStream)
+        }
+        closeableList = ArrayList<Closeable>()
+    }
 
-	private final List<Closeable> closeableList;
 
-	public RepeatBodyRequestWrapper(HttpServletRequest request) throws IOException {
-		super(request);
-		paramsMap = request.getParameterMap();
-		bodyFile = FileUtils.createTemp(".repeat", TMP_DIR);
-		try (FileOutputStream outputStream = new FileOutputStream(bodyFile)) {
-			StreamUtils.write(request.getInputStream(), outputStream);
-		}
-		closeableList = new ArrayList<>();
-	}
+    override fun getReader(): BufferedReader {
+        val bufferedReader = BufferedReader(FileReader(bodyFile))
+        closeableList.add(bufferedReader)
+        return bufferedReader
+    }
 
-	public static RepeatBodyRequestWrapper of(HttpServletRequest request) throws IOException {
-		if (!(request instanceof RepeatBodyRequestWrapper)) {
-			return new RepeatBodyRequestWrapper(request);
-		}
-		return (RepeatBodyRequestWrapper) request;
-	}
 
-	@Override
-	public BufferedReader getReader() throws IOException {
-		BufferedReader bufferedReader = new BufferedReader(new FileReader(bodyFile));
-		closeableList.add(bufferedReader);
-		return bufferedReader;
-	}
+    override fun getInputStream(): ServletInputStream {
+        val stream = FileInputStream(bodyFile)
+        val servletInputStream: ServletInputStream = object : ServletInputStream() {
+            override fun isFinished(): Boolean {
+                return false
+            }
 
-	@Override
-	@SuppressWarnings("java:S2095")
-	public ServletInputStream getInputStream() throws IOException {
-		FileInputStream stream = new FileInputStream(bodyFile);
-		ServletInputStream servletInputStream = new ServletInputStream() {
-			@Override
-			public boolean isFinished() {
-				return false;
-			}
+            override fun isReady(): Boolean {
+                return false
+            }
 
-			@Override
-			public boolean isReady() {
-				return false;
-			}
+            override fun setReadListener(readListener: ReadListener) {
+                //
+            }
 
-			@Override
-			public void setReadListener(ReadListener readListener) {
-				//
-			}
 
-			@Override
-			public int read() throws IOException {
-				return stream.read();
-			}
+            override fun read(): Int {
+                return stream.read()
+            }
 
-			@Override
-			public void close() throws IOException {
-				stream.close();
-			}
-		};
-		closeableList.add(servletInputStream);
-		return servletInputStream;
-	}
 
-	@Override
-	public Map<String, String[]> getParameterMap() {
-		return paramsMap;
-	}
+            override fun close() {
+                stream.close()
+            }
+        }
+        closeableList.add(servletInputStream)
+        return servletInputStream
+    }
 
-	@Override
-	public void close() throws IOException {
-		for (Closeable closeable : getCloseableList()) {
-			StreamUtils.close(closeable);
-		}
-		FileUtils.delete(getBodyFile());
-	}
+    override fun getParameterMap(): MutableMap<String, Array<String>> {
+        return paramsMap
+    }
 
-	public File getBodyFile() {
-		return this.bodyFile;
-	}
 
-	public List<Closeable> getCloseableList() {
-		return this.closeableList;
-	}
+    override fun close() {
+        for (closeable in this.closeableList) {
+            close(closeable)
+        }
+        delete(this.bodyFile)
+    }
 
+    companion object {
+        val TMP_DIR: File = createTempDir("request")
+
+
+        fun of(request: HttpServletRequest): RepeatBodyRequestWrapper {
+            if (request !is RepeatBodyRequestWrapper) {
+                return RepeatBodyRequestWrapper(request)
+            }
+            return request
+        }
+    }
 }

@@ -8,6 +8,7 @@ kotlin-coroutines = "1.9.0"
 
 [libraries]
 framework-dependencies = { group = "live.lingting.framework", name = "lingting-dependencies", version.ref = "framework" }
+spring-test = { group = "org.springframework.boot", name = "spring-boot-starter-test" }
 redisson = { group = "org.redisson", name = "redisson-spring-boot-starter", version.ref = "redisson" }
 slf4j = { group = "org.slf4j", name = "slf4j-api" }
 awaitility = { group = "org.awaitility", name = "awaitility" }
@@ -23,7 +24,7 @@ annotation = []
 ksp = []
 implementation = ["slf4j", "kotlin-reflect", "kotlin-stdlib", "kotlin-coroutines-core"]
 compile = []
-test = ["awaitility", "junit", "logback"]
+test = ["awaitility", "junit", "logback", "spring-test"]
 
 [plugins]
 publish = { id = "com.vanniktech.maven.publish", version.ref = "publish" }

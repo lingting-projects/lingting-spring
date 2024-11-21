@@ -1,24 +1,18 @@
-package live.lingting.spring.jackson;
+package live.lingting.spring.jackson
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.stereotype.Component;
+import com.fasterxml.jackson.databind.ObjectMapper
+import org.springframework.stereotype.Component
 
 /**
  * @author lingting 2024-02-02 15:59
  */
 @Component
-public class TestObjectMapperCustomizer implements ObjectMapperCustomizer {
+class TestObjectMapperCustomizer : ObjectMapperCustomizer {
+    var objectMapper: ObjectMapper = null
+        private set
 
-	private ObjectMapper objectMapper;
-
-	@Override
-	public ObjectMapper apply(ObjectMapper mapper) {
-		objectMapper = mapper.copy();
-		return objectMapper;
-	}
-
-	public ObjectMapper getObjectMapper() {
-		return this.objectMapper;
-	}
-
+    override fun apply(mapper: ObjectMapper): ObjectMapper {
+        objectMapper = mapper.copy()
+        return objectMapper
+    }
 }

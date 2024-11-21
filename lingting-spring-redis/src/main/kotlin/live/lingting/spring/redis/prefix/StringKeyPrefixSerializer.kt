@@ -1,28 +1,18 @@
-package live.lingting.spring.redis.prefix;
+package live.lingting.spring.redis.prefix
 
-import org.springframework.data.redis.serializer.StringRedisSerializer;
+import org.springframework.data.redis.serializer.StringRedisSerializer
 
 /**
  * @author lingting 2024-04-17 16:05
  */
-public class StringKeyPrefixSerializer extends StringRedisSerializer {
+class StringKeyPrefixSerializer(private val convert: KeyPrefixConvert) : StringRedisSerializer() {
+    override fun serialize(value: String): ByteArray {
+        val bytes = super.serialize(value)
+        return if (convert.isMatch(bytes)) convert.wrap(bytes) else bytes
+    }
 
-	private final KeyPrefixConvert convert;
-
-	public StringKeyPrefixSerializer(KeyPrefixConvert convert) {
-		this.convert = convert;
-	}
-
-	@Override
-	public byte[] serialize(String value) {
-		byte[] bytes = super.serialize(value);
-		return convert.isMatch(bytes) ? convert.wrap(bytes) : bytes;
-	}
-
-	@Override
-	public String deserialize(byte[] bytes) {
-		byte[] target = convert.isMatch(bytes) ? convert.unwrap(bytes) : bytes;
-		return super.deserialize(target);
-	}
-
+    override fun deserialize(bytes: ByteArray): String {
+        val target = if (convert.isMatch(bytes)) convert.unwrap(bytes) else bytes
+        return super.deserialize(target)
+    }
 }

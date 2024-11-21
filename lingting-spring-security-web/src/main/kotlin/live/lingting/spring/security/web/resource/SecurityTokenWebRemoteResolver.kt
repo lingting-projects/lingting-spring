@@ -1,86 +1,71 @@
-package live.lingting.spring.security.web.resource;
+package live.lingting.spring.security.web.resource
 
-import live.lingting.framework.Sequence;
-import live.lingting.framework.http.HttpClient;
-import live.lingting.framework.security.convert.SecurityConvert;
-import live.lingting.framework.security.domain.AuthorizationVO;
-import live.lingting.framework.security.domain.SecurityScope;
-import live.lingting.framework.security.domain.SecurityToken;
-import live.lingting.framework.security.resolver.SecurityTokenResolver;
-import live.lingting.framework.util.StringUtils;
-import live.lingting.spring.security.web.properties.SecurityWebProperties;
-
-import java.net.URI;
-import java.net.http.HttpRequest;
+import java.net.URI
+import java.net.http.HttpRequest
+import live.lingting.framework.Sequence
+import live.lingting.framework.http.HttpClient
+import live.lingting.framework.security.convert.SecurityConvert
+import live.lingting.framework.security.domain.AuthorizationVO
+import live.lingting.framework.security.domain.SecurityScope
+import live.lingting.framework.security.domain.SecurityToken
+import live.lingting.framework.security.resolver.SecurityTokenResolver
+import live.lingting.framework.util.StringUtils.hasText
+import live.lingting.spring.security.web.properties.SecurityWebProperties
 
 /**
  * @author lingting 2024-03-21 19:41
  */
-public class SecurityTokenWebRemoteResolver implements SecurityTokenResolver, Sequence {
+class SecurityTokenWebRemoteResolver(
+    host: String, protected val client: HttpClient, protected val convert: SecurityConvert,
+    protected val properties: SecurityWebProperties
+) : SecurityTokenResolver, Sequence {
+    protected val urlResolve: URI
 
-	protected final HttpClient client;
+    init {
+        this.urlResolve = URI.create(join(host, "authorization/resolve"))
+    }
 
-	protected final URI urlResolve;
+    fun resolveBuilder(token: SecurityToken): HttpRequest.Builder {
+        var builder = HttpRequest.newBuilder()
+        builder.GET().uri(urlResolve)
+        builder = fillSecurity(builder, token)
+        return builder
+    }
 
-	protected final SecurityConvert convert;
+    protected fun fillSecurity(builder: HttpRequest.Builder, token: SecurityToken): HttpRequest.Builder {
+        builder.header(properties.getHeaderAuthorization(), token.raw)
+        return builder
+    }
 
-	protected final SecurityWebProperties properties;
+    protected fun join(host: String, uri: String): String {
+        var uri = uri
+        require(hasText(host)) { "remoteHost is not Null!" }
+        val builder = StringBuilder(host)
+        if (!host!!.startsWith("http")) {
+            builder.append("http").append("://")
+        }
 
-	public SecurityTokenWebRemoteResolver(String host, HttpClient client, SecurityConvert convert,
-			SecurityWebProperties properties) {
-		this.client = client;
-		this.urlResolve = URI.create(join(host, "authorization/resolve"));
-		this.convert = convert;
-		this.properties = properties;
-	}
+        if (!host.endsWith("/")) {
+            builder.append("/")
+        }
 
-	public HttpRequest.Builder resolveBuilder(SecurityToken token) {
-		HttpRequest.Builder builder = HttpRequest.newBuilder();
-		builder.GET().uri(urlResolve);
-		builder = fillSecurity(builder, token);
-		return builder;
-	}
+        if (uri.startsWith("/")) {
+            uri = uri.substring(1)
+        }
+        builder.append(uri)
+        return builder.toString()
+    }
 
-	protected HttpRequest.Builder fillSecurity(HttpRequest.Builder builder, SecurityToken token) {
-		builder.header(properties.getHeaderAuthorization(), token.getRaw());
-		return builder;
-	}
+    override fun isSupport(token: SecurityToken): Boolean {
+        return true
+    }
 
-	protected String join(String host, String uri) {
-		if (!StringUtils.hasText(host)) {
-			throw new IllegalArgumentException("remoteHost is not Null!");
-		}
-		StringBuilder builder = new StringBuilder(host);
-		if (!host.startsWith("http")) {
-			builder.append("http").append("://");
-		}
+    override fun resolver(token: SecurityToken): SecurityScope {
+        val builder = resolveBuilder(token)
+        val vo: AuthorizationVO = client.request(builder.build(), AuthorizationVO::class.java)
+        return convert.voToScope(vo)
+    }
 
-		if (!host.endsWith("/")) {
-			builder.append("/");
-		}
-
-		if (uri.startsWith("/")) {
-			uri = uri.substring(1);
-		}
-		builder.append(uri);
-		return builder.toString();
-	}
-
-	@Override
-	public boolean isSupport(SecurityToken token) {
-		return true;
-	}
-
-	@Override
-	public SecurityScope resolver(SecurityToken token) {
-		HttpRequest.Builder builder = resolveBuilder(token);
-		AuthorizationVO vo = client.request(builder.build(), AuthorizationVO.class);
-		return convert.voToScope(vo);
-	}
-
-	@Override
-	public int getSequence() {
-		return Integer.MAX_VALUE;
-	}
-
+    val sequence: Int
+        get() = Int.MAX_VALUE
 }

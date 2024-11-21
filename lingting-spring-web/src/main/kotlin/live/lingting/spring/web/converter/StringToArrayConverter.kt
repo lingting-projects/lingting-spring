@@ -13,17 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package live.lingting.spring.web.converter
 
-package live.lingting.spring.web.converter;
-
-import org.springframework.core.convert.TypeDescriptor;
-import org.springframework.lang.Nullable;
-import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
-
-import java.lang.reflect.Array;
-import java.util.Collections;
-import java.util.Set;
+import java.lang.reflect.Array
+import org.springframework.core.convert.TypeDescriptor
+import org.springframework.core.convert.converter.GenericConverter.ConvertiblePair
+import org.springframework.lang.Nullable
+import org.springframework.stereotype.Component
+import org.springframework.util.Assert
 
 /**
  * Converts a comma-delimited String to an Array. Only matches if String.class can be
@@ -34,32 +31,27 @@ import java.util.Set;
  * @since 3.0
  */
 @Component
-public class StringToArrayConverter extends AbstractConverter<Object> {
+class StringToArrayConverter : AbstractConverter<Any>() {
+    override fun getConvertibleTypes(): MutableSet<ConvertiblePair> {
+        return mutableSetOf<ConvertiblePair>(ConvertiblePair(String::class.java, Array<Any>::class.java))
+    }
 
-	@Override
-	public Set<ConvertiblePair> getConvertibleTypes() {
-		return Collections.singleton(new ConvertiblePair(String.class, Object[].class));
-	}
+    override fun matches(sourceType: TypeDescriptor, targetType: TypeDescriptor): Boolean {
+        return ConversionUtils.canConvertElements(sourceType, targetType.getElementTypeDescriptor(), service)
+    }
 
-	@Override
-	public boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType) {
-		return ConversionUtils.canConvertElements(sourceType, targetType.getElementTypeDescriptor(), service);
-	}
+    @Nullable
+    override fun convert(@Nullable source: Any, sourceType: TypeDescriptor, targetType: TypeDescriptor): Any {
+        val fields = toArray(source)
 
-	@Override
-	@Nullable
-	public Object convert(@Nullable Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
-		String[] fields = toArray(source);
-
-		TypeDescriptor targetElementType = targetType.getElementTypeDescriptor();
-		Assert.state(targetElementType != null, "No target element type");
-		Object target = Array.newInstance(targetElementType.getType(), fields.length);
-		for (int i = 0; i < fields.length; i++) {
-			String sourceElement = fields[i];
-			Object targetElement = service.convert(sourceElement.trim(), sourceType, targetElementType);
-			Array.set(target, i, targetElement);
-		}
-		return target;
-	}
-
+        val targetElementType = targetType.getElementTypeDescriptor()
+        Assert.state(targetElementType != null, "No target element type")
+        val target = Array.newInstance(targetElementType!!.getType(), fields.size)
+        for (i in fields.indices) {
+            val sourceElement = fields[i]
+            val targetElement = service.convert(sourceElement.trim { it <= ' ' }, sourceType, targetElementType)
+            Array.set(target, i, targetElement)
+        }
+        return target
+    }
 }

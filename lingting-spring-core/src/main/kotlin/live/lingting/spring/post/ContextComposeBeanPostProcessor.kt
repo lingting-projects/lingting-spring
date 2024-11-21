@@ -1,25 +1,24 @@
-package live.lingting.spring.post;
+package live.lingting.spring.post
 
-import live.lingting.framework.context.ContextComponent;
-import org.slf4j.Logger;
+import live.lingting.framework.context.ContextComponent
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 /**
  * @author lingting 2022/10/22 15:10
  */
-public class ContextComposeBeanPostProcessor implements SpringBeanPostProcessor {
+class ContextComposeBeanPostProcessor : SpringBeanPostProcessor {
+    override fun isProcess(bean: Any, beanName: String, isBefore: Boolean): Boolean {
+        return bean is ContextComponent
+    }
 
-	private static final Logger log = org.slf4j.LoggerFactory.getLogger(ContextComposeBeanPostProcessor.class);
+    override fun postProcessAfter(bean: Any, beanName: String): Any {
+        log.trace("class [{}] start.", bean.javaClass)
+        (bean as ContextComponent).onApplicationStart()
+        return bean
+    }
 
-	@Override
-	public boolean isProcess(Object bean, String beanName, boolean isBefore) {
-		return bean instanceof ContextComponent;
-	}
-
-	@Override
-	public Object postProcessAfter(Object bean, String beanName) {
-		log.trace("class [{}] start.", bean.getClass());
-		((ContextComponent) bean).onApplicationStart();
-		return bean;
-	}
-
+    companion object {
+        private val log: Logger = LoggerFactory.getLogger(ContextComposeBeanPostProcessor::class.java)
+    }
 }

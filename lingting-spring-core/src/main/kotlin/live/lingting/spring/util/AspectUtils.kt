@@ -1,54 +1,48 @@
-package live.lingting.spring.util;
+package live.lingting.spring.util
 
-import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.Signature;
-import org.aspectj.lang.reflect.MethodSignature;
-import org.springframework.core.annotation.AnnotationUtils;
-
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
+import java.lang.reflect.Method
+import org.aspectj.lang.ProceedingJoinPoint
+import org.aspectj.lang.reflect.MethodSignature
+import org.springframework.core.annotation.AnnotationUtils
 
 /**
  * 切面工具类
  *
  * @author lingting 2022/10/28 15:03
  */
-public final class AspectUtils {
+object AspectUtils {
+    /**
+     * 获取切入的方法
+     * @param point 切面
+     * @return java.lang.reflect.Method
+     */
+    @JvmStatic
+    fun getMethod(point: ProceedingJoinPoint): Method? {
+        val signature = point.signature
+        if (signature is MethodSignature) {
+            return signature.method
+        }
+        return null
+    }
 
-	private AspectUtils() {
-		throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
-	}
+    /**
+     * 获取切入点方法上的注解, 找不到则往类上找
+     * @param point 切面
+     * @param cls 注解类型
+     * @return T 注解类型
+     */
+    @JvmStatic
+    fun <T : Annotation> getAnnotation(point: ProceedingJoinPoint, cls: Class<T>): T? {
+        val method = getMethod(point)
+        var t: T? = null
+        if (method != null) {
+            t = AnnotationUtils.findAnnotation<T>(method, cls)
+        }
 
-	/**
-	 * 获取切入的方法
-	 * @param point 切面
-	 * @return java.lang.reflect.Method
-	 */
-	public static Method getMethod(ProceedingJoinPoint point) {
-		Signature signature = point.getSignature();
-		if (signature instanceof MethodSignature ms) {
-			return ms.getMethod();
-		}
-		return null;
-	}
-
-	/**
-	 * 获取切入点方法上的注解, 找不到则往类上找
-	 * @param point 切面
-	 * @param cls 注解类型
-	 * @return T 注解类型
-	 */
-	public static <T extends Annotation> T getAnnotation(ProceedingJoinPoint point, Class<T> cls) {
-		Method method = getMethod(point);
-		T t = null;
-		if (method != null) {
-			t = AnnotationUtils.findAnnotation(method, cls);
-		}
-
-		if (t == null) {
-			t = AnnotationUtils.findAnnotation(point.getTarget().getClass(), cls);
-		}
-		return t;
-	}
-
+        if (t == null) {
+            t = AnnotationUtils.findAnnotation<T>(point.target.javaClass, cls)
+        }
+        return t
+    }
 }
+

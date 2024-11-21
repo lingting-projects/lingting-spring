@@ -1,72 +1,46 @@
-package live.lingting.spring.redis.script;
+package live.lingting.spring.redis.script
 
-import live.lingting.spring.redis.Redis;
-import org.redisson.api.RScript;
-import org.redisson.api.RedissonClient;
-import org.springframework.data.redis.connection.RedisConnection;
-import org.springframework.data.redis.connection.ReturnType;
-import org.springframework.data.redis.core.script.DigestUtils;
-import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
-
-import java.util.List;
+import live.lingting.spring.redis.Redis
+import org.redisson.api.RedissonClient
+import org.springframework.data.redis.connection.RedisConnection
+import org.springframework.data.redis.connection.ReturnType
+import org.springframework.data.redis.core.script.DigestUtils
+import org.springframework.util.Assert
+import org.springframework.util.StringUtils
 
 /**
  * @author lingting 2024-04-17 16:19
  */
-public class RepeatRedisScript<T> {
+class RepeatRedisScript<T> @JvmOverloads constructor(source: String, type: ReturnType = ReturnType.STATUS) {
+    val source: String
 
-	private final String source;
+    val sha1: String
 
-	private final String sha1;
+    val type: ReturnType
 
-	private final ReturnType type;
+    var isLoad: Boolean = false
+        private set
 
-	private boolean load = false;
+    constructor(source: String, resultType: Class<T>) : this(source, ReturnType.fromJavaType(resultType))
 
-	public RepeatRedisScript(String source) {
-		this(source, ReturnType.STATUS);
-	}
+    init {
+        Assert.state(StringUtils.hasText(source), "Redis script source must not be empty")
+        this.source = source
+        this.sha1 = DigestUtils.sha1DigestAsHex(source)
+        this.type = type
+    }
 
-	public RepeatRedisScript(String source, Class<T> resultType) {
-		this(source, ReturnType.fromJavaType(resultType));
-	}
+    fun execute(keys: MutableList<String>, vararg args: Any): T {
+        return Redis.instance().scriptExecutor().execute<T>(this, keys, *args)
+    }
 
-	public RepeatRedisScript(String source, ReturnType type) {
-		Assert.state(StringUtils.hasText(source), "Redis script source must not be empty");
-		this.source = source;
-		this.sha1 = DigestUtils.sha1DigestAsHex(source);
-		this.type = type;
-	}
+    fun execute(connection: RedisConnection, keys: MutableList<String>, vararg args: Any): T {
+        return Redis.instance().scriptExecutor().execute<T>(connection, this, keys, *args)
+    }
 
-	public T execute(List<String> keys, Object... args) {
-		return Redis.instance().scriptExecutor().execute(this, keys, args);
-	}
-
-	public T execute(RedisConnection connection, List<String> keys, Object... args) {
-		return Redis.instance().scriptExecutor().execute(connection, this, keys, args);
-	}
-
-	public void load(RedissonClient client) {
-		RScript script = client.getScript();
-		script.scriptLoad(source);
-		this.load = true;
-	}
-
-	public String getSource() {
-		return this.source;
-	}
-
-	public String getSha1() {
-		return this.sha1;
-	}
-
-	public ReturnType getType() {
-		return this.type;
-	}
-
-	public boolean isLoad() {
-		return this.load;
-	}
-
+    fun load(client: RedissonClient) {
+        val script = client.getScript()
+        script.scriptLoad(source)
+        this.isLoad = true
+    }
 }

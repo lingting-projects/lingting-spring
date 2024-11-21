@@ -1,33 +1,29 @@
-package live.lingting.spring.security.password;
+package live.lingting.spring.security.password
 
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Test
 
 /**
  * @author lingting 2024-03-28 20:19
  */
-class SecurityDefaultPasswordTest {
+internal class SecurityDefaultPasswordTest {
+    var key: String = "==Lingting-Key=="
 
-	String key = "==Lingting-Key==";
+    var raw: String = "lingting"
 
-	String raw = "lingting";
+    var password: SecurityDefaultPassword = SecurityDefaultPassword(key)
 
-	SecurityDefaultPassword password = new SecurityDefaultPassword(key);
+    @Test
+    fun test() {
+        Assertions.assertTrue(password.valid(raw))
+        val encodeFront = password.encodeFront(raw)
+        println("encodeFront: " + encodeFront)
+        val decodeFront = password.decodeFront(encodeFront)
+        println("decodeFront: " + decodeFront)
 
-	@Test
-	void test() {
-		assertTrue(password.valid(raw));
-		String encodeFront = password.encodeFront(raw);
-		System.out.println("encodeFront: " + encodeFront);
-		String decodeFront = password.decodeFront(encodeFront);
-		System.out.println("decodeFront: " + decodeFront);
-
-		assertEquals(raw, decodeFront);
-		String encode = password.encode(raw);
-		System.out.println("encode: " + encode);
-		assertTrue(password.match(raw, encode));
-	}
-
+        Assertions.assertEquals(raw, decodeFront)
+        val encode = password.encode(raw)
+        println("encode: " + encode)
+        Assertions.assertTrue(password.match(raw, encode))
+    }
 }

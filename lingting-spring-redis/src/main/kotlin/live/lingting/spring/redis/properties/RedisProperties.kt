@@ -1,151 +1,92 @@
-package live.lingting.spring.redis.properties;
+package live.lingting.spring.redis.properties
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
-
-import java.time.Duration;
+import java.time.Duration
+import org.springframework.boot.context.properties.ConfigurationProperties
 
 /**
  * @author lingting 2024-04-17 15:04
  */
 @ConfigurationProperties(RedisProperties.PREFIX)
-public class RedisProperties {
+class RedisProperties {
+    var keyPrefix: String = "lingting:"
 
-	public static final String PREFIX = "lingting.redis";
+    var keyDelimiter: String = ":"
 
-	private String keyPrefix = "lingting:";
+    var nullValue: String = "N_V"
 
-	private String keyDelimiter = ":";
+    /**
+     * 缓存过期时间
+     */
+    var cacheExpireTime: Duration = Duration.ofDays(7)
 
-	private String nullValue = "N_V";
+    /**
+     * 锁获取超时时间
+     */
+    var lockTimeout: Duration = Duration.ofSeconds(10)
 
-	/**
-	 * 缓存过期时间
-	 */
-	private Duration cacheExpireTime = Duration.ofDays(7);
+    /**
+     * 锁持有最长时间, 超过该时间还未完成缓存操作则直接释放锁
+     */
+    var leaseTime: Duration = Duration.ofSeconds(30)
 
-	/**
-	 * 锁获取超时时间
-	 */
-	private Duration lockTimeout = Duration.ofSeconds(10);
+    override fun equals(o: Any): Boolean {
+        if (o === this) return true
+        if (o !is RedisProperties) return false
+        val other = o
+        if (!other.canEqual(this as Any)) return false
+        val `this$keyPrefix`: Any = this.keyPrefix
+        val `other$keyPrefix`: Any = other.keyPrefix
+        if (if (`this$keyPrefix` == null) `other$keyPrefix` != null else (`this$keyPrefix` != `other$keyPrefix`)) return false
+        val `this$keyDelimiter`: Any = this.keyDelimiter
+        val `other$keyDelimiter`: Any = other.keyDelimiter
+        if (if (`this$keyDelimiter` == null) `other$keyDelimiter` != null else (`this$keyDelimiter` != `other$keyDelimiter`)) return false
+        val `this$nullValue`: Any = this.nullValue
+        val `other$nullValue`: Any = other.nullValue
+        if (if (`this$nullValue` == null) `other$nullValue` != null else (`this$nullValue` != `other$nullValue`)) return false
+        val `this$cacheExpireTime`: Any = this.cacheExpireTime
+        val `other$cacheExpireTime`: Any = other.cacheExpireTime
+        if (if (`this$cacheExpireTime` == null)
+                `other$cacheExpireTime` != null
+            else (`this$cacheExpireTime` != `other$cacheExpireTime`)
+        ) return false
+        val `this$lockTimeout`: Any = this.lockTimeout
+        val `other$lockTimeout`: Any = other.lockTimeout
+        if (if (`this$lockTimeout` == null) `other$lockTimeout` != null else (`this$lockTimeout` != `other$lockTimeout`)) return false
+        val `this$leaseTime`: Any = this.leaseTime
+        val `other$leaseTime`: Any = other.leaseTime
+        if (if (`this$leaseTime` == null) `other$leaseTime` != null else (`this$leaseTime` != `other$leaseTime`)) return false
+        return true
+    }
 
-	/**
-	 * 锁持有最长时间, 超过该时间还未完成缓存操作则直接释放锁
-	 */
-	private Duration leaseTime = Duration.ofSeconds(30);
+    protected fun canEqual(other: Any): Boolean {
+        return other is RedisProperties
+    }
 
-	public RedisProperties() {
-	}
+    override fun hashCode(): Int {
+        val PRIME = 59
+        var result = 1
+        val `$keyPrefix`: Any = this.keyPrefix
+        result = result * PRIME + (if (`$keyPrefix` == null) 43 else `$keyPrefix`.hashCode())
+        val `$keyDelimiter`: Any = this.keyDelimiter
+        result = result * PRIME + (if (`$keyDelimiter` == null) 43 else `$keyDelimiter`.hashCode())
+        val `$nullValue`: Any = this.nullValue
+        result = result * PRIME + (if (`$nullValue` == null) 43 else `$nullValue`.hashCode())
+        val `$cacheExpireTime`: Any = this.cacheExpireTime
+        result = result * PRIME + (if (`$cacheExpireTime` == null) 43 else `$cacheExpireTime`.hashCode())
+        val `$lockTimeout`: Any = this.lockTimeout
+        result = result * PRIME + (if (`$lockTimeout` == null) 43 else `$lockTimeout`.hashCode())
+        val `$leaseTime`: Any = this.leaseTime
+        result = result * PRIME + (if (`$leaseTime` == null) 43 else `$leaseTime`.hashCode())
+        return result
+    }
 
-	public String getKeyPrefix() {
-		return this.keyPrefix;
-	}
+    override fun toString(): String {
+        return ("RedisProperties(keyPrefix=" + this.keyPrefix + ", keyDelimiter=" + this.keyDelimiter
+                + ", nullValue=" + this.nullValue + ", cacheExpireTime=" + this.cacheExpireTime
+                + ", lockTimeout=" + this.lockTimeout + ", leaseTime=" + this.leaseTime + ")")
+    }
 
-	public String getKeyDelimiter() {
-		return this.keyDelimiter;
-	}
-
-	public String getNullValue() {
-		return this.nullValue;
-	}
-
-	public Duration getCacheExpireTime() {
-		return this.cacheExpireTime;
-	}
-
-	public Duration getLockTimeout() {
-		return this.lockTimeout;
-	}
-
-	public Duration getLeaseTime() {
-		return this.leaseTime;
-	}
-
-	public void setKeyPrefix(String keyPrefix) {
-		this.keyPrefix = keyPrefix;
-	}
-
-	public void setKeyDelimiter(String keyDelimiter) {
-		this.keyDelimiter = keyDelimiter;
-	}
-
-	public void setNullValue(String nullValue) {
-		this.nullValue = nullValue;
-	}
-
-	public void setCacheExpireTime(Duration cacheExpireTime) {
-		this.cacheExpireTime = cacheExpireTime;
-	}
-
-	public void setLockTimeout(Duration lockTimeout) {
-		this.lockTimeout = lockTimeout;
-	}
-
-	public void setLeaseTime(Duration leaseTime) {
-		this.leaseTime = leaseTime;
-	}
-
-	public boolean equals(final Object o) {
-		if (o == this)
-			return true;
-		if (!(o instanceof RedisProperties))
-			return false;
-		final RedisProperties other = (RedisProperties) o;
-		if (!other.canEqual((Object) this))
-			return false;
-		final Object this$keyPrefix = this.getKeyPrefix();
-		final Object other$keyPrefix = other.getKeyPrefix();
-		if (this$keyPrefix == null ? other$keyPrefix != null : !this$keyPrefix.equals(other$keyPrefix))
-			return false;
-		final Object this$keyDelimiter = this.getKeyDelimiter();
-		final Object other$keyDelimiter = other.getKeyDelimiter();
-		if (this$keyDelimiter == null ? other$keyDelimiter != null : !this$keyDelimiter.equals(other$keyDelimiter))
-			return false;
-		final Object this$nullValue = this.getNullValue();
-		final Object other$nullValue = other.getNullValue();
-		if (this$nullValue == null ? other$nullValue != null : !this$nullValue.equals(other$nullValue))
-			return false;
-		final Object this$cacheExpireTime = this.getCacheExpireTime();
-		final Object other$cacheExpireTime = other.getCacheExpireTime();
-		if (this$cacheExpireTime == null ? other$cacheExpireTime != null
-				: !this$cacheExpireTime.equals(other$cacheExpireTime))
-			return false;
-		final Object this$lockTimeout = this.getLockTimeout();
-		final Object other$lockTimeout = other.getLockTimeout();
-		if (this$lockTimeout == null ? other$lockTimeout != null : !this$lockTimeout.equals(other$lockTimeout))
-			return false;
-		final Object this$leaseTime = this.getLeaseTime();
-		final Object other$leaseTime = other.getLeaseTime();
-		if (this$leaseTime == null ? other$leaseTime != null : !this$leaseTime.equals(other$leaseTime))
-			return false;
-		return true;
-	}
-
-	protected boolean canEqual(final Object other) {
-		return other instanceof RedisProperties;
-	}
-
-	public int hashCode() {
-		final int PRIME = 59;
-		int result = 1;
-		final Object $keyPrefix = this.getKeyPrefix();
-		result = result * PRIME + ($keyPrefix == null ? 43 : $keyPrefix.hashCode());
-		final Object $keyDelimiter = this.getKeyDelimiter();
-		result = result * PRIME + ($keyDelimiter == null ? 43 : $keyDelimiter.hashCode());
-		final Object $nullValue = this.getNullValue();
-		result = result * PRIME + ($nullValue == null ? 43 : $nullValue.hashCode());
-		final Object $cacheExpireTime = this.getCacheExpireTime();
-		result = result * PRIME + ($cacheExpireTime == null ? 43 : $cacheExpireTime.hashCode());
-		final Object $lockTimeout = this.getLockTimeout();
-		result = result * PRIME + ($lockTimeout == null ? 43 : $lockTimeout.hashCode());
-		final Object $leaseTime = this.getLeaseTime();
-		result = result * PRIME + ($leaseTime == null ? 43 : $leaseTime.hashCode());
-		return result;
-	}
-
-	public String toString() {
-		return "RedisProperties(keyPrefix=" + this.getKeyPrefix() + ", keyDelimiter=" + this.getKeyDelimiter()
-				+ ", nullValue=" + this.getNullValue() + ", cacheExpireTime=" + this.getCacheExpireTime()
-				+ ", lockTimeout=" + this.getLockTimeout() + ", leaseTime=" + this.getLeaseTime() + ")";
-	}
-
+    companion object {
+        const val PREFIX: String = "lingting.redis"
+    }
 }

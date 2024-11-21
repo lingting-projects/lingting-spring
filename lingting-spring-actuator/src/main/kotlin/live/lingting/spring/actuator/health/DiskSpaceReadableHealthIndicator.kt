@@ -1,71 +1,57 @@
-package live.lingting.spring.actuator.health;
+package live.lingting.spring.actuator.health
 
-import org.slf4j.Logger;
-import org.springframework.boot.actuate.health.Health;
-import org.springframework.boot.actuate.health.Status;
-import org.springframework.boot.actuate.system.DiskSpaceHealthIndicator;
-import org.springframework.util.unit.DataSize;
-
-import java.io.File;
+import java.io.File
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+import org.springframework.boot.actuate.health.Health
+import org.springframework.boot.actuate.health.Status
+import org.springframework.boot.actuate.system.DiskSpaceHealthIndicator
+import org.springframework.util.unit.DataSize
 
 /**
  * @author lingting 2023-11-23 21:42
  */
-public class DiskSpaceReadableHealthIndicator extends DiskSpaceHealthIndicator {
+class DiskSpaceReadableHealthIndicator
+/**
+ * Create a new `DiskSpaceHealthIndicator` instance.
+ * @param path the Path used to compute the available disk space
+ * @param threshold the minimum disk space that should be available
+ */(private val path: File, private val threshold: DataSize) : DiskSpaceHealthIndicator(path, threshold) {
 
-	private static final Logger log = org.slf4j.LoggerFactory.getLogger(DiskSpaceReadableHealthIndicator.class);
+    override fun doHealthCheck(builder: Health.Builder) {
+        val diskFreeInBytes = path.getUsableSpace()
+        val isUp = diskFreeInBytes >= threshold.toBytes()
 
-	private final File path;
+        val total = DataSize.ofBytes(path.getTotalSpace())
+        val free = DataSize.ofBytes(diskFreeInBytes)
 
-	private final DataSize threshold;
+        builder.status(if (isUp) Status.UP else Status.DOWN)
+            .withDetail("Total", to(total))
+            .withDetail("Free", to(free))
+            .withDetail("Threshold", to(threshold))
+            .withDetail("Exists", path.exists())
+    }
 
-	/**
-	 * Create a new {@code DiskSpaceHealthIndicator} instance.
-	 * @param path the Path used to compute the available disk space
-	 * @param threshold the minimum disk space that should be available
-	 */
-	public DiskSpaceReadableHealthIndicator(File path, DataSize threshold) {
-		super(path, threshold);
-		this.path = path;
-		this.threshold = threshold;
-	}
+    fun to(size: DataSize): String {
+        if (size.toBytes() < 1024) {
+            val prefix = "B"
+            return String.format("%d%s", size.toBytes(), prefix)
+        } else if (size.toKilobytes() < 1024) {
+            val prefix = "KB"
+            return String.format("%d%s", size.toKilobytes(), prefix)
+        } else if (size.toMegabytes() < 1024) {
+            val prefix = "MB"
+            return String.format("%d%s", size.toMegabytes(), prefix)
+        } else if (size.toGigabytes() < 1024) {
+            val prefix = "GB"
+            return String.format("%d%s", size.toGigabytes(), prefix)
+        } else {
+            val prefix = "TB"
+            return String.format("%d%s", size.toTerabytes(), prefix)
+        }
+    }
 
-	@Override
-	protected void doHealthCheck(Health.Builder builder) throws Exception {
-		long diskFreeInBytes = path.getUsableSpace();
-		boolean isUp = diskFreeInBytes >= threshold.toBytes();
-
-		DataSize total = DataSize.ofBytes(path.getTotalSpace());
-		DataSize free = DataSize.ofBytes(diskFreeInBytes);
-
-		builder.status(isUp ? Status.UP : Status.DOWN)
-			.withDetail("Total", to(total))
-			.withDetail("Free", to(free))
-			.withDetail("Threshold", to(threshold))
-			.withDetail("Exists", path.exists());
-	}
-
-	String to(DataSize size) {
-		if (size.toBytes() < 1024) {
-			String prefix = "B";
-			return String.format("%d%s", size.toBytes(), prefix);
-		}
-		else if (size.toKilobytes() < 1024) {
-			String prefix = "KB";
-			return String.format("%d%s", size.toKilobytes(), prefix);
-		}
-		else if (size.toMegabytes() < 1024) {
-			String prefix = "MB";
-			return String.format("%d%s", size.toMegabytes(), prefix);
-		}
-		else if (size.toGigabytes() < 1024) {
-			String prefix = "GB";
-			return String.format("%d%s", size.toGigabytes(), prefix);
-		}
-		else {
-			String prefix = "TB";
-			return String.format("%d%s", size.toTerabytes(), prefix);
-		}
-	}
-
+    companion object {
+        private val log: Logger = LoggerFactory.getLogger(DiskSpaceReadableHealthIndicator::class.java)
+    }
 }

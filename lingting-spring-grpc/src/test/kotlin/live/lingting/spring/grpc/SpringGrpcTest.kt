@@ -1,25 +1,20 @@
-package live.lingting.spring.grpc;
+package live.lingting.spring.grpc
 
-import live.lingting.framework.grpc.GrpcServer;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Test
+import org.springframework.boot.test.context.SpringBootTest
 
 /**
  * @author lingting 2024-03-26 10:10
  */
 @SpringBootTest
-class SpringGrpcTest {
+internal class SpringGrpcTest {
+    @Autowired
+    private val server: GrpcServer = null
 
-	@Autowired
-	private GrpcServer server;
-
-	@Test
-	void test() {
-		assertTrue(server.port() > -1);
-		assertTrue(server.getFullMethodNameMap().isEmpty());
-	}
-
+    @Test
+    fun test() {
+        Assertions.assertTrue(server.port() > -1)
+        Assertions.assertTrue(server.fullMethodNameMap.isEmpty())
+    }
 }

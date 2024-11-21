@@ -1,38 +1,22 @@
-package live.lingting.spring.huawei;
+package live.lingting.spring.huawei
 
-import live.lingting.framework.huawei.properties.HuaweiIamProperties;
-import live.lingting.framework.huawei.properties.HuaweiObsProperties;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.NestedConfigurationProperty;
+import live.lingting.framework.huawei.properties.HuaweiIamProperties
+import live.lingting.framework.huawei.properties.HuaweiObsProperties
+import org.springframework.boot.context.properties.ConfigurationProperties
+import org.springframework.boot.context.properties.NestedConfigurationProperty
 
 /**
  * @author lingting 2024-09-18 20:47
  */
 @ConfigurationProperties(HuaweiSpringProperties.PREFIX)
-public class HuaweiSpringProperties {
+class HuaweiSpringProperties {
+    @NestedConfigurationProperty
+    var iam: HuaweiIamProperties = HuaweiIamProperties()
 
-	public static final String PREFIX = "lingting.huawei";
+    @NestedConfigurationProperty
+    var obs: HuaweiObsProperties = HuaweiObsProperties()
 
-	@NestedConfigurationProperty
-	private HuaweiIamProperties iam = new HuaweiIamProperties();
-
-	@NestedConfigurationProperty
-	private HuaweiObsProperties obs = new HuaweiObsProperties();
-
-	public HuaweiIamProperties getIam() {
-		return this.iam;
-	}
-
-	public HuaweiObsProperties getObs() {
-		return this.obs;
-	}
-
-	public void setIam(HuaweiIamProperties iam) {
-		this.iam = iam;
-	}
-
-	public void setObs(HuaweiObsProperties obs) {
-		this.obs = obs;
-	}
-
+    companion object {
+        const val PREFIX: String = "lingting.huawei"
+    }
 }

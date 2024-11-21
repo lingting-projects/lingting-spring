@@ -1,88 +1,46 @@
-package live.lingting.spring.security.properties;
+package live.lingting.spring.security.properties
 
-import live.lingting.framework.security.properties.SecurityProperties;
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import live.lingting.framework.security.properties.SecurityProperties
+import org.springframework.boot.context.properties.ConfigurationProperties
 
 /**
  * @author lingting 2023-03-29 20:50
  */
 @ConfigurationProperties(prefix = SecuritySpringProperties.PREFIX)
-public class SecuritySpringProperties {
+class SecuritySpringProperties {
+    var authorization: Authorization = Authorization()
 
-	public static final String PREFIX = "lingting.security";
+    /**
+     * 鉴权优先级. 降序排序
+     */
+    var order: Int = -500
 
-	private Authorization authorization = new Authorization();
+    fun properties(): SecurityProperties {
+        val sa = SecurityProperties.Authorization()
+        val a = this.authorization
+        if (a != null) {
+            sa.isRemote = a.isRemote
+            sa.remoteHost = a.remoteHost
+        }
 
-	/**
-	 * 鉴权优先级. 降序排序
-	 */
-	private int order = -500;
+        val properties = SecurityProperties()
+        properties.authorization = sa
+        properties.order = this.order
+        return properties
+    }
 
-	public SecurityProperties properties() {
-		SecurityProperties.Authorization sa = new SecurityProperties.Authorization();
-		Authorization a = getAuthorization();
-		if (a != null) {
-			sa.setRemote(a.isRemote());
-			sa.setRemoteHost(a.getRemoteHost());
-		}
+    class Authorization {
+        var isRemote: Boolean = false
 
-		SecurityProperties properties = new SecurityProperties();
-		properties.setAuthorization(sa);
-		properties.setOrder(getOrder());
-		return properties;
-	}
+        var remoteHost: String = null
 
-	public Authorization getAuthorization() {
-		return this.authorization;
-	}
+        /**
+         * 前后端交互使用的对称加密算法的密钥，必须 16 位字符
+         */
+        var passwordSecretKey: String = null
+    }
 
-	public int getOrder() {
-		return this.order;
-	}
-
-	public void setAuthorization(Authorization authorization) {
-		this.authorization = authorization;
-	}
-
-	public void setOrder(int order) {
-		this.order = order;
-	}
-
-	public static class Authorization {
-
-		private boolean remote = false;
-
-		private String remoteHost;
-
-		/**
-		 * 前后端交互使用的对称加密算法的密钥，必须 16 位字符
-		 */
-		private String passwordSecretKey;
-
-		public boolean isRemote() {
-			return this.remote;
-		}
-
-		public String getRemoteHost() {
-			return this.remoteHost;
-		}
-
-		public String getPasswordSecretKey() {
-			return this.passwordSecretKey;
-		}
-
-		public void setRemote(boolean remote) {
-			this.remote = remote;
-		}
-
-		public void setRemoteHost(String remoteHost) {
-			this.remoteHost = remoteHost;
-		}
-
-		public void setPasswordSecretKey(String passwordSecretKey) {
-			this.passwordSecretKey = passwordSecretKey;
-		}
-
-	}
-
+    companion object {
+        const val PREFIX: String = "lingting.security"
+    }
 }

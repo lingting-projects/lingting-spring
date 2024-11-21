@@ -1,83 +1,72 @@
-package live.lingting.spring.security.web.resource;
+package live.lingting.spring.security.web.resource
 
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import live.lingting.framework.security.domain.SecurityScope;
-import live.lingting.framework.security.domain.SecurityToken;
-import live.lingting.framework.security.exception.AuthorizationException;
-import live.lingting.framework.security.exception.PermissionsException;
-import live.lingting.framework.security.resource.SecurityResourceService;
-import live.lingting.framework.util.StringUtils;
-import live.lingting.spring.security.web.properties.SecurityWebProperties;
-import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.springframework.web.filter.OncePerRequestFilter;
-
-import java.io.IOException;
+import jakarta.servlet.FilterChain
+import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletResponse
+import live.lingting.framework.security.domain.SecurityScope
+import live.lingting.framework.security.domain.SecurityToken
+import live.lingting.framework.security.exception.AuthorizationException
+import live.lingting.framework.security.exception.PermissionsException
+import live.lingting.framework.security.resource.SecurityResourceService
+import live.lingting.framework.util.StringUtils.hasText
+import live.lingting.spring.security.web.properties.SecurityWebProperties
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+import org.springframework.web.filter.OncePerRequestFilter
 
 /**
  * @author lingting 2024-03-21 19:49
  */
-public class SecurityWebResourceFilter extends OncePerRequestFilter {
+class SecurityWebResourceFilter(private val properties: SecurityWebProperties, private val service: SecurityResourceService) : OncePerRequestFilter() {
 
-	private static final Logger log = org.slf4j.LoggerFactory.getLogger(SecurityWebResourceFilter.class);
+    override fun doFilterInternal(
+        request: HttpServletRequest, response: HttpServletResponse,
+        filterChain: FilterChain
+    ) {
+        val scope = getScope(request)
+        service.putScope(scope)
+        try {
+            filterChain.doFilter(request, response)
+        } finally {
+            service.popScope()
+        }
+    }
 
-	private final SecurityWebProperties properties;
+    protected fun getScope(request: HttpServletRequest): SecurityScope {
+        val token = getToken(request)
+        // token有效, 设置上下文
+        if (!token.isAvailable) {
+            return null
+        }
+        try {
+            return service.resolve(token)
+        } catch (e: AuthorizationException) {
+            return null
+        } catch (e: PermissionsException) {
+            return null
+        } catch (e: Exception) {
+            SecurityWebResourceFilter.log.debug("resolve token error!", e)
+        }
+        return null
+    }
 
-	private final SecurityResourceService service;
+    fun getToken(request: HttpServletRequest): SecurityToken {
+        val raw = request.getHeader(properties.getHeaderAuthorization())
 
-	public SecurityWebResourceFilter(SecurityWebProperties properties, SecurityResourceService service) {
-		this.properties = properties;
-		this.service = service;
-	}
+        // 走参数
+        if (!hasText(raw)) {
+            return getTokenByParams(request)
+        }
 
-	@Override
-	protected void doFilterInternal(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response,
-			@NotNull FilterChain filterChain) throws ServletException, IOException {
-		SecurityScope scope = getScope(request);
-		service.putScope(scope);
-		try {
-			filterChain.doFilter(request, response);
-		}
-		finally {
-			service.popScope();
-		}
-	}
+        return SecurityToken.ofDelimiter(raw!!, " ")
+    }
 
-	protected SecurityScope getScope(HttpServletRequest request) {
-		SecurityToken token = getToken(request);
-		// token有效, 设置上下文
-		if (!token.isAvailable()) {
-			return null;
-		}
-		try {
-			return service.resolve(token);
-		}
-		catch (AuthorizationException | PermissionsException e) {
-			return null;
-		}
-		catch (Exception e) {
-			log.debug("resolve token error!", e);
-		}
-		return null;
-	}
+    fun getTokenByParams(request: HttpServletRequest): SecurityToken {
+        val value = request.getParameter(properties.getParamAuthorization())
+        return SecurityToken.ofDelimiter(value, " ")
+    }
 
-	public SecurityToken getToken(HttpServletRequest request) {
-		String raw = request.getHeader(properties.getHeaderAuthorization());
-
-		// 走参数
-		if (!StringUtils.hasText(raw)) {
-			return getTokenByParams(request);
-		}
-
-		return SecurityToken.ofDelimiter(raw, " ");
-	}
-
-	public SecurityToken getTokenByParams(HttpServletRequest request) {
-		String value = request.getParameter(properties.getParamAuthorization());
-		return SecurityToken.ofDelimiter(value, " ");
-	}
-
+    companion object {
+        private val log: Logger = LoggerFactory.getLogger(SecurityWebResourceFilter::class.java)
+    }
 }

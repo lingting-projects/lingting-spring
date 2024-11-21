@@ -1,43 +1,38 @@
-package live.lingting.spring.security.web.endpoint;
+package live.lingting.spring.security.web.endpoint
 
-import org.springframework.boot.autoconfigure.web.format.WebConversionService;
-import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration;
-import org.springframework.core.Ordered;
-import org.springframework.web.servlet.HandlerInterceptor;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
-import org.springframework.web.servlet.handler.ConversionServiceExposingInterceptor;
-import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.springframework.boot.autoconfigure.web.format.WebConversionService
+import org.springframework.web.servlet.HandlerInterceptor
+import org.springframework.web.servlet.handler.ConversionServiceExposingInterceptor
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping
 
 /**
  * @author lingting 2024-03-22 10:06
  */
-public class SecurityWebEndpointHandlerMapping extends RequestMappingHandlerMapping {
+class SecurityWebEndpointHandlerMapping(
+    conversionService: WebConversionService,
+    interceptors: MutableList<HandlerInterceptor>
+) : RequestMappingHandlerMapping() {
+    /**
+     * @see WebMvcAutoConfiguration.EnableWebMvcConfiguration.mvcConversionService
+     * @see WebMvcConfigurationSupport.getInterceptors
+     */
+    init {
+        setOrder(LOWEST_PRECEDENCE - 100)
+        val handlerInterceptors = getInterceptors(conversionService, interceptors)
+        setInterceptors(*handlerInterceptors as Array<Any>)
+    }
 
-	/**
-	 * @see WebMvcAutoConfiguration.EnableWebMvcConfiguration#mvcConversionService()
-	 * @see WebMvcConfigurationSupport#getInterceptors
-	 */
-	public SecurityWebEndpointHandlerMapping(WebConversionService conversionService,
-			List<HandlerInterceptor> interceptors) {
-		setOrder(Ordered.LOWEST_PRECEDENCE - 100);
-		HandlerInterceptor[] handlerInterceptors = getInterceptors(conversionService, interceptors);
-		setInterceptors((Object[]) handlerInterceptors);
-	}
+    override fun isHandler(beanType: Class<*>): Boolean {
+        return SecurityWebEndpoint::class.java.isAssignableFrom(beanType)
+    }
 
-	@Override
-	protected boolean isHandler(Class<?> beanType) {
-		return SecurityWebEndpoint.class.isAssignableFrom(beanType);
-	}
-
-	HandlerInterceptor[] getInterceptors(WebConversionService conversionService,
-			List<HandlerInterceptor> interceptors) {
-		List<HandlerInterceptor> list = new ArrayList<>(interceptors.size() + 1);
-		list.add(new ConversionServiceExposingInterceptor(conversionService));
-		list.addAll(interceptors);
-		return list.toArray(new HandlerInterceptor[0]);
-	}
-
+    fun getInterceptors(
+        conversionService: WebConversionService,
+        interceptors: MutableList<HandlerInterceptor>
+    ): Array<HandlerInterceptor> {
+        val list: MutableList<HandlerInterceptor> = ArrayList<HandlerInterceptor>(interceptors.size + 1)
+        list.add(ConversionServiceExposingInterceptor(conversionService))
+        list.addAll(interceptors)
+        return list.toTypedArray<HandlerInterceptor>()
+    }
 }

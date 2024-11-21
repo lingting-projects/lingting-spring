@@ -1,35 +1,27 @@
-package live.lingting.spring.mybatis;
+package live.lingting.spring.mybatis
 
-import live.lingting.spring.mybatis.domain.Table;
-import live.lingting.spring.mybatis.domain.User;
-import live.lingting.spring.mybatis.domain.table.TableService;
-import live.lingting.spring.mybatis.domain.user.UserService;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import live.lingting.spring.mybatis.domain.Table
+import live.lingting.spring.mybatis.domain.User
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Test
+import org.springframework.boot.test.context.SpringBootTest
 
 /**
  * @author lingting 2024-03-12 14:26
  */
 @SpringBootTest
-class SpringMybatisTest {
+internal class SpringMybatisTest {
+    @Autowired
+    var userService: UserService = null
 
-	@Autowired
-	UserService userService;
+    @Autowired
+    var tableService: TableService = null
 
-	@Autowired
-	TableService tableService;
-
-	@Test
-	void test() {
-		List<User> users = userService.list();
-		assertFalse(users.isEmpty());
-		List<Table> tables = tableService.list();
-		assertFalse(tables.isEmpty());
-	}
-
+    @Test
+    fun test() {
+        val users: MutableList<User> = userService.list()
+        Assertions.assertFalse(users.isEmpty())
+        val tables: MutableList<Table> = tableService.list()
+        Assertions.assertFalse(tables.isEmpty())
+    }
 }

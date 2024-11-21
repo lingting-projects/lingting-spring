@@ -1,16 +1,15 @@
-package live.lingting.spring;
+package live.lingting.spring
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.SpringApplication
+import org.springframework.boot.autoconfigure.SpringBootApplication
 
 /**
  * @author lingting 2024-02-02 14:48
  */
 @SpringBootApplication
-public class SpringTestApplication {
+open class SpringTestApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(SpringTestApplication.class, args);
-	}
-
+    fun main(args: Array<String>) {
+        SpringApplication.run(SpringTestApplication::class.java, *args)
+    }
 }

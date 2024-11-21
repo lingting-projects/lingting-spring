@@ -1,25 +1,17 @@
-package live.lingting.spring.actuator.health;
+package live.lingting.spring.actuator.health
 
-import live.lingting.framework.grpc.GrpcServer;
-import org.springframework.boot.actuate.health.AbstractHealthIndicator;
-import org.springframework.boot.actuate.health.Health;
-import org.springframework.boot.actuate.health.Status;
+import live.lingting.framework.grpc.GrpcServer
+import org.springframework.boot.actuate.health.AbstractHealthIndicator
+import org.springframework.boot.actuate.health.Health
+import org.springframework.boot.actuate.health.Status
 
 /**
  * @author lingting 2023-11-23 21:29
  */
-public class GrpcServerHealthIndicator extends AbstractHealthIndicator {
+class GrpcServerHealthIndicator(private val server: GrpcServer) : AbstractHealthIndicator() {
 
-	private final GrpcServer server;
-
-	public GrpcServerHealthIndicator(GrpcServer server) {
-		this.server = server;
-	}
-
-	@Override
-	protected void doHealthCheck(Health.Builder builder) throws Exception {
-		builder.status(server.isRunning() ? Status.UP : Status.DOWN)
-			.withDetail("Port", Integer.toString(server.port()));
-	}
-
+    override fun doHealthCheck(builder: Health.Builder) {
+        builder.status(if (server.isRunning) Status.UP else Status.DOWN)
+            .withDetail("Port", server.port().toString())
+    }
 }

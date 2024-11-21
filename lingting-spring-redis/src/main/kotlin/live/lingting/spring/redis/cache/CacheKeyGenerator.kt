@@ -1,90 +1,82 @@
-package live.lingting.spring.redis.cache;
+package live.lingting.spring.redis.cache
 
-import live.lingting.framework.util.CollectionUtils;
-import live.lingting.framework.util.StringUtils;
-import live.lingting.spring.util.SpelUtils;
-import org.springframework.expression.spel.support.StandardEvaluationContext;
-
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.lang.reflect.Method
+import live.lingting.framework.util.CollectionUtils.isEmpty
+import live.lingting.framework.util.CollectionUtils.multiToList
+import live.lingting.framework.util.StringUtils.hasText
+import live.lingting.spring.util.SpelUtils
+import org.springframework.expression.spel.support.StandardEvaluationContext
 
 /**
  * @author lingting 2024-04-18 10:04
  */
-public class CacheKeyGenerator {
+class CacheKeyGenerator(protected val delimiter: String, target: Any, method: Method, arguments: Array<Any>) {
+    protected val context: StandardEvaluationContext
 
-	protected final String delimiter;
+    init {
+        this.context = SpelUtils.getSpelContext(target!!, method!!, arguments!!)
+    }
 
-	protected final StandardEvaluationContext context;
+    fun resolve(spel: String): MutableList<String> {
+        if (!hasText(spel)) {
+            return mutableListOf<String>()
+        }
 
-	public CacheKeyGenerator(String delimiter, Object target, Method method, Object[] arguments) {
-		this.delimiter = delimiter;
-		this.context = SpelUtils.getSpelContext(target, method, arguments);
-	}
+        val obj = SpelUtils.parseValue(context, spel!!)
+        return multiToList(obj).stream().map<String> { o -> if (o == null) "" else o.toString() }.toList()
+    }
 
-	public List<String> resolve(String spel) {
-		if (!StringUtils.hasText(spel)) {
-			return Collections.emptyList();
-		}
+    fun join(key: String, spel: String): String {
+        val builder = StringBuilder(key)
 
-		Object obj = SpelUtils.parseValue(context, spel);
-		return CollectionUtils.multiToList(obj).stream().map(o -> o == null ? "" : o.toString()).toList();
-	}
+        val list = resolve(spel)
 
-	public String join(String key, String spel) {
-		StringBuilder builder = new StringBuilder(key);
+        if (!isEmpty(list)) {
+            for (s in list) {
+                builder.append(delimiter).append(s)
+            }
+        }
 
-		List<String> list = resolve(spel);
+        return builder.toString()
+    }
 
-		if (!CollectionUtils.isEmpty(list)) {
-			for (String s : list) {
-				builder.append(delimiter).append(s);
-			}
-		}
+    fun multi(key: String, spel: String): MutableList<String> {
+        val list = resolve(spel)
+        if (!isEmpty(list)) {
+            return mutableListOf<String>(key)
+        }
 
-		return builder.toString();
-	}
+        val strings: MutableList<String> = ArrayList<String>(list.size)
 
-	public List<String> multi(String key, String spel) {
-		List<String> list = resolve(spel);
-		if (!CollectionUtils.isEmpty(list)) {
-			return Collections.singletonList(key);
-		}
+        for (s in list) {
+            strings.add("%s%s%s".formatted(key, delimiter, s))
+        }
 
-		List<String> strings = new ArrayList<>(list.size());
+        return strings
+    }
 
-		for (String s : list) {
-			strings.add("%s%s%s".formatted(key, delimiter, s));
-		}
+    fun cached(cached: Cached): String {
+        if (cached == null) {
+            return ""
+        }
+        return join(cached.key, cached.keyJoint)
+    }
 
-		return strings;
-	}
+    fun cacheClear(clear: CacheClear): MutableList<String> {
+        if (clear == null) {
+            return mutableListOf<String>()
+        }
+        if (clear.multi) {
+            return multi(clear.key, clear.keyJoint)
+        }
+        return mutableListOf<String>(join(clear.key, clear.keyJoint))
+    }
 
-	public String cached(Cached cached) {
-		if (cached == null) {
-			return "";
-		}
-		return join(cached.key(), cached.keyJoint());
-	}
-
-	public List<String> cacheClear(CacheClear clear) {
-		if (clear == null) {
-			return Collections.emptyList();
-		}
-		if (clear.multi()) {
-			return multi(clear.key(), clear.keyJoint());
-		}
-		return Collections.singletonList(join(clear.key(), clear.keyJoint()));
-	}
-
-	public List<String> cacheClear(CacheClear clear, CacheBatchClear batchClear) {
-		List<String> strings = new ArrayList<>(cacheClear(clear));
-		for (CacheClear cacheClear : batchClear.value()) {
-			strings.addAll(cacheClear(cacheClear));
-		}
-		return strings;
-	}
-
+    fun cacheClear(clear: CacheClear, batchClear: CacheBatchClear): MutableList<String> {
+        val strings: MutableList<String> = ArrayList<String>(cacheClear(clear))
+        for (cacheClear in batchClear.value) {
+            strings.addAll(cacheClear(cacheClear))
+        }
+        return strings
+    }
 }

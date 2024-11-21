@@ -1,54 +1,48 @@
-package live.lingting.spring.event;
+package live.lingting.spring.event
 
-import live.lingting.framework.Sequence;
-import live.lingting.framework.context.ContextComponent;
-import live.lingting.framework.context.ContextHolder;
-import org.slf4j.Logger;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationListener;
-import org.springframework.context.event.ContextClosedEvent;
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
-
-import java.util.List;
-import java.util.Map;
+import live.lingting.framework.Sequence
+import live.lingting.framework.context.ContextComponent
+import live.lingting.framework.context.ContextHolder.stop
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+import org.springframework.context.ApplicationContext
+import org.springframework.context.ApplicationListener
+import org.springframework.context.event.ContextClosedEvent
+import org.springframework.core.Ordered
+import org.springframework.core.annotation.Order
 
 /**
  * @author lingting 2022/10/22 17:45
  */
 @Order(Ordered.HIGHEST_PRECEDENCE)
-public class SpringContextClosedListener implements ApplicationListener<ContextClosedEvent> {
+class SpringContextClosedListener : ApplicationListener<ContextClosedEvent> {
+    override fun onApplicationEvent(event: ContextClosedEvent) {
+        stop()
+        val applicationContext = event.applicationContext
+        log.debug("spring context closed.")
+        // 上下文容器停止
+        contextComponentStop(applicationContext)
+    }
 
-	private static final Logger log = org.slf4j.LoggerFactory.getLogger(SpringContextClosedListener.class);
+    fun contextComponentStop(applicationContext: ApplicationContext) {
+        val map = applicationContext.getBeansOfType<ContextComponent>(ContextComponent::class.java)
+        // 依照spring生态的@Order排序, 优先级高的先执行停止
+        val values: MutableList<ContextComponent> = Sequence.asc<ContextComponent>(map.values)
 
-	public SpringContextClosedListener() {
-	}
+        log.debug("context component stop before. size: {}", values.size)
+        for (component in values) {
+            log.trace("class [{}] stop before", component.javaClass)
+            component.onApplicationStopBefore()
+        }
 
-	@Override
-	public void onApplicationEvent(ContextClosedEvent event) {
-		ContextHolder.stop();
-		ApplicationContext applicationContext = event.getApplicationContext();
-		log.debug("spring context closed.");
-		// 上下文容器停止
-		contextComponentStop(applicationContext);
-	}
+        log.debug("context component stop. size: {}", values.size)
+        for (component in values) {
+            log.trace("class [{}] stop", component.javaClass)
+            component.onApplicationStop()
+        }
+    }
 
-	void contextComponentStop(ApplicationContext applicationContext) {
-		Map<String, ContextComponent> map = applicationContext.getBeansOfType(ContextComponent.class);
-		// 依照spring生态的@Order排序, 优先级高的先执行停止
-		List<ContextComponent> values = Sequence.asc(map.values());
-
-		log.debug("context component stop before. size: {}", values.size());
-		for (ContextComponent component : values) {
-			log.trace("class [{}] stop before", component.getClass());
-			component.onApplicationStopBefore();
-		}
-
-		log.debug("context component stop. size: {}", values.size());
-		for (ContextComponent component : values) {
-			log.trace("class [{}] stop", component.getClass());
-			component.onApplicationStop();
-		}
-	}
-
+    companion object {
+        private val log: Logger = LoggerFactory.getLogger(SpringContextClosedListener::class.java)
+    }
 }

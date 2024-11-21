@@ -1,37 +1,28 @@
-package live.lingting.spring.elasticsearch;
+package live.lingting.spring.elasticsearch
 
-import live.lingting.framework.elasticsearch.datascope.DefaultElasticsearchDataPermissionHandler;
-import live.lingting.framework.elasticsearch.datascope.ElasticsearchDataScope;
-import org.springframework.stereotype.Component;
-
-import java.util.List;
+import live.lingting.framework.elasticsearch.datascope.DefaultElasticsearchDataPermissionHandler
+import live.lingting.framework.elasticsearch.datascope.ElasticsearchDataScope
+import org.springframework.stereotype.Component
 
 /**
  * @author lingting 2024-03-08 18:06
  */
 @Component
-public class SwitchElasticsearchDataPermissionHandler extends DefaultElasticsearchDataPermissionHandler {
+class SwitchElasticsearchDataPermissionHandler(scopes: MutableList<ElasticsearchDataScope>) : DefaultElasticsearchDataPermissionHandler(scopes) {
+    /**
+     * true 则不忽略权限控制
+     */
+    private var enabled = false
 
-	/**
-	 * true 则不忽略权限控制
-	 */
-	private boolean enabled = false;
+    override fun ignorePermissionControl(index: String): Boolean {
+        return !enabled
+    }
 
-	public SwitchElasticsearchDataPermissionHandler(List<ElasticsearchDataScope> scopes) {
-		super(scopes);
-	}
+    fun enable() {
+        this.enabled = true
+    }
 
-	@Override
-	public boolean ignorePermissionControl(String index) {
-		return !enabled;
-	}
-
-	public void enable() {
-		this.enabled = true;
-	}
-
-	public void disable() {
-		this.enabled = false;
-	}
-
+    fun disable() {
+        this.enabled = false
+    }
 }

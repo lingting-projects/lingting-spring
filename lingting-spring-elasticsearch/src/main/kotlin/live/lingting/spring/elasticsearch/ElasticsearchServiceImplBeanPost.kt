@@ -1,45 +1,32 @@
-package live.lingting.spring.elasticsearch;
+package live.lingting.spring.elasticsearch
 
-import co.elastic.clients.elasticsearch.ElasticsearchClient;
-import live.lingting.framework.elasticsearch.ElasticsearchApi;
-import live.lingting.framework.elasticsearch.ElasticsearchProperties;
-import live.lingting.framework.elasticsearch.ElasticsearchProvider;
-import live.lingting.framework.elasticsearch.datascope.ElasticsearchDataPermissionHandler;
-import live.lingting.spring.post.SpringBeanPostProcessor;
+import co.elastic.clients.elasticsearch.ElasticsearchClient
+import java.util.function.Function
+import live.lingting.framework.elasticsearch.ElasticsearchApi
+import live.lingting.framework.elasticsearch.ElasticsearchProperties
+import live.lingting.framework.elasticsearch.ElasticsearchProvider.api
+import live.lingting.framework.elasticsearch.datascope.ElasticsearchDataPermissionHandler
+import live.lingting.spring.post.SpringBeanPostProcessor
 
 /**
  * @author lingting 2024-03-08 16:52
  */
-@SuppressWarnings("java:S3740")
-public class ElasticsearchServiceImplBeanPost implements SpringBeanPostProcessor {
+class ElasticsearchServiceImplBeanPost(
+    private val properties: ElasticsearchProperties, private val client: ElasticsearchClient,
+    private val handler: ElasticsearchDataPermissionHandler
+) : SpringBeanPostProcessor {
+    override fun isProcess(bean: Any, beanName: String, isBefore: Boolean): Boolean {
+        return bean is AbstractElasticsearchServiceImpl<*>
+    }
 
-	private final ElasticsearchProperties properties;
-
-	private final ElasticsearchClient client;
-
-	private final ElasticsearchDataPermissionHandler handler;
-
-	public ElasticsearchServiceImplBeanPost(ElasticsearchProperties properties, ElasticsearchClient client,
-			ElasticsearchDataPermissionHandler handler) {
-		this.properties = properties;
-		this.client = client;
-		this.handler = handler;
-	}
-
-	@Override
-	public boolean isProcess(Object bean, String beanName, boolean isBefore) {
-		return bean instanceof AbstractElasticsearchServiceImpl<?>;
-	}
-
-	@Override
-	@SuppressWarnings({ "unchecked" })
-	public Object postProcessAfter(Object bean, String beanName) {
-		if (bean instanceof AbstractElasticsearchServiceImpl impl) {
-			ElasticsearchApi api = ElasticsearchProvider.api(impl.index, impl.cls, impl::documentId, properties,
-					handler, client);
-			impl.setApi(api);
-		}
-		return bean;
-	}
-
+    override fun postProcessAfter(bean: Any, beanName: String): Any {
+        if (bean is AbstractElasticsearchServiceImpl<*>) {
+            val api: ElasticsearchApi<*> = api<T>(
+                bean.index!!, bean.cls, Function { t -> bean.documentId(t) }, properties,
+                handler, client
+            )
+            bean.setApi(api)
+        }
+        return bean
+    }
 }

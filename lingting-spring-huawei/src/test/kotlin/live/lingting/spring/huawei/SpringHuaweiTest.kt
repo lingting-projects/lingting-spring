@@ -1,33 +1,25 @@
-package live.lingting.spring.huawei;
+package live.lingting.spring.huawei
 
-import live.lingting.framework.huawei.HuaweiIam;
-import live.lingting.framework.huawei.HuaweiObsBucket;
-import live.lingting.framework.huawei.HuaweiObsObject;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Test
+import org.springframework.boot.test.context.SpringBootTest
 
 /**
  * @author lingting 2024-09-18 20:55
  */
 @SpringBootTest
-class SpringHuaweiTest {
+internal class SpringHuaweiTest {
+    @Autowired
+    var iam: HuaweiIam = null
 
-	@Autowired
-	HuaweiIam iam;
+    @Autowired
+    var obsBucket: HuaweiObsBucket = null
 
-	@Autowired
-	HuaweiObsBucket obsBucket;
-
-	@Test
-	void test() {
-		assertNotNull(iam);
-		assertNotNull(obsBucket);
-		HuaweiObsObject obsObject = obsBucket.use("key");
-		assertTrue(obsObject.publicUrl().contains("key"));
-	}
-
+    @Test
+    fun test() {
+        Assertions.assertNotNull(iam)
+        Assertions.assertNotNull(obsBucket)
+        val obsObject: HuaweiObsObject = obsBucket.use("key")
+        Assertions.assertTrue(obsObject.publicUrl().contains("key"))
+    }
 }

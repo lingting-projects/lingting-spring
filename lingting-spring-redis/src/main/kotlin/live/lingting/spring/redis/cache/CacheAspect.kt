@@ -1,101 +1,86 @@
-package live.lingting.spring.redis.cache;
+package live.lingting.spring.redis.cache
 
-import live.lingting.framework.function.ThrowableSupplier;
-import live.lingting.spring.redis.Redis;
-import live.lingting.spring.redis.properties.RedisProperties;
-import live.lingting.spring.util.AspectUtils;
-import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.Around;
-import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Pointcut;
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
-import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
-
-import java.lang.reflect.Method;
-import java.time.Duration;
-import java.util.List;
+import java.time.Duration
+import live.lingting.framework.function.ThrowableSupplier
+import live.lingting.spring.redis.Redis
+import live.lingting.spring.redis.properties.RedisProperties
+import live.lingting.spring.util.AspectUtils.getMethod
+import org.aspectj.lang.ProceedingJoinPoint
+import org.aspectj.lang.annotation.Around
+import org.aspectj.lang.annotation.Aspect
+import org.aspectj.lang.annotation.Pointcut
+import org.springframework.core.Ordered
+import org.springframework.core.annotation.Order
+import org.springframework.util.Assert
+import org.springframework.util.CollectionUtils
 
 /**
  * @author lingting 2024-04-17 20:24
  */
 @Order
 @Aspect
-@SuppressWarnings("unchecked")
-public class CacheAspect implements Ordered {
+class CacheAspect(private val redis: Redis, private val properties: RedisProperties) : Ordered {
+    @Pointcut("@annotation(live.lingting.spring.redis.cache.Cached) || @annotation(live.lingting.spring.redis.cache.CacheClear) || @annotation(live.lingting.spring.redis.cache.CacheBatchClear)")
+    fun pointCut() {
+        // do nothing
+    }
 
-	private final Redis redis;
+    @Around("pointCut()")
 
-	private final RedisProperties properties;
+    fun around(point: ProceedingJoinPoint): Any {
+        val target = point.getTarget()
+        val method = getMethod(point)
+        val args = point.getArgs()
 
-	public CacheAspect(Redis redis, RedisProperties properties) {
-		this.redis = redis;
-		this.properties = properties;
-	}
+        if (method == null) {
+            return point.proceed()
+        }
 
-	@Pointcut("@annotation(live.lingting.spring.redis.cache.Cached) || @annotation(live.lingting.spring.redis.cache.CacheClear) || @annotation(live.lingting.spring.redis.cache.CacheBatchClear)")
-	public void pointCut() {
-		// do nothing
-	}
+        val type = method.getReturnType() as Class<Any>
+        val generator = CacheKeyGenerator(properties.getKeyDelimiter(), target, method, args)
+        val cached = method.getAnnotation<Cached>(Cached::class.java)
+        val cacheClear = method.getAnnotation<CacheClear>(CacheClear::class.java)
+        val cacheBatchClear = method.getAnnotation<CacheBatchClear>(CacheBatchClear::class.java)
 
-	@Around("pointCut()")
-	public Object around(ProceedingJoinPoint point) throws Throwable {
-		Object target = point.getTarget();
-		Method method = AspectUtils.getMethod(point);
-		Object[] args = point.getArgs();
+        var result: Any = null
+        if (cached != null) {
+            val key = generator.cached(cached)
+            Assert.hasText(key, "Cached key is required!")
+            val ttl = cached.ttl
+            val expireTime: Duration
+            if (ttl > 0) {
+                expireTime = Duration.ofSeconds(ttl)
+            } else if (ttl < 0) {
+                expireTime = null
+            } else {
+                expireTime = properties.getCacheExpireTime()
+            }
 
-		if (method == null) {
-			return point.proceed();
-		}
+            val cache = redis.cache(expireTime, properties.getLockTimeout(), properties.getLeaseTime())
 
-		Class<Object> type = (Class<Object>) method.getReturnType();
-		CacheKeyGenerator generator = new CacheKeyGenerator(properties.getKeyDelimiter(), target, method, args);
-		Cached cached = method.getAnnotation(Cached.class);
-		CacheClear cacheClear = method.getAnnotation(CacheClear.class);
-		CacheBatchClear cacheBatchClear = method.getAnnotation(CacheBatchClear.class);
+            val onLockFailure = ThrowableSupplier { cache.get<Any>(key, type) }
+            result = if (cached.ifAbsent)
+                cache.setIfAbsent<Any>(key, ThrowableSupplier { point.proceed() }, onLockFailure, type)
+            else
+                cache.set<Any>(key, ThrowableSupplier { point.proceed() }, onLockFailure)
+        }
 
-		Object result = null;
-		if (cached != null) {
-			String key = generator.cached(cached);
-			Assert.hasText(key, "Cached key is required!");
-			long ttl = cached.ttl();
-			Duration expireTime;
-			if (ttl > 0) {
-				expireTime = Duration.ofSeconds(ttl);
-			}
-			else if (ttl < 0) {
-				expireTime = null;
-			}
-			else {
-				expireTime = properties.getCacheExpireTime();
-			}
+        if (cacheClear != null || cacheBatchClear != null) {
+            val keys = generator.cacheClear(cacheClear, cacheBatchClear)
+            // 如果未执行
+            if (cached == null) {
+                result = point.proceed()
+            }
+            // 如果已执行, 直接删除缓存key
+            if (!CollectionUtils.isEmpty(keys)) {
+                redis.template().delete(keys)
+            }
+        }
 
-			RedisCache cache = redis.cache(expireTime, properties.getLockTimeout(), properties.getLeaseTime());
+        return result
+    }
 
-			ThrowableSupplier<Object> onLockFailure = () -> cache.get(key, type);
-			result = cached.ifAbsent() ? cache.setIfAbsent(key, point::proceed, onLockFailure, type)
-					: cache.set(key, point::proceed, onLockFailure);
-		}
-
-		if (cacheClear != null || cacheBatchClear != null) {
-			List<String> keys = generator.cacheClear(cacheClear, cacheBatchClear);
-			// 如果未执行
-			if (cached == null) {
-				result = point.proceed();
-			}
-			// 如果已执行, 直接删除缓存key
-			if (!CollectionUtils.isEmpty(keys)) {
-				redis.template().delete(keys);
-			}
-		}
-
-		return result;
-	}
-
-	@Override
-	public int getOrder() {
-		return Ordered.LOWEST_PRECEDENCE;
-	}
-
+    override fun getOrder(): Int {
+        return Ordered.LOWEST_PRECEDENCE
+    }
 }

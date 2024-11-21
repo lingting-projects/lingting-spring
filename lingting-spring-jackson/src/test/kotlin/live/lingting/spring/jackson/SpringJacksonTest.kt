@@ -1,31 +1,27 @@
-package live.lingting.spring.jackson;
+package live.lingting.spring.jackson
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import live.lingting.framework.jackson.JacksonUtils;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import com.fasterxml.jackson.databind.ObjectMapper
+import org.junit.jupiter.api.Test
+import org.springframework.boot.test.context.SpringBootTest
 
 /**
  * @author lingting 2024-02-02 15:56
  */
 @SpringBootTest
-class SpringJacksonTest {
+internal class SpringJacksonTest {
+    @Autowired
+    private val mapper: ObjectMapper = null
 
-	@Autowired
-	private ObjectMapper mapper;
+    @Autowired
+    private val customizer: TestObjectMapperCustomizer = null
 
-	@Autowired
-	private TestObjectMapperCustomizer customizer;
+    @Autowired
+    private val after: TestObjectMapperAfter = null
 
-	@Autowired
-	private TestObjectMapperAfter after;
-
-	@Test
-	void test() {
-		assertEquals(JacksonUtils.getMapper(), mapper);
-		assertEquals(customizer.getObjectMapper(), mapper);
-		assertTrue(after.isAfter());
-	}
-
+    @Test
+    fun test() {
+        assertEquals(getMapper(), mapper)
+        assertEquals(customizer!!.getObjectMapper(), mapper)
+        assertTrue(after!!.isAfter())
+    }
 }

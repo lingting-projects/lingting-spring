@@ -1,20 +1,18 @@
-package live.lingting.spring.redis.prefix;
+package live.lingting.spring.redis.prefix
 
 /**
  * @author lingting 2024-04-17 15:14
  */
-public interface KeyPrefixConvert {
+interface KeyPrefixConvert {
+    fun isMatch(key: ByteArray): Boolean
 
-	boolean isMatch(byte[] key);
+    /**
+     * 包装key
+     */
+    fun wrap(key: ByteArray): ByteArray
 
-	/**
-	 * 包装key
-	 */
-	byte[] wrap(byte[] key);
-
-	/**
-	 * 解包key
-	 */
-	byte[] unwrap(byte[] key);
-
+    /**
+     * 解包key
+     */
+    fun unwrap(key: ByteArray): ByteArray
 }

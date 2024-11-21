@@ -1,57 +1,48 @@
-package live.lingting.spring.web.converter;
+package live.lingting.spring.web.converter
 
-import live.lingting.framework.reflect.ClassField;
-import live.lingting.framework.util.EnumUtils;
-import org.springframework.core.convert.TypeDescriptor;
-import org.springframework.stereotype.Component;
-
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import live.lingting.framework.util.EnumUtils.getCf
+import live.lingting.framework.util.EnumUtils.getValue
+import org.springframework.core.convert.TypeDescriptor
+import org.springframework.core.convert.converter.GenericConverter.ConvertiblePair
+import org.springframework.stereotype.Component
 
 /**
  * @author lingting 2022/9/28 12:17
  */
 @Component
-@SuppressWarnings("java:S3740")
-public class EnumConverter extends AbstractConverter<Enum> {
+class EnumConverter : AbstractConverter<Enum<*>>() {
+    override fun matches(sourceType: TypeDescriptor, targetType: TypeDescriptor): Boolean {
+        // 来源类型判断
+        return (String::class.java.isAssignableFrom(sourceType.getType())
+                || Number::class.java.isAssignableFrom(sourceType.getType())) // 目标类型判断
+                && targetType!!.getType().isEnum()
+    }
 
-	@Override
-	public boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType) {
-		// 来源类型判断
-		return (String.class.isAssignableFrom(sourceType.getType())
-				|| Number.class.isAssignableFrom(sourceType.getType()))
-				// 目标类型判断
-				&& targetType.getType().isEnum();
-	}
+    override fun getConvertibleTypes(): MutableSet<ConvertiblePair> {
+        val set: MutableSet<ConvertiblePair> = HashSet<ConvertiblePair>()
+        set.add(ConvertiblePair(String::class.java, Enum::class.java))
+        set.add(ConvertiblePair(Number::class.java, Enum::class.java))
+        return set
+    }
 
-	@Override
-	public Set<ConvertiblePair> getConvertibleTypes() {
-		Set<ConvertiblePair> set = new HashSet<>();
-		set.add(new ConvertiblePair(String.class, Enum.class));
-		set.add(new ConvertiblePair(Number.class, Enum.class));
-		return set;
-	}
+    override fun convert(source: Any, sourceType: TypeDescriptor, targetType: TypeDescriptor): Enum<*> {
+        var source = source
+        if (source == null) {
+            return null
+        }
 
-	@Override
-	public Enum convert(Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
-		if (source == null) {
-			return null;
-		}
+        val cf = getCf(targetType!!.getType())
 
-		ClassField cf = EnumUtils.getCf(targetType.getType());
-
-		// 来源 转化成 目标类型
-		if (cf == null || (source = convert(source, cf.getValueType())) == null) {
-			return null;
-		}
-		for (Object o : targetType.getType().getEnumConstants()) {
-			Object value = EnumUtils.getValue((Enum<?>) o);
-			if (Objects.equals(source, value)) {
-				return (Enum) o;
-			}
-		}
-		return null;
-	}
-
+        // 来源 转化成 目标类型
+        if (cf == null || (convert(source, cf.valueType).also { source = it }) == null) {
+            return null
+        }
+        for (o in targetType.getType().getEnumConstants()) {
+            val value = getValue(o as Enum<*>)
+            if (source == value) {
+                return o as Enum<*>
+            }
+        }
+        return null
+    }
 }

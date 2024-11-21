@@ -1,88 +1,90 @@
-package live.lingting.spring.elasticsearch;
+package live.lingting.spring.elasticsearch
 
-import co.elastic.clients.elasticsearch.ElasticsearchClient;
-import co.elastic.clients.json.JsonpMapper;
-import co.elastic.clients.json.jackson.JacksonJsonpMapper;
-import co.elastic.clients.transport.ElasticsearchTransport;
-import co.elastic.clients.transport.rest_client.RestClientTransport;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import live.lingting.framework.elasticsearch.ElasticsearchProperties;
-import live.lingting.framework.elasticsearch.datascope.DefaultElasticsearchDataPermissionHandler;
-import live.lingting.framework.elasticsearch.datascope.ElasticsearchDataPermissionHandler;
-import live.lingting.framework.elasticsearch.datascope.ElasticsearchDataScope;
-import live.lingting.spring.jackson.configuration.SpringObjectMapperAutoConfiguration;
-import org.apache.http.impl.nio.reactor.IOReactorConfig;
-import org.elasticsearch.client.RestClient;
-import org.elasticsearch.client.RestClientBuilder;
-import org.springframework.boot.autoconfigure.AutoConfiguration;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.elasticsearch.ElasticsearchRestClientAutoConfiguration;
-import org.springframework.boot.autoconfigure.elasticsearch.RestClientBuilderCustomizer;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.Bean;
-
-import java.util.List;
+import co.elastic.clients.elasticsearch.ElasticsearchClient
+import co.elastic.clients.json.JsonpMapper
+import co.elastic.clients.json.jackson.JacksonJsonpMapper
+import co.elastic.clients.transport.ElasticsearchTransport
+import co.elastic.clients.transport.rest_client.RestClientTransport
+import com.fasterxml.jackson.databind.ObjectMapper
+import live.lingting.framework.elasticsearch.ElasticsearchProperties
+import live.lingting.framework.elasticsearch.datascope.DefaultElasticsearchDataPermissionHandler
+import live.lingting.framework.elasticsearch.datascope.ElasticsearchDataPermissionHandler
+import live.lingting.framework.elasticsearch.datascope.ElasticsearchDataScope
+import live.lingting.spring.jackson.configuration.SpringObjectMapperAutoConfiguration
+import org.apache.http.impl.nio.reactor.IOReactorConfig
+import org.elasticsearch.client.RestClient
+import org.elasticsearch.client.RestClientBuilder
+import org.elasticsearch.client.RestClientBuilder.HttpClientConfigCallback
+import org.springframework.boot.autoconfigure.AutoConfiguration
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
+import org.springframework.boot.autoconfigure.elasticsearch.ElasticsearchRestClientAutoConfiguration
+import org.springframework.boot.autoconfigure.elasticsearch.RestClientBuilderCustomizer
+import org.springframework.boot.context.properties.EnableConfigurationProperties
+import org.springframework.context.annotation.Bean
 
 /**
  * @author lingting 2024-03-08 15:37
  */
-@EnableConfigurationProperties(ElasticsearchSpringProperties.class)
-@AutoConfiguration(
-		after = { ElasticsearchRestClientAutoConfiguration.class, SpringObjectMapperAutoConfiguration.class })
-public class ElasticsearchAutoConfiguration {
+@EnableConfigurationProperties(ElasticsearchSpringProperties::class)
+@AutoConfiguration(after = [ElasticsearchRestClientAutoConfiguration::class, SpringObjectMapperAutoConfiguration::class])
+class ElasticsearchAutoConfiguration {
+    @Bean
+    @ConditionalOnMissingBean
+    fun elasticsearchProperties(properties: ElasticsearchSpringProperties): ElasticsearchProperties {
+        return properties.properties()
+    }
 
-	@Bean
-	@ConditionalOnMissingBean
-	public ElasticsearchProperties elasticsearchProperties(ElasticsearchSpringProperties properties) {
-		return properties.properties();
-	}
+    @Bean
+    fun restClientBuilderCustomizer(): RestClientBuilderCustomizer {
+        return RestClientBuilderCustomizer { builder ->
+            builder!!.setHttpClientConfigCallback(HttpClientConfigCallback { httpClientBuilder ->
+                httpClientBuilder!!
+                    .setDefaultIOReactorConfig(IOReactorConfig.custom().setSoKeepAlive(true).build())
+            })
+        }
+    }
 
-	@Bean
-	public RestClientBuilderCustomizer restClientBuilderCustomizer() {
-		return builder -> builder.setHttpClientConfigCallback(httpClientBuilder -> httpClientBuilder
-			.setDefaultIOReactorConfig(IOReactorConfig.custom().setSoKeepAlive(true).build()));
-	}
+    @Bean
+    @ConditionalOnBean(ObjectMapper::class)
+    @ConditionalOnMissingBean(JsonpMapper::class)
+    fun jsonpMapper(mapper: ObjectMapper): JsonpMapper {
+        return JacksonJsonpMapper(mapper)
+    }
 
-	@Bean
-	@ConditionalOnBean(ObjectMapper.class)
-	@ConditionalOnMissingBean(JsonpMapper.class)
-	public JsonpMapper jsonpMapper(ObjectMapper mapper) {
-		return new JacksonJsonpMapper(mapper);
-	}
+    @Bean
+    @ConditionalOnBean(RestClientBuilder::class)
+    @ConditionalOnMissingBean(RestClient::class)
+    fun restClient(builder: RestClientBuilder): RestClient {
+        return builder.build()
+    }
 
-	@Bean
-	@ConditionalOnBean(RestClientBuilder.class)
-	@ConditionalOnMissingBean(RestClient.class)
-	public RestClient restClient(RestClientBuilder builder) {
-		return builder.build();
-	}
+    @Bean
+    @ConditionalOnMissingBean
+    @ConditionalOnBean(RestClient::class, JsonpMapper::class)
+    fun restClientTransport(restClient: RestClient, jsonpMapper: JsonpMapper): ElasticsearchTransport {
+        return RestClientTransport(restClient, jsonpMapper)
+    }
 
-	@Bean
-	@ConditionalOnMissingBean
-	@ConditionalOnBean({ RestClient.class, JsonpMapper.class })
-	public ElasticsearchTransport restClientTransport(RestClient restClient, JsonpMapper jsonpMapper) {
-		return new RestClientTransport(restClient, jsonpMapper);
-	}
+    @Bean
+    @ConditionalOnMissingBean
+    @ConditionalOnBean(ElasticsearchTransport::class)
+    fun elasticsearchClient(transport: ElasticsearchTransport): ElasticsearchClient {
+        return ElasticsearchClient(transport)
+    }
 
-	@Bean
-	@ConditionalOnMissingBean
-	@ConditionalOnBean(ElasticsearchTransport.class)
-	public ElasticsearchClient elasticsearchClient(ElasticsearchTransport transport) {
-		return new ElasticsearchClient(transport);
-	}
+    @Bean
+    @ConditionalOnMissingBean
+    fun elasticsearchDataPermissionHandler(scopes: MutableList<ElasticsearchDataScope>): ElasticsearchDataPermissionHandler {
+        return DefaultElasticsearchDataPermissionHandler(scopes)
+    }
 
-	@Bean
-	@ConditionalOnMissingBean
-	public ElasticsearchDataPermissionHandler elasticsearchDataPermissionHandler(List<ElasticsearchDataScope> scopes) {
-		return new DefaultElasticsearchDataPermissionHandler(scopes);
-	}
-
-	@Bean
-	@ConditionalOnMissingBean
-	public ElasticsearchServiceImplBeanPost elasticsearchServiceImplBeanPost(ElasticsearchProperties properties,
-			ElasticsearchClient client, ElasticsearchDataPermissionHandler handler) {
-		return new ElasticsearchServiceImplBeanPost(properties, client, handler);
-	}
-
+    @Bean
+    @ConditionalOnMissingBean
+    fun elasticsearchServiceImplBeanPost(
+        properties: ElasticsearchProperties,
+        client: ElasticsearchClient, handler: ElasticsearchDataPermissionHandler
+    ): ElasticsearchServiceImplBeanPost {
+        return ElasticsearchServiceImplBeanPost(properties, client, handler)
+    }
 }

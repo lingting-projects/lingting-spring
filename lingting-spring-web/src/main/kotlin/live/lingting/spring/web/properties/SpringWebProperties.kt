@@ -1,120 +1,40 @@
-package live.lingting.spring.web.properties;
+package live.lingting.spring.web.properties
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.ConfigurationProperties
 
 /**
  * @author lingting 2024-03-20 14:58
  */
 @ConfigurationProperties(SpringWebProperties.PREFIX)
-public class SpringWebProperties {
+class SpringWebProperties {
+    @JvmField
+    var headerTraceId: String = "X-Trace-Id"
 
-	public static final String PREFIX = "lingting.web";
+    @JvmField
+    var headerRequestId: String = "X-Request-Id"
 
-	private String headerTraceId = "X-Trace-Id";
+    var scopeFilterOrder: Int = Int.MIN_VALUE
 
-	private String headerRequestId = "X-Request-Id";
+    /**
+     * 当spring启用虚拟线程时, web是否使用虚拟线程处理请求
+     */
+    var useVirtualThread: Boolean = true
 
-	private int scopeFilterOrder = Integer.MIN_VALUE;
+    var pagination: Pagination = Pagination()
 
-	/**
-	 * 当spring启用虚拟线程时, web是否使用虚拟线程处理请求
-	 */
-	private Boolean useVirtualThread = true;
+    class Pagination {
+        var pageSize: Long = 10
 
-	private Pagination pagination = new Pagination();
+        var maxPageSize: Long = 100
 
-	public String getHeaderTraceId() {
-		return this.headerTraceId;
-	}
+        var fieldSort: String = "sort"
 
-	public String getHeaderRequestId() {
-		return this.headerRequestId;
-	}
+        var fieldPage: String = "page"
 
-	public int getScopeFilterOrder() {
-		return this.scopeFilterOrder;
-	}
+        var fieldSize: String = "size"
+    }
 
-	public Boolean getUseVirtualThread() {
-		return this.useVirtualThread;
-	}
-
-	public Pagination getPagination() {
-		return this.pagination;
-	}
-
-	public void setHeaderTraceId(String headerTraceId) {
-		this.headerTraceId = headerTraceId;
-	}
-
-	public void setHeaderRequestId(String headerRequestId) {
-		this.headerRequestId = headerRequestId;
-	}
-
-	public void setScopeFilterOrder(int scopeFilterOrder) {
-		this.scopeFilterOrder = scopeFilterOrder;
-	}
-
-	public void setUseVirtualThread(Boolean useVirtualThread) {
-		this.useVirtualThread = useVirtualThread;
-	}
-
-	public void setPagination(Pagination pagination) {
-		this.pagination = pagination;
-	}
-
-	public static class Pagination {
-
-		private long pageSize = 10;
-
-		private long maxPageSize = 100;
-
-		private String fieldSort = "sort";
-
-		private String fieldPage = "page";
-
-		private String fieldSize = "size";
-
-		public long getPageSize() {
-			return this.pageSize;
-		}
-
-		public long getMaxPageSize() {
-			return this.maxPageSize;
-		}
-
-		public String getFieldSort() {
-			return this.fieldSort;
-		}
-
-		public String getFieldPage() {
-			return this.fieldPage;
-		}
-
-		public String getFieldSize() {
-			return this.fieldSize;
-		}
-
-		public void setPageSize(long pageSize) {
-			this.pageSize = pageSize;
-		}
-
-		public void setMaxPageSize(long maxPageSize) {
-			this.maxPageSize = maxPageSize;
-		}
-
-		public void setFieldSort(String fieldSort) {
-			this.fieldSort = fieldSort;
-		}
-
-		public void setFieldPage(String fieldPage) {
-			this.fieldPage = fieldPage;
-		}
-
-		public void setFieldSize(String fieldSize) {
-			this.fieldSize = fieldSize;
-		}
-
-	}
-
+    companion object {
+        const val PREFIX: String = "lingting.web"
+    }
 }

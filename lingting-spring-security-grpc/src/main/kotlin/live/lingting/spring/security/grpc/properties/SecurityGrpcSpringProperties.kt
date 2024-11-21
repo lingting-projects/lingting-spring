@@ -1,31 +1,23 @@
-package live.lingting.spring.security.grpc.properties;
+package live.lingting.spring.security.grpc.properties
 
-import live.lingting.framework.properties.SecurityGrpcProperties;
-import live.lingting.spring.security.properties.SecuritySpringProperties;
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import live.lingting.framework.properties.SecurityGrpcProperties
+import live.lingting.spring.security.properties.SecuritySpringProperties
+import org.springframework.boot.context.properties.ConfigurationProperties
 
 /**
  * @author lingting 2024-02-05 19:14
  */
 @ConfigurationProperties(prefix = SecurityGrpcSpringProperties.PREFIX)
-public class SecurityGrpcSpringProperties {
+class SecurityGrpcSpringProperties {
+    var authorizationKey: String = "Authorization"
 
-	public static final String PREFIX = SecuritySpringProperties.PREFIX + ".grpc";
+    fun properties(): SecurityGrpcProperties {
+        val properties = SecurityGrpcProperties()
+        properties.authorizationKey = authorizationKey
+        return properties
+    }
 
-	private String authorizationKey = "Authorization";
-
-	public SecurityGrpcProperties properties() {
-		SecurityGrpcProperties properties = new SecurityGrpcProperties();
-		properties.setAuthorizationKey(authorizationKey);
-		return properties;
-	}
-
-	public String getAuthorizationKey() {
-		return this.authorizationKey;
-	}
-
-	public void setAuthorizationKey(String authorizationKey) {
-		this.authorizationKey = authorizationKey;
-	}
-
+    companion object {
+        val PREFIX: String = SecuritySpringProperties.PREFIX + ".grpc"
+    }
 }

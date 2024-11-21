@@ -1,56 +1,57 @@
-package live.lingting.spring.web.scope;
+package live.lingting.spring.web.scope
 
-import jakarta.servlet.http.HttpServletRequest;
-import live.lingting.framework.thread.StackThreadLocal;
-import live.lingting.framework.util.IpUtils;
-
-import java.util.Optional;
-import java.util.function.Function;
+import jakarta.servlet.http.HttpServletRequest
+import java.util.Optional
+import java.util.function.Function
+import live.lingting.framework.thread.StackThreadLocal
+import live.lingting.framework.util.IpUtils.getFirstIp
 
 /**
  * @author lingting 2024-03-20 15:09
  */
-public final class WebScopeHolder {
+class WebScopeHolder private constructor() {
+    init {
+        throw UnsupportedOperationException("This is a utility class and cannot be instantiated")
+    }
 
-	static final StackThreadLocal<WebScope> LOCAL = new StackThreadLocal<>();
+    companion object {
+        val LOCAL: StackThreadLocal<WebScope> = StackThreadLocal<WebScope>()
 
-	private WebScopeHolder() {
-		throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
-	}
+        @JvmStatic
+        fun get(): WebScope {
+            return LOCAL.get()
+        }
 
-	public static WebScope get() {
-		return LOCAL.get();
-	}
+        val optional: Optional<WebScope>
+            get() = Optional.ofNullable<WebScope>(LOCAL.get())
 
-	public static Optional<WebScope> getOptional() {
-		return Optional.ofNullable(LOCAL.get());
-	}
+        fun put(webScope: WebScope) {
+            LOCAL.put(webScope)
+        }
 
-	public static void put(WebScope webScope) {
-		LOCAL.put(webScope);
-	}
+        fun pop() {
+            LOCAL.pop()
+        }
 
-	public static void pop() {
-		LOCAL.pop();
-	}
+        fun of(request: HttpServletRequest, traceId: String, requestId: String): WebScope {
+            return WebScope(
+                request.getScheme(), request.getHeader("Host"), request.getHeader("Origin"),
+                getFirstIp(request), request.getRequestURI(), traceId, requestId,
+                request.getHeader("Accept-Language"), request.getHeader("Authorization"),
+                request.getHeader("User-Agent")
+            )
+        }
 
-	public static WebScope of(HttpServletRequest request, String traceId, String requestId) {
-		return new WebScope(request.getScheme(), request.getHeader("Host"), request.getHeader("Origin"),
-				IpUtils.getFirstIp(request), request.getRequestURI(), traceId, requestId,
-				request.getHeader("Accept-Language"), request.getHeader("Authorization"),
-				request.getHeader("User-Agent"));
-	}
+        fun <T> map(function: Function<WebScope, T>): T {
+            return map<T>(function, null)
+        }
 
-	public static <T> T map(Function<WebScope, T> function) {
-		return map(function, null);
-	}
+        fun <T> map(function: Function<WebScope, T>, other: T): T {
+            return optional.map<T>(function).orElse(other)
+        }
 
-	public static <T> T map(Function<WebScope, T> function, T other) {
-		return getOptional().map(function).orElse(other);
-	}
-
-	public static String uri() {
-		return map(WebScope::getUri, "");
-	}
-
+        fun uri(): String {
+            return WebScopeHolder.map<String>(java.util.function.Function { obj -> obj.getUri() }, "")!!
+        }
+    }
 }

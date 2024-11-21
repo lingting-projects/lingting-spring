@@ -1,34 +1,16 @@
-package live.lingting.spring.mybatis.domain;
+package live.lingting.spring.mybatis.domain
 
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.TableField
+import com.baomidou.mybatisplus.annotation.TableName
 
 /**
  * @author lingting 2024-03-16 17:44
  */
 @TableName("tables_priv")
-public class Table {
+class Table {
+    @TableField("Db")
+    var db: String = null
 
-	@TableField("Db")
-	private String db;
-
-	@TableField("Table_name")
-	private String name;
-
-	public String getDb() {
-		return this.db;
-	}
-
-	public String getName() {
-		return this.name;
-	}
-
-	public void setDb(String db) {
-		this.db = db;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
+    @TableField("Table_name")
+    var name: String = null
 }
