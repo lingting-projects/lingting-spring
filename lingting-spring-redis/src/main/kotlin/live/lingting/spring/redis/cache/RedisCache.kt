@@ -78,14 +78,14 @@ class RedisCache(
     }
 
     fun <T> setIfAbsent(
-        key: String, onGet: ThrowableSupplier<T>, onLockFailure: ThrowableSupplier<T>,
+        key: String, onGet: ThrowableSupplier<T>, onLockFailure: ThrowableSupplier<T?>,
         tClass: Class<T>
     ): T? {
         return setIfAbsent<T>(key, onGet, onLockFailure, Function { obj -> JacksonUtils.toJson(obj) }, Function { v -> toObj<T>(v, tClass) })
     }
 
     fun <T> setIfAbsent(
-        key: String, onGet: ThrowableSupplier<T>, onLockFailure: ThrowableSupplier<T>,
+        key: String, onGet: ThrowableSupplier<T>, onLockFailure: ThrowableSupplier<T?>,
         serialize: Function<T, String>, deserialize: Function<String, T>
     ): T? {
         val spinLock = redis.spinLock("$key:lock")

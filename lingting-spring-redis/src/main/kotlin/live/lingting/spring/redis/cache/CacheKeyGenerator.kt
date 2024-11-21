@@ -49,20 +49,20 @@ class CacheKeyGenerator(protected val delimiter: String, target: Any, method: Me
         val strings: MutableList<String> = ArrayList<String>(list.size)
 
         for (s in list) {
-            strings.add("%s%s%s".formatted(key, delimiter, s))
+            strings.add("$key$delimiter$s")
         }
 
         return strings
     }
 
-    fun cached(cached: Cached): String {
+    fun cached(cached: Cached?): String {
         if (cached == null) {
             return ""
         }
         return join(cached.key, cached.keyJoint)
     }
 
-    fun cacheClear(clear: CacheClear): MutableList<String> {
+    fun cacheClear(clear: CacheClear?): MutableList<String> {
         if (clear == null) {
             return mutableListOf<String>()
         }

@@ -59,15 +59,15 @@ class Redis(
     }
 
     fun keySerializer(): RedisSerializer<String> {
-        return template.getKeySerializer() as RedisSerializer<String>
+        return template.keySerializer as RedisSerializer<String>
     }
 
     fun valueSerializer(): RedisSerializer<String> {
-        return template.getValueSerializer() as RedisSerializer<String>
+        return template.valueSerializer as RedisSerializer<String>
     }
 
     fun stringSerializer(): RedisSerializer<String> {
-        return template.getStringSerializer()
+        return template.stringSerializer
     }
 
     fun hashOps(): HashOperations<String, String, String> {
