@@ -12,15 +12,15 @@ import org.springframework.context.annotation.Bean
  */
 @AutoConfiguration
 @EnableConfigurationProperties(AwsSpringProperties::class)
-class AwsAutoConfiguration {
+open class AwsAutoConfiguration {
     @Bean
-    fun awsS3Properties(properties: AwsSpringProperties): AwsS3Properties {
-        return properties.getS3()
+    open fun awsS3Properties(properties: AwsSpringProperties): AwsS3Properties {
+        return properties.s3
     }
 
     @Bean
     @ConditionalOnProperty(prefix = AwsSpringProperties.PREFIX + ".s3", name = ["ak"])
-    fun awsS3Bucket(properties: AwsS3Properties): AwsS3Bucket {
+    open fun awsS3Bucket(properties: AwsS3Properties): AwsS3Bucket {
         return AwsS3Bucket(properties)
     }
 }

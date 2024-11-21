@@ -14,7 +14,6 @@ class MeterRegisterHandler(private val registry: MeterRegistry, private val bind
         }
     }
 
-
     override fun afterPropertiesSet() {
         registryAll()
     }

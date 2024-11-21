@@ -10,13 +10,13 @@ import org.springframework.boot.context.properties.NestedConfigurationProperty
  */
 @ConfigurationProperties(AliSpringProperties.PREFIX)
 class AliSpringProperties {
+    companion object {
+        const val PREFIX: String = "lingting.ali"
+    }
     @NestedConfigurationProperty
     var sts: AliStsProperties = AliStsProperties()
 
     @NestedConfigurationProperty
     var oss: AliOssProperties = AliOssProperties()
 
-    companion object {
-        const val PREFIX: String = "lingting.ali"
-    }
 }

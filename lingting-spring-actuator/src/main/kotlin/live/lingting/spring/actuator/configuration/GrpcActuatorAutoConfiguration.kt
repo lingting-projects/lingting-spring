@@ -13,11 +13,11 @@ import org.springframework.context.annotation.Bean
  */
 @ConditionalOnClass(GrpcServer::class)
 @AutoConfiguration(before = [ActuatorAutoConfiguration::class])
-class GrpcActuatorAutoConfiguration {
+open class GrpcActuatorAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     @ConditionalOnBean(GrpcServer::class)
-    fun grpcServerHealthIndicator(server: GrpcServer): GrpcServerHealthIndicator {
+    open fun grpcServerHealthIndicator(server: GrpcServer): GrpcServerHealthIndicator {
         return GrpcServerHealthIndicator(server)
     }
 }

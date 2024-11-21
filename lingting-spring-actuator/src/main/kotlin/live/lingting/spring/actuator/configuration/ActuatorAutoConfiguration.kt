@@ -18,24 +18,24 @@ import org.springframework.context.annotation.Bean
  * @author lingting 2023-07-25 17:29
  */
 @AutoConfiguration(before = [DiskSpaceHealthContributorAutoConfiguration::class])
-class ActuatorAutoConfiguration {
+open class ActuatorAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     @ConditionalOnBean(MeterRegistry::class)
-    fun meterRegisterHandler(registry: MeterRegistry, binders: MutableList<MeterBinder>): MeterRegisterHandler {
+    open fun meterRegisterHandler(registry: MeterRegistry, binders: MutableList<MeterBinder>): MeterRegisterHandler {
         return MeterRegisterHandler(registry, binders)
     }
 
     @Bean
     @ConditionalOnMissingBean
-    fun threadPoolHealthIndicator(): ThreadPoolHealthIndicator {
+    open fun threadPoolHealthIndicator(): ThreadPoolHealthIndicator {
         return ThreadPoolHealthIndicator()
     }
 
     @Bean
     @ConditionalOnEnabledHealthIndicator("diskspace")
     @ConditionalOnMissingBean(name = ["diskSpaceHealthIndicator"])
-    fun diskSpaceHealthIndicator(properties: DiskSpaceHealthIndicatorProperties): DiskSpaceHealthIndicator {
+    open fun diskSpaceHealthIndicator(properties: DiskSpaceHealthIndicatorProperties): DiskSpaceHealthIndicator {
         return DiskSpaceReadableHealthIndicator(properties.getPath(), properties.getThreshold())
     }
 }

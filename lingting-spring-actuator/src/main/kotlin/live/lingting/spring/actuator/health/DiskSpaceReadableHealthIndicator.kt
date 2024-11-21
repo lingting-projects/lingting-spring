@@ -1,8 +1,6 @@
 package live.lingting.spring.actuator.health
 
 import java.io.File
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import org.springframework.boot.actuate.health.Health
 import org.springframework.boot.actuate.health.Status
 import org.springframework.boot.actuate.system.DiskSpaceHealthIndicator
@@ -51,7 +49,4 @@ class DiskSpaceReadableHealthIndicator
         }
     }
 
-    companion object {
-        private val log: Logger = LoggerFactory.getLogger(DiskSpaceReadableHealthIndicator::class.java)
-    }
 }

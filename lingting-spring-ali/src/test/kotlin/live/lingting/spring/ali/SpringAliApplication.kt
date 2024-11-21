@@ -9,8 +9,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
  */
 @SpringBootApplication
 @ImportAutoConfiguration(AliAutoConfiguration::class)
-object SpringAliApplication {
-    @JvmStatic
+open class SpringAliApplication {
     fun main(args: Array<String>) {
         SpringApplication.run(SpringAliApplication::class.java, *args)
     }

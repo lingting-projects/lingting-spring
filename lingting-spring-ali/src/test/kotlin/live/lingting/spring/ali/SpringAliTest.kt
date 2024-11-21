@@ -1,7 +1,15 @@
 package live.lingting.spring.ali
 
-import org.junit.jupiter.api.Assertions
+import live.lingting.framework.ali.AliOssBucket
+import live.lingting.framework.ali.AliSts
+import live.lingting.framework.aws.AwsS3Bucket
+import live.lingting.framework.aws.s3.interfaces.AwsS3BucketInterface
+import live.lingting.spring.util.SpringUtils
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 
 /**
@@ -10,21 +18,21 @@ import org.springframework.boot.test.context.SpringBootTest
 @SpringBootTest
 internal class SpringAliTest {
     @Autowired
-    var sts: AliSts = null
+    var sts: AliSts? = null
 
     @Autowired
-    var ossBucket: AliOssBucket = null
+    var ossBucket: AliOssBucket? = null
 
     @Test
     fun test() {
-        Assertions.assertNotNull(sts)
-        Assertions.assertNotNull(ossBucket)
-        val obsObject: AliOssObject = ossBucket.use("key")
-        Assertions.assertTrue(obsObject.publicUrl().contains("key"))
+        assertNotNull(sts)
+        assertNotNull(ossBucket)
+        val obsObject = ossBucket!!.use("key")
+        assertTrue(obsObject.publicUrl().contains("key"))
         val awsS3BucketMap: MutableMap<String, AwsS3Bucket> = SpringUtils.getBeansOfType(AwsS3Bucket::class.java)
-        Assertions.assertEquals(1, awsS3BucketMap.size)
+        assertEquals(1, awsS3BucketMap.size)
         val awsS3BucketInterfaceMap: MutableMap<String, AwsS3BucketInterface> = SpringUtils
             .getBeansOfType(AwsS3BucketInterface::class.java)
-        Assertions.assertEquals(2, awsS3BucketInterfaceMap.size)
+        assertEquals(2, awsS3BucketInterfaceMap.size)
     }
 }

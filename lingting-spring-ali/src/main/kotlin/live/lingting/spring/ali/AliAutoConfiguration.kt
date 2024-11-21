@@ -14,26 +14,26 @@ import org.springframework.context.annotation.Bean
  */
 @AutoConfiguration
 @EnableConfigurationProperties(AliSpringProperties::class)
-class AliAutoConfiguration {
+open class AliAutoConfiguration {
     @Bean
-    fun aliStsProperties(properties: AliSpringProperties): AliStsProperties {
-        return properties.getSts()
+    open fun aliStsProperties(properties: AliSpringProperties): AliStsProperties {
+        return properties.sts
     }
 
     @Bean
-    fun aliOssProperties(properties: AliSpringProperties): AliOssProperties {
-        return properties.getOss()
+    open fun aliOssProperties(properties: AliSpringProperties): AliOssProperties {
+        return properties.oss
     }
 
     @Bean
     @ConditionalOnProperty(prefix = AliSpringProperties.PREFIX + ".sts", name = ["ak"])
-    fun aliSts(properties: AliStsProperties): AliSts {
+    open fun aliSts(properties: AliStsProperties): AliSts {
         return AliSts(properties)
     }
 
     @Bean
     @ConditionalOnProperty(prefix = AliSpringProperties.PREFIX + ".oss", name = ["ak"])
-    fun aliOssBucket(properties: AliOssProperties): AliOssBucket {
+    open fun aliOssBucket(properties: AliOssProperties): AliOssBucket {
         return AliOssBucket(properties)
     }
 }
