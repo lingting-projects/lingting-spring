@@ -9,8 +9,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
  */
 @SpringBootApplication
 @ImportAutoConfiguration(AwsAutoConfiguration::class)
-object SpringAwsApplication {
-    @JvmStatic
+open class SpringAwsApplication {
     fun main(args: Array<String>) {
         SpringApplication.run(SpringAwsApplication::class.java, *args)
     }
