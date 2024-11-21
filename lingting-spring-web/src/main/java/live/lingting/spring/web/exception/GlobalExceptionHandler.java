@@ -6,7 +6,7 @@ import live.lingting.framework.api.ApiResultCode;
 import live.lingting.framework.api.R;
 import live.lingting.framework.exception.BizException;
 import live.lingting.spring.web.scope.WebScopeHolder;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.http.ResponseEntity;
@@ -28,12 +28,13 @@ import java.sql.SQLIntegrityConstraintViolationException;
 /**
  * @author lingting 2022/9/21 15:55
  */
-@Slf4j
 @ControllerAdvice
 @Order(GlobalExceptionHandler.ORDER)
 public class GlobalExceptionHandler extends AbstractExceptionHandler {
 
 	public static final int ORDER = -100;
+
+	private static final Logger log = org.slf4j.LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
 	/**
 	 * Business error

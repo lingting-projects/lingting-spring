@@ -3,8 +3,7 @@ package live.lingting.spring.event;
 import live.lingting.framework.Sequence;
 import live.lingting.framework.context.ContextComponent;
 import live.lingting.framework.context.ContextHolder;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextClosedEvent;
@@ -17,10 +16,13 @@ import java.util.Map;
 /**
  * @author lingting 2022/10/22 17:45
  */
-@Slf4j
-@RequiredArgsConstructor
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class SpringContextClosedListener implements ApplicationListener<ContextClosedEvent> {
+
+	private static final Logger log = org.slf4j.LoggerFactory.getLogger(SpringContextClosedListener.class);
+
+	public SpringContextClosedListener() {
+	}
 
 	@Override
 	public void onApplicationEvent(ContextClosedEvent event) {

@@ -10,7 +10,6 @@ import live.lingting.framework.security.exception.AuthorizationException;
 import live.lingting.framework.security.password.SecurityPassword;
 import live.lingting.framework.security.resource.SecurityHolder;
 import live.lingting.framework.security.store.SecurityStore;
-import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -20,7 +19,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 @Authorize
 @ResponseBody
-@RequiredArgsConstructor
 public class SecurityWebEndpoint {
 
 	private final SecurityAuthorizationService service;
@@ -30,6 +28,14 @@ public class SecurityWebEndpoint {
 	private final SecurityPassword securityPassword;
 
 	private final SecurityConvert convert;
+
+	public SecurityWebEndpoint(SecurityAuthorizationService service, SecurityStore store,
+			SecurityPassword securityPassword, SecurityConvert convert) {
+		this.service = service;
+		this.store = store;
+		this.securityPassword = securityPassword;
+		this.convert = convert;
+	}
 
 	@DeleteMapping("authorization/logout")
 	public AuthorizationVO logout() {

@@ -1,15 +1,17 @@
 package live.lingting.spring.redis.prefix;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 /**
  * @author lingting 2024-04-17 16:05
  */
-@RequiredArgsConstructor
 public class StringKeyPrefixSerializer extends StringRedisSerializer {
 
 	private final KeyPrefixConvert convert;
+
+	public StringKeyPrefixSerializer(KeyPrefixConvert convert) {
+		this.convert = convert;
+	}
 
 	@Override
 	public byte[] serialize(String value) {

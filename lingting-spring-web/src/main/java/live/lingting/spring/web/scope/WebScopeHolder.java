@@ -3,7 +3,6 @@ package live.lingting.spring.web.scope;
 import jakarta.servlet.http.HttpServletRequest;
 import live.lingting.framework.thread.StackThreadLocal;
 import live.lingting.framework.util.IpUtils;
-import lombok.experimental.UtilityClass;
 
 import java.util.Optional;
 import java.util.function.Function;
@@ -11,10 +10,13 @@ import java.util.function.Function;
 /**
  * @author lingting 2024-03-20 15:09
  */
-@UtilityClass
-public class WebScopeHolder {
+public final class WebScopeHolder {
 
 	static final StackThreadLocal<WebScope> LOCAL = new StackThreadLocal<>();
+
+	private WebScopeHolder() {
+		throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
+	}
 
 	public static WebScope get() {
 		return LOCAL.get();

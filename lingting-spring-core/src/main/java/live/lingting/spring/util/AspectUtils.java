@@ -1,6 +1,5 @@
 package live.lingting.spring.util;
 
-import lombok.experimental.UtilityClass;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.Signature;
 import org.aspectj.lang.reflect.MethodSignature;
@@ -14,8 +13,11 @@ import java.lang.reflect.Method;
  *
  * @author lingting 2022/10/28 15:03
  */
-@UtilityClass
-public class AspectUtils {
+public final class AspectUtils {
+
+	private AspectUtils() {
+		throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
+	}
 
 	/**
 	 * 获取切入的方法

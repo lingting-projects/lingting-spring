@@ -27,8 +27,6 @@ import live.lingting.framework.elasticsearch.builder.QueryBuilder;
 import live.lingting.framework.elasticsearch.builder.ScriptBuilder;
 import live.lingting.framework.function.ThrowingRunnable;
 import live.lingting.framework.function.ThrowingSupplier;
-import lombok.Getter;
-import lombok.Setter;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -52,14 +50,10 @@ public abstract class AbstractElasticsearchServiceImpl<T> {
 
 	protected final Logger log = org.slf4j.LoggerFactory.getLogger(getClass());
 
-	@Getter
 	protected final String index = index(getEntityClass(getClass()));
 
-	@Getter
 	protected final Class<T> cls = getEntityClass(getClass());
 
-	@Getter
-	@Setter
 	protected ElasticsearchApi<T> api;
 
 	public abstract String documentId(T t);
@@ -331,6 +325,22 @@ public abstract class AbstractElasticsearchServiceImpl<T> {
 	public ScrollCursor<T, String> scrollCursor(ScrollParams<String> params, QueryBuilder<T> queries)
 			throws IOException {
 		return api.scrollCursor(params, queries);
+	}
+
+	public String getIndex() {
+		return this.index;
+	}
+
+	public Class<T> getCls() {
+		return this.cls;
+	}
+
+	public ElasticsearchApi<T> getApi() {
+		return this.api;
+	}
+
+	public void setApi(ElasticsearchApi<T> api) {
+		this.api = api;
 	}
 
 }

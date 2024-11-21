@@ -4,7 +4,6 @@ import live.lingting.framework.function.ThrowableSupplier;
 import live.lingting.spring.redis.Redis;
 import live.lingting.spring.redis.properties.RedisProperties;
 import live.lingting.spring.util.AspectUtils;
-import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -23,13 +22,17 @@ import java.util.List;
  */
 @Order
 @Aspect
-@RequiredArgsConstructor
 @SuppressWarnings("unchecked")
 public class CacheAspect implements Ordered {
 
 	private final Redis redis;
 
 	private final RedisProperties properties;
+
+	public CacheAspect(Redis redis, RedisProperties properties) {
+		this.redis = redis;
+		this.properties = properties;
+	}
 
 	@Pointcut("@annotation(live.lingting.spring.redis.cache.Cached) || @annotation(live.lingting.spring.redis.cache.CacheClear) || @annotation(live.lingting.spring.redis.cache.CacheBatchClear)")
 	public void pointCut() {

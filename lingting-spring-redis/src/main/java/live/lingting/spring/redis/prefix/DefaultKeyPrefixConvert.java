@@ -2,14 +2,12 @@ package live.lingting.spring.redis.prefix;
 
 import live.lingting.framework.util.ArrayUtils;
 import live.lingting.spring.redis.properties.RedisProperties;
-import lombok.Getter;
 
 import java.nio.charset.StandardCharsets;
 
 /**
  * @author lingting 2024-04-17 15:12
  */
-@Getter
 public class DefaultKeyPrefixConvert implements KeyPrefixConvert {
 
 	private final String prefix;
@@ -59,6 +57,14 @@ public class DefaultKeyPrefixConvert implements KeyPrefixConvert {
 		System.arraycopy(key, bytes.length, target, 0, target.length);
 		return target;
 
+	}
+
+	public String getPrefix() {
+		return this.prefix;
+	}
+
+	public byte[] getBytes() {
+		return this.bytes;
 	}
 
 }

@@ -1,13 +1,11 @@
 package live.lingting.spring;
 
 import live.lingting.framework.context.ContextComponent;
-import lombok.Getter;
 import org.springframework.stereotype.Component;
 
 /**
  * @author lingting 2024-02-02 15:27
  */
-@Getter
 @Component
 public class SpringTestBean implements ContextComponent {
 
@@ -23,6 +21,14 @@ public class SpringTestBean implements ContextComponent {
 	@Override
 	public void onApplicationStop() {
 		//
+	}
+
+	public String getValue() {
+		return this.value;
+	}
+
+	public boolean isStart() {
+		return this.start;
 	}
 
 }

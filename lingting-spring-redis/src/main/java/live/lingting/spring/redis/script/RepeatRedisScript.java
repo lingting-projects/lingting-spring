@@ -1,7 +1,6 @@
 package live.lingting.spring.redis.script;
 
 import live.lingting.spring.redis.Redis;
-import lombok.Getter;
 import org.redisson.api.RScript;
 import org.redisson.api.RedissonClient;
 import org.springframework.data.redis.connection.RedisConnection;
@@ -15,7 +14,6 @@ import java.util.List;
 /**
  * @author lingting 2024-04-17 16:19
  */
-@Getter
 public class RepeatRedisScript<T> {
 
 	private final String source;
@@ -53,6 +51,22 @@ public class RepeatRedisScript<T> {
 		RScript script = client.getScript();
 		script.scriptLoad(source);
 		this.load = true;
+	}
+
+	public String getSource() {
+		return this.source;
+	}
+
+	public String getSha1() {
+		return this.sha1;
+	}
+
+	public ReturnType getType() {
+		return this.type;
+	}
+
+	public boolean isLoad() {
+		return this.load;
 	}
 
 }

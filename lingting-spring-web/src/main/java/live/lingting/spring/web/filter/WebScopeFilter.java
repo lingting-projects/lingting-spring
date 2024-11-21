@@ -9,7 +9,6 @@ import live.lingting.spring.web.properties.SpringWebProperties;
 import live.lingting.spring.web.scope.WebScope;
 import live.lingting.spring.web.scope.WebScopeHolder;
 import live.lingting.spring.web.wrapper.RepeatBodyRequestWrapper;
-import lombok.RequiredArgsConstructor;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.ContentCachingResponseWrapper;
@@ -19,10 +18,13 @@ import java.io.IOException;
 /**
  * @author lingting 2024-03-20 14:57
  */
-@RequiredArgsConstructor
 public class WebScopeFilter extends OncePerRequestFilter {
 
 	private final SpringWebProperties properties;
+
+	public WebScopeFilter(SpringWebProperties properties) {
+		this.properties = properties;
+	}
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,

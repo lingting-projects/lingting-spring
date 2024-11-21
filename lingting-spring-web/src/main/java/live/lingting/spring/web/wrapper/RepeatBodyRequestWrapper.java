@@ -6,7 +6,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
 import live.lingting.framework.util.FileUtils;
 import live.lingting.framework.util.StreamUtils;
-import lombok.Getter;
 
 import java.io.BufferedReader;
 import java.io.Closeable;
@@ -26,12 +25,10 @@ public class RepeatBodyRequestWrapper extends HttpServletRequestWrapper implemen
 
 	public static final File TMP_DIR = FileUtils.createTempDir("request");
 
-	@Getter
 	private final File bodyFile;
 
 	private final Map<String, String[]> paramsMap;
 
-	@Getter
 	private final List<Closeable> closeableList;
 
 	public RepeatBodyRequestWrapper(HttpServletRequest request) throws IOException {
@@ -103,6 +100,14 @@ public class RepeatBodyRequestWrapper extends HttpServletRequestWrapper implemen
 			StreamUtils.close(closeable);
 		}
 		FileUtils.delete(getBodyFile());
+	}
+
+	public File getBodyFile() {
+		return this.bodyFile;
+	}
+
+	public List<Closeable> getCloseableList() {
+		return this.closeableList;
 	}
 
 }

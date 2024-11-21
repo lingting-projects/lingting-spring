@@ -4,9 +4,6 @@ import jakarta.annotation.Resource;
 import live.lingting.framework.reflect.ClassField;
 import live.lingting.framework.util.ClassUtils;
 import live.lingting.framework.util.CollectionUtils;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.experimental.UtilityClass;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -21,13 +18,14 @@ import java.util.function.Function;
 /**
  * @author lingting 2022/10/15 15:21
  */
-@UtilityClass
 @SuppressWarnings("unchecked")
-public class SpringUtils {
+public final class SpringUtils {
 
-	@Setter
-	@Getter
 	private static ApplicationContext context;
+
+	private SpringUtils() {
+		throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
+	}
 
 	public static boolean hasBean(String name) {
 		return context.containsBean(name);
@@ -94,6 +92,14 @@ public class SpringUtils {
 			}
 		}
 		return t;
+	}
+
+	public static ApplicationContext getContext() {
+		return SpringUtils.context;
+	}
+
+	public static void setContext(ApplicationContext context) {
+		SpringUtils.context = context;
 	}
 
 }

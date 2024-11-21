@@ -1,6 +1,6 @@
 package live.lingting.spring.actuator.health;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.Status;
 import org.springframework.boot.actuate.system.DiskSpaceHealthIndicator;
@@ -11,8 +11,9 @@ import java.io.File;
 /**
  * @author lingting 2023-11-23 21:42
  */
-@Slf4j
 public class DiskSpaceReadableHealthIndicator extends DiskSpaceHealthIndicator {
+
+	private static final Logger log = org.slf4j.LoggerFactory.getLogger(DiskSpaceReadableHealthIndicator.class);
 
 	private final File path;
 

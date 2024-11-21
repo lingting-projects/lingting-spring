@@ -3,8 +3,6 @@ package live.lingting.spring.redis.cache;
 import live.lingting.framework.function.ThrowableSupplier;
 import live.lingting.framework.jackson.JacksonUtils;
 import live.lingting.spring.redis.Redis;
-import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import org.redisson.RedissonSpinLock;
 import org.springframework.data.redis.core.ValueOperations;
 
@@ -16,7 +14,6 @@ import java.util.function.Function;
 /**
  * @author lingting 2024-04-17 19:11
  */
-@RequiredArgsConstructor
 @SuppressWarnings("unchecked")
 public class RedisCache {
 
@@ -29,6 +26,14 @@ public class RedisCache {
 	private final Duration lockTimeout;
 
 	private final Duration leaseTime;
+
+	public RedisCache(Redis redis, String nullValue, Duration expireTime, Duration lockTimeout, Duration leaseTime) {
+		this.redis = redis;
+		this.nullValue = nullValue;
+		this.expireTime = expireTime;
+		this.lockTimeout = lockTimeout;
+		this.leaseTime = leaseTime;
+	}
 
 	protected String get(String key) {
 		return get(key, s -> s);
@@ -71,7 +76,6 @@ public class RedisCache {
 		return set(key, onGet, onLockFailure, JacksonUtils::toJson);
 	}
 
-	@SneakyThrows
 	public <T> T set(String key, ThrowableSupplier<T> onGet, ThrowableSupplier<T> onLockFailure,
 			Function<T, String> serialize) {
 		RedissonSpinLock spinLock = redis.spinLock("%s:%s".formatted(key, "lock"));
@@ -95,7 +99,6 @@ public class RedisCache {
 		return setIfAbsent(key, onGet, onLockFailure, JacksonUtils::toJson, v -> JacksonUtils.toObj(v, tClass));
 	}
 
-	@SneakyThrows
 	public <T> T setIfAbsent(String key, ThrowableSupplier<T> onGet, ThrowableSupplier<T> onLockFailure,
 			Function<T, String> serialize, Function<String, T> deserialize) {
 		RedissonSpinLock spinLock = redis.spinLock("%s:%s".formatted(key, "lock"));

@@ -5,7 +5,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import live.lingting.framework.Sequence;
 import live.lingting.framework.security.authorize.SecurityAuthorize;
 import live.lingting.spring.security.web.properties.SecurityWebProperties;
-import lombok.RequiredArgsConstructor;
 import org.springframework.core.Ordered;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.CollectionUtils;
@@ -18,7 +17,6 @@ import java.util.Set;
 /**
  * @author lingting 2024-03-21 19:59
  */
-@RequiredArgsConstructor
 public class SecurityWebResourceInterceptor implements HandlerInterceptor, Ordered, Sequence {
 
 	protected static final AntPathMatcher ANT_PATH_MATCHER = new AntPathMatcher();
@@ -26,6 +24,11 @@ public class SecurityWebResourceInterceptor implements HandlerInterceptor, Order
 	protected final SecurityWebProperties properties;
 
 	protected final SecurityAuthorize authorize;
+
+	public SecurityWebResourceInterceptor(SecurityWebProperties properties, SecurityAuthorize authorize) {
+		this.properties = properties;
+		this.authorize = authorize;
+	}
 
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)

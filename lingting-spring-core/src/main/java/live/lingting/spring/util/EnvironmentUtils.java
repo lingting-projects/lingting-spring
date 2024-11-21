@@ -1,9 +1,6 @@
 package live.lingting.spring.util;
 
 import live.lingting.framework.util.ArrayUtils;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.experimental.UtilityClass;
 import org.springframework.core.convert.support.ConfigurableConversionService;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MapPropertySource;
@@ -19,12 +16,13 @@ import java.util.Optional;
 /**
  * @author lingting 2022/10/15 11:33
  */
-@UtilityClass
-public class EnvironmentUtils {
+public final class EnvironmentUtils {
 
-	@Getter
-	@Setter
 	private static ConfigurableEnvironment environment;
+
+	private EnvironmentUtils() {
+		throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
+	}
 
 	public static boolean containsProperty(String key) {
 		return environment.containsProperty(key);
@@ -168,6 +166,14 @@ public class EnvironmentUtils {
 		}
 
 		return true;
+	}
+
+	public static ConfigurableEnvironment getEnvironment() {
+		return EnvironmentUtils.environment;
+	}
+
+	public static void setEnvironment(ConfigurableEnvironment environment) {
+		EnvironmentUtils.environment = environment;
 	}
 
 }

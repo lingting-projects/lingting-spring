@@ -5,7 +5,6 @@ import live.lingting.framework.api.PaginationParams;
 import live.lingting.framework.util.ArrayUtils;
 import live.lingting.framework.util.StringUtils;
 import live.lingting.spring.web.properties.SpringWebProperties;
-import lombok.RequiredArgsConstructor;
 import org.springframework.core.MethodParameter;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
@@ -28,10 +27,13 @@ import java.util.Map;
 /**
  * @author lingting 2024-03-20 16:06
  */
-@RequiredArgsConstructor
 public class ApiPaginationParamsResolve implements HandlerMethodArgumentResolver {
 
 	private final SpringWebProperties.Pagination pagination;
+
+	public ApiPaginationParamsResolve(SpringWebProperties.Pagination pagination) {
+		this.pagination = pagination;
+	}
 
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {

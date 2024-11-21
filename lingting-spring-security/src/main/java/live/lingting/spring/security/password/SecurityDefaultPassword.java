@@ -3,7 +3,6 @@ package live.lingting.spring.security.password;
 import live.lingting.framework.crypto.cipher.Cipher;
 import live.lingting.framework.security.password.SecurityPassword;
 import live.lingting.framework.util.StringUtils;
-import lombok.SneakyThrows;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 /**
@@ -31,7 +30,6 @@ public class SecurityDefaultPassword implements SecurityPassword {
 	/**
 	 * 依据前端加密方式, 明文转密文
 	 */
-	@SneakyThrows
 	@Override
 	public String encodeFront(String plaintext) {
 		return front.encryptBase64(plaintext);
@@ -40,7 +38,6 @@ public class SecurityDefaultPassword implements SecurityPassword {
 	/**
 	 * 解析收到的前端密文
 	 */
-	@SneakyThrows
 	@Override
 	public String decodeFront(String ciphertext) {
 		return front.decryptBase64(ciphertext);

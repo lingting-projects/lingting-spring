@@ -16,7 +16,6 @@
 
 package live.lingting.spring.web.converter;
 
-import lombok.experimental.UtilityClass;
 import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.TypeDescriptor;
@@ -32,9 +31,12 @@ import org.springframework.util.ClassUtils;
  * @author Stephane Nicoll
  * @since 3.0
  */
-@UtilityClass
 @SuppressWarnings({ "java:S1181", "java:S1126" })
-public class ConversionUtils {
+public final class ConversionUtils {
+
+	private ConversionUtils() {
+		throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
+	}
 
 	@Nullable
 	public static Object invokeConverter(GenericConverter converter, @Nullable Object source, TypeDescriptor sourceType,

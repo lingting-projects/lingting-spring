@@ -6,12 +6,10 @@ import live.lingting.framework.elasticsearch.ElasticsearchProperties;
 import live.lingting.framework.elasticsearch.ElasticsearchProvider;
 import live.lingting.framework.elasticsearch.datascope.ElasticsearchDataPermissionHandler;
 import live.lingting.spring.post.SpringBeanPostProcessor;
-import lombok.RequiredArgsConstructor;
 
 /**
  * @author lingting 2024-03-08 16:52
  */
-@RequiredArgsConstructor
 @SuppressWarnings("java:S3740")
 public class ElasticsearchServiceImplBeanPost implements SpringBeanPostProcessor {
 
@@ -20,6 +18,13 @@ public class ElasticsearchServiceImplBeanPost implements SpringBeanPostProcessor
 	private final ElasticsearchClient client;
 
 	private final ElasticsearchDataPermissionHandler handler;
+
+	public ElasticsearchServiceImplBeanPost(ElasticsearchProperties properties, ElasticsearchClient client,
+			ElasticsearchDataPermissionHandler handler) {
+		this.properties = properties;
+		this.client = client;
+		this.handler = handler;
+	}
 
 	@Override
 	public boolean isProcess(Object bean, String beanName, boolean isBefore) {

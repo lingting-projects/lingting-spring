@@ -7,7 +7,6 @@ import live.lingting.spring.redis.properties.RedisProperties;
 import live.lingting.spring.redis.script.RedisScriptExecutor;
 import live.lingting.spring.redis.script.RedisScriptProvider;
 import live.lingting.spring.redis.script.RepeatRedisScript;
-import lombok.SneakyThrows;
 import org.redisson.Redisson;
 import org.redisson.RedissonLock;
 import org.redisson.RedissonSpinLock;
@@ -65,7 +64,6 @@ public class Redis implements InitializingBean {
 		}
 	}
 
-	@SneakyThrows
 	public static Redis instance() {
 		return INSTANCE.notNull();
 	}

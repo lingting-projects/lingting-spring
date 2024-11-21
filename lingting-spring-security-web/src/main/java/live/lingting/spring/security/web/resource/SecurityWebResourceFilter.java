@@ -11,9 +11,8 @@ import live.lingting.framework.security.exception.PermissionsException;
 import live.lingting.framework.security.resource.SecurityResourceService;
 import live.lingting.framework.util.StringUtils;
 import live.lingting.spring.security.web.properties.SecurityWebProperties;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -21,13 +20,18 @@ import java.io.IOException;
 /**
  * @author lingting 2024-03-21 19:49
  */
-@Slf4j
-@RequiredArgsConstructor
 public class SecurityWebResourceFilter extends OncePerRequestFilter {
+
+	private static final Logger log = org.slf4j.LoggerFactory.getLogger(SecurityWebResourceFilter.class);
 
 	private final SecurityWebProperties properties;
 
 	private final SecurityResourceService service;
+
+	public SecurityWebResourceFilter(SecurityWebProperties properties, SecurityResourceService service) {
+		this.properties = properties;
+		this.service = service;
+	}
 
 	@Override
 	protected void doFilterInternal(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response,

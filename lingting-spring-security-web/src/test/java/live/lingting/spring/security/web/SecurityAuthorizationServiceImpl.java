@@ -6,7 +6,6 @@ import live.lingting.framework.security.domain.SecurityScopeAttributes;
 import live.lingting.framework.security.exception.AuthorizationException;
 import live.lingting.framework.security.store.SecurityStore;
 import live.lingting.framework.util.LocalDateTimeUtils;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -17,10 +16,13 @@ import java.util.Objects;
  * @author lingting 2024-03-21 20:23
  */
 @Component
-@RequiredArgsConstructor
 public class SecurityAuthorizationServiceImpl implements SecurityAuthorizationService {
 
 	private final SecurityStore store;
+
+	public SecurityAuthorizationServiceImpl(SecurityStore store) {
+		this.store = store;
+	}
 
 	@Override
 	public SecurityScope validAndBuildScope(String username, String password) throws AuthorizationException {

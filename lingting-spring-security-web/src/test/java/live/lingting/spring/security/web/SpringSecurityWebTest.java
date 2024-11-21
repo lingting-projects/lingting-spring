@@ -5,7 +5,6 @@ import live.lingting.framework.jackson.JacksonUtils;
 import live.lingting.framework.security.domain.AuthorizationVO;
 import live.lingting.framework.security.password.SecurityPassword;
 import live.lingting.spring.security.web.properties.SecurityWebProperties;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -35,7 +34,6 @@ class SpringSecurityWebTest {
 	@Autowired
 	private SecurityPassword securityPassword;
 
-	@SneakyThrows
 	@Test
 	void test() {
 		String password = securityPassword.encodeFront("lingting");

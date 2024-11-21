@@ -5,7 +5,7 @@ import live.lingting.framework.api.R;
 import live.lingting.framework.security.exception.AuthorizationException;
 import live.lingting.framework.security.exception.PermissionsException;
 import live.lingting.spring.web.exception.AbstractExceptionHandler;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.ResponseEntity;
@@ -15,10 +15,11 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 /**
  * @author lingting 2022/9/21 15:55
  */
-@Slf4j
 @ControllerAdvice
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class SecurityWebExceptionHandler extends AbstractExceptionHandler {
+
+	private static final Logger log = org.slf4j.LoggerFactory.getLogger(SecurityWebExceptionHandler.class);
 
 	/**
 	 * 鉴权异常

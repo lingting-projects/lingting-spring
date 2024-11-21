@@ -1,15 +1,11 @@
 package live.lingting.spring.security.properties;
 
 import live.lingting.framework.security.properties.SecurityProperties;
-import lombok.Getter;
-import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * @author lingting 2023-03-29 20:50
  */
-@Getter
-@Setter
 @ConfigurationProperties(prefix = SecuritySpringProperties.PREFIX)
 public class SecuritySpringProperties {
 
@@ -36,8 +32,22 @@ public class SecuritySpringProperties {
 		return properties;
 	}
 
-	@Getter
-	@Setter
+	public Authorization getAuthorization() {
+		return this.authorization;
+	}
+
+	public int getOrder() {
+		return this.order;
+	}
+
+	public void setAuthorization(Authorization authorization) {
+		this.authorization = authorization;
+	}
+
+	public void setOrder(int order) {
+		this.order = order;
+	}
+
 	public static class Authorization {
 
 		private boolean remote = false;
@@ -48,6 +58,30 @@ public class SecuritySpringProperties {
 		 * 前后端交互使用的对称加密算法的密钥，必须 16 位字符
 		 */
 		private String passwordSecretKey;
+
+		public boolean isRemote() {
+			return this.remote;
+		}
+
+		public String getRemoteHost() {
+			return this.remoteHost;
+		}
+
+		public String getPasswordSecretKey() {
+			return this.passwordSecretKey;
+		}
+
+		public void setRemote(boolean remote) {
+			this.remote = remote;
+		}
+
+		public void setRemoteHost(String remoteHost) {
+			this.remoteHost = remoteHost;
+		}
+
+		public void setPasswordSecretKey(String passwordSecretKey) {
+			this.passwordSecretKey = passwordSecretKey;
+		}
 
 	}
 

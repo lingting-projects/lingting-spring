@@ -7,8 +7,7 @@ import live.lingting.framework.thread.VirtualThread;
 import live.lingting.framework.util.BooleanUtils;
 import live.lingting.spring.util.EnvironmentUtils;
 import live.lingting.spring.web.properties.SpringWebProperties;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
 import org.springframework.boot.web.embedded.undertow.UndertowDeploymentInfoCustomizer;
 
 import java.util.concurrent.ExecutorService;
@@ -16,11 +15,15 @@ import java.util.concurrent.ExecutorService;
 /**
  * @author lingting 2024-03-20 16:01
  */
-@Slf4j
-@RequiredArgsConstructor
 public class UndertowWebCustomizer implements UndertowDeploymentInfoCustomizer {
 
+	private static final Logger log = org.slf4j.LoggerFactory.getLogger(UndertowWebCustomizer.class);
+
 	private final SpringWebProperties properties;
+
+	public UndertowWebCustomizer(SpringWebProperties properties) {
+		this.properties = properties;
+	}
 
 	@Override
 	public void customize(DeploymentInfo info) {

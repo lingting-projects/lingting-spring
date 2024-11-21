@@ -2,9 +2,6 @@ package live.lingting.spring.elasticsearch;
 
 import live.lingting.framework.api.PaginationParams;
 import live.lingting.framework.elasticsearch.annotation.Document;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -28,7 +25,6 @@ class SpringElasticsearchTest {
 	@Autowired
 	private EntityServiceImpl service;
 
-	@SneakyThrows
 	@Test
 	void test() {
 		PaginationParams params = new PaginationParams();
@@ -40,8 +36,6 @@ class SpringElasticsearchTest {
 		assertEquals("Default", byQuery.getSpace().get("name"));
 	}
 
-	@Getter
-	@Setter
 	@Document(index = ".kibana_8.12.2_001")
 	public static class Entity {
 
@@ -52,6 +46,38 @@ class SpringElasticsearchTest {
 		private Map<String, Object> config;
 
 		private Object references;
+
+		public String getId() {
+			return this.id;
+		}
+
+		public Map<String, Object> getSpace() {
+			return this.space;
+		}
+
+		public Map<String, Object> getConfig() {
+			return this.config;
+		}
+
+		public Object getReferences() {
+			return this.references;
+		}
+
+		public void setId(String id) {
+			this.id = id;
+		}
+
+		public void setSpace(Map<String, Object> space) {
+			this.space = space;
+		}
+
+		public void setConfig(Map<String, Object> config) {
+			this.config = config;
+		}
+
+		public void setReferences(Object references) {
+			this.references = references;
+		}
 
 	}
 

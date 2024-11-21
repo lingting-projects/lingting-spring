@@ -9,7 +9,6 @@ import live.lingting.framework.security.domain.SecurityToken;
 import live.lingting.framework.security.resolver.SecurityTokenResolver;
 import live.lingting.framework.util.StringUtils;
 import live.lingting.spring.security.web.properties.SecurityWebProperties;
-import lombok.SneakyThrows;
 
 import java.net.URI;
 import java.net.http.HttpRequest;
@@ -72,7 +71,6 @@ public class SecurityTokenWebRemoteResolver implements SecurityTokenResolver, Se
 		return true;
 	}
 
-	@SneakyThrows
 	@Override
 	public SecurityScope resolver(SecurityToken token) {
 		HttpRequest.Builder builder = resolveBuilder(token);

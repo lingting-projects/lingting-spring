@@ -1,6 +1,5 @@
 package live.lingting.spring.util;
 
-import lombok.experimental.UtilityClass;
 import org.springframework.context.expression.MethodBasedEvaluationContext;
 import org.springframework.core.DefaultParameterNameDiscoverer;
 import org.springframework.core.ParameterNameDiscoverer;
@@ -14,7 +13,6 @@ import java.lang.reflect.Method;
  * @author Hccake
  * @version 1.0
  */
-@UtilityClass
 @SuppressWarnings("SpellCheckingInspection")
 public final class SpelUtils {
 
@@ -27,6 +25,10 @@ public final class SpelUtils {
 	 * 方法参数获取
 	 */
 	public static final ParameterNameDiscoverer PARAMETER_NAME_DISCOVERER = new DefaultParameterNameDiscoverer();
+
+	private SpelUtils() {
+		throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
+	}
 
 	/**
 	 * 支持 #p0 参数索引的表达式解析

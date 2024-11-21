@@ -6,7 +6,6 @@ import live.lingting.framework.api.R;
 import live.lingting.framework.jackson.JacksonUtils;
 import live.lingting.spring.web.properties.SpringWebProperties;
 import live.lingting.spring.web.scope.WebScope;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -33,7 +32,6 @@ class SpringWebTest {
 	@Autowired
 	private SpringWebProperties properties;
 
-	@SneakyThrows
 	@Test
 	void test() {
 		mock.perform(get("/hello"))
