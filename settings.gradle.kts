@@ -1,14 +1,5 @@
-dependencyResolutionManagement {
-    val frameworkVersion = "2024.01.24-Bata-4"
-    val redissonVersion = "3.34.1"
-
-    versionCatalogs {
-        create("libs") {
-            library("frameworkDependencies", "live.lingting.framework", "lingting-dependencies").version(frameworkVersion)
-            library("redisson", "org.redisson", "redisson-spring-boot-starter").version(redissonVersion)
-        }
-    }
-
+plugins {
+    id("org.gradle.toolchains.foojay-resolver-convention") version "0.8.0"
 }
 
 rootProject.name = "lingting-spring"

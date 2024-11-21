@@ -1,8 +1,9 @@
 import com.vanniktech.maven.publish.SonatypeHost
 import org.gradle.plugins.ide.idea.model.IdeaLanguageLevel
+import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 
 val projectGroup = "live.lingting.spring"
-val projectVersion = "2024.01.24-Bata-5"
+val projectVersion = "2024.11.21-Bata-1"
 
 // 用于子模块获取包管理信息
 val catalogLibs = libs
@@ -18,9 +19,10 @@ val ideaLanguageLevel = IdeaLanguageLevel(javaVersion);
 
 plugins {
     id("idea")
-    id("java")
-    id("com.vanniktech.maven.publish") version "0.29.0"
     id("signing")
+    alias(libs.plugins.publish)
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.ksp)
 }
 
 idea {
@@ -30,45 +32,20 @@ idea {
     }
 }
 
-buildscript {
-    dependencies {
-        classpath(platform(libs.frameworkDependencies))
-        classpath("io.spring.javaformat:spring-javaformat-gradle-plugin")
-    }
-}
-
 allprojects {
     group = projectGroup
     version = projectVersion
 
-    val isJava = javaProjects.contains(project)
-    val isDependency = dependencyProjects.contains(project)
-
     apply {
         plugin("idea")
-        plugin("com.vanniktech.maven.publish")
         plugin("signing")
-    }
-
-    if (isJava) {
-        apply {
-            plugin("java")
-            plugin("java-library")
-        }
-    }
-
-    if (isDependency) {
-        apply {
-            plugin("java-platform")
-        }
+        plugin(catalogLibs.plugins.publish.get().pluginId)
     }
 
     idea {
         module {
             languageLevel = ideaLanguageLevel
             targetBytecodeVersion = javaVersion
-
-            excludeDirs.add(File(rootDir, "src"))
         }
     }
 
@@ -117,37 +94,42 @@ allprojects {
 
 }
 
+configure(dependencyProjects) {
+
+    apply {
+        plugin("java-platform")
+    }
+}
+
 configure(javaProjects) {
     apply {
-        plugin("io.spring.javaformat")
-        plugin("checkstyle")
+        plugin(catalogLibs.plugins.kotlin.jvm.get().pluginId)
+        plugin(catalogLibs.plugins.kotlin.ksp.get().pluginId)
     }
 
     dependencies {
-        add("checkstyle", platform(catalogLibs.frameworkDependencies))
-        add("checkstyle", "io.spring.javaformat:spring-javaformat-checkstyle")
+        catalogLibs.bundles.dependencies.get().forEach {
+            implementation(platform(it))
+        }
+        implementation(catalogLibs.bundles.implementation)
 
-        add("implementation", platform(catalogLibs.frameworkDependencies))
+        annotationProcessor(catalogLibs.bundles.annotation)
+        ksp(catalogLibs.bundles.ksp)
+        compileOnly(catalogLibs.bundles.compile)
+        testImplementation(catalogLibs.bundles.test)
+    }
 
-        add("annotationProcessor", platform(catalogLibs.frameworkDependencies))
-        add("testAnnotationProcessor", platform(catalogLibs.frameworkDependencies))
-        add("annotationProcessor", "org.springframework.boot:spring-boot-configuration-processor")
+    // 这样子Java代码直接卸载kotlin里面就可以被访问了
+    sourceSets {
+        main { java { srcDir("src/main/kotlin") } }
+        test { java { srcDir("src/main/kotlin") } }
+    }
 
-        add("implementation", "org.slf4j:slf4j-api")
-        add("implementation", "org.mapstruct:mapstruct")
-        add("compileOnly", "org.projectlombok:lombok")
-        add("testCompileOnly", "org.projectlombok:lombok")
-
-        add("annotationProcessor", "org.mapstruct:mapstruct-processor")
-        add("annotationProcessor", "org.projectlombok:lombok")
-        add("annotationProcessor", "org.projectlombok:lombok-mapstruct-binding")
-
-        add("testAnnotationProcessor", "org.mapstruct:mapstruct-processor")
-        add("testAnnotationProcessor", "org.projectlombok:lombok")
-        add("testAnnotationProcessor", "org.projectlombok:lombok-mapstruct-binding")
-
-        add("testImplementation", "org.awaitility:awaitility")
-        add("testImplementation", "org.springframework.boot:spring-boot-starter-test")
+    configure<KotlinJvmProjectExtension> {
+        jvmToolchain(javaVersion.majorVersion.toInt())
+        compilerOptions {
+            freeCompilerArgs.add("-Xjvm-default=all")
+        }
     }
 
     configure<JavaPluginExtension> {
@@ -156,6 +138,7 @@ configure(javaProjects) {
     }
 
     tasks.withType<Test> {
+        enabled = gradle.startParameter.taskNames.contains("test")
         useJUnitPlatform()
         testLogging {
             showStandardStreams = true
