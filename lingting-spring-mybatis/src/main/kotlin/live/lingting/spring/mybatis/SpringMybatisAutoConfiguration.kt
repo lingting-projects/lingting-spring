@@ -2,7 +2,6 @@ package live.lingting.spring.mybatis
 
 import com.baomidou.mybatisplus.annotation.DbType
 import com.baomidou.mybatisplus.autoconfigure.ConfigurationCustomizer
-import com.baomidou.mybatisplus.core.MybatisConfiguration
 import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor
 import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor
@@ -22,22 +21,22 @@ import org.springframework.context.annotation.Bean
  * @author lingting 2024-03-11 10:49
  */
 @AutoConfiguration
-class SpringMybatisAutoConfiguration {
+open class SpringMybatisAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
-    fun dataScopeParser(): DataScopeParser {
+    open fun dataScopeParser(): DataScopeParser {
         return DefaultDataScopeParser()
     }
 
     @Bean
     @ConditionalOnMissingBean
-    fun dataPermissionHandler(scopes: MutableList<JsqlDataScope>): DataPermissionHandler {
+    open fun dataPermissionHandler(scopes: MutableList<JsqlDataScope>): DataPermissionHandler {
         return DefaultDataPermissionHandler(scopes)
     }
 
     @Bean
     @ConditionalOnMissingBean
-    fun dataPermissionInterceptor(parser: DataScopeParser, handler: DataPermissionHandler): DataPermissionInterceptor {
+    open fun dataPermissionInterceptor(parser: DataScopeParser, handler: DataPermissionHandler): DataPermissionInterceptor {
         return DataPermissionInterceptor(parser, handler)
     }
 
@@ -48,27 +47,27 @@ class SpringMybatisAutoConfiguration {
      */
     @Bean
     @ConditionalOnMissingBean
-    fun mybatisPlusInterceptor(): MybatisPlusInterceptor {
+    open fun mybatisPlusInterceptor(): MybatisPlusInterceptor {
         val interceptor = MybatisPlusInterceptor()
         interceptor.addInnerInterceptor(PaginationInnerInterceptor(DbType.MYSQL))
         return interceptor
     }
 
     @Bean
-    fun mybatisObjectMapperAfter(): ObjectMapperAfter {
+    open fun mybatisObjectMapperAfter(): ObjectMapperAfter {
         return ObjectMapperAfter { objectMapper -> JacksonTypeHandler.setObjectMapper(objectMapper) }
     }
 
     @Bean
     @ConditionalOnMissingBean
-    fun extendServiceImplBeanPost(): ExtendServiceImplBeanPost {
+    open fun extendServiceImplBeanPost(): ExtendServiceImplBeanPost {
         return ExtendServiceImplBeanPost()
     }
 
     @Bean
-    fun autoRegisterCOnfigurationCustomizer(list: MutableList<AutoRegisterTypeHandler<*>>): ConfigurationCustomizer {
-        return ConfigurationCustomizer { configuration: MybatisConfiguration ->
-            val registry = configuration!!.getTypeHandlerRegistry()
+    open fun autoRegisterConfigurationCustomizer(list: MutableList<AutoRegisterTypeHandler<*>>): ConfigurationCustomizer {
+        return ConfigurationCustomizer { configuration ->
+            val registry = configuration.getTypeHandlerRegistry()
             for (handler in list) {
                 registry.register(handler)
             }

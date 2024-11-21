@@ -10,11 +10,11 @@ import java.time.LocalDateTime
 @TableName("user")
 class User {
     @TableField("Host")
-    var host: String = null
+    var host: String? = null
 
     @TableField("User")
-    var username: String = null
+    var username: String? = null
 
     @TableField("password_last_changed")
-    var updateTime: LocalDateTime = null
+    var updateTime: LocalDateTime? = null
 }

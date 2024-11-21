@@ -11,8 +11,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
  */
 @SpringBootApplication
 @ImportAutoConfiguration(SpringJacksonModuleAutoConfiguration::class, SpringObjectMapperAutoConfiguration::class)
-object SpringMybatisApplication {
-    @JvmStatic
+open class SpringMybatisApplication {
     fun main(args: Array<String>) {
         SpringApplication.run(SpringMybatisApplication::class.java, *args)
     }

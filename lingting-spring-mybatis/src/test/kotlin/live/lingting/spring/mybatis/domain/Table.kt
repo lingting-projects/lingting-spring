@@ -9,8 +9,8 @@ import com.baomidou.mybatisplus.annotation.TableName
 @TableName("tables_priv")
 class Table {
     @TableField("Db")
-    var db: String = null
+    var db: String? = null
 
     @TableField("Table_name")
-    var name: String = null
+    var name: String? = null
 }

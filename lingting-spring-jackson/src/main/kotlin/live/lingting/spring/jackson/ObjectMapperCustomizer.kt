@@ -7,6 +7,6 @@ import com.fasterxml.jackson.databind.ObjectMapper
  *
  * @author lingting 2023-04-23 13:18
  */
-interface ObjectMapperCustomizer {
+fun interface ObjectMapperCustomizer {
     fun apply(mapper: ObjectMapper): ObjectMapper
 }

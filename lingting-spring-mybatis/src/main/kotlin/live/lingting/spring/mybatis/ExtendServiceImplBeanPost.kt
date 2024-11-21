@@ -1,6 +1,5 @@
 package live.lingting.spring.mybatis
 
-import live.lingting.framework.mybatis.extend.ExtendMapper
 import live.lingting.framework.mybatis.extend.ExtendServiceImpl
 import live.lingting.spring.post.SpringBeanPostProcessor
 import live.lingting.spring.util.SpringUtils
@@ -16,8 +15,8 @@ class ExtendServiceImplBeanPost : SpringBeanPostProcessor {
     override fun postProcessAfter(bean: Any, beanName: String): Any {
         if (bean is ExtendServiceImpl<*, *>) {
             val mapperClass: Class<*> = bean.mapperClass
-            val mapper: Any = SpringUtils.getBean(mapperClass)
-            bean.mapper = mapper as ExtendMapper<*>
+            val mapper = SpringUtils.getBean(mapperClass)
+            bean.mapper = mapper as Nothing?
         }
         return bean
     }
