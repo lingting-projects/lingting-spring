@@ -9,8 +9,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
  */
 @SpringBootApplication
 @ImportAutoConfiguration(HuaweiAutoConfiguration::class)
-object SpringHuaweiApplication {
-    @JvmStatic
+open class SpringHuaweiApplication {
     fun main(args: Array<String>) {
         SpringApplication.run(SpringHuaweiApplication::class.java, *args)
     }

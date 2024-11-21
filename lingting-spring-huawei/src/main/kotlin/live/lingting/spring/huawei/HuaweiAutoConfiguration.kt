@@ -14,26 +14,26 @@ import org.springframework.context.annotation.Bean
  */
 @AutoConfiguration
 @EnableConfigurationProperties(HuaweiSpringProperties::class)
-class HuaweiAutoConfiguration {
+open class HuaweiAutoConfiguration {
     @Bean
-    fun huaweiIamProperties(properties: HuaweiSpringProperties): HuaweiIamProperties {
-        return properties.getIam()
+    open fun huaweiIamProperties(properties: HuaweiSpringProperties): HuaweiIamProperties {
+        return properties.iam
     }
 
     @Bean
-    fun huaweiObsProperties(properties: HuaweiSpringProperties): HuaweiObsProperties {
-        return properties.getObs()
+    open fun huaweiObsProperties(properties: HuaweiSpringProperties): HuaweiObsProperties {
+        return properties.obs
     }
 
     @Bean
     @ConditionalOnProperty(prefix = HuaweiSpringProperties.PREFIX + ".iam", name = ["username"])
-    fun huaweiIam(properties: HuaweiIamProperties): HuaweiIam {
+    open fun huaweiIam(properties: HuaweiIamProperties): HuaweiIam {
         return HuaweiIam(properties)
     }
 
     @Bean
     @ConditionalOnProperty(prefix = HuaweiSpringProperties.PREFIX + ".obs", name = ["ak"])
-    fun huaweiObsBucket(properties: HuaweiObsProperties): HuaweiObsBucket {
+    open fun huaweiObsBucket(properties: HuaweiObsProperties): HuaweiObsBucket {
         return HuaweiObsBucket(properties)
     }
 }
