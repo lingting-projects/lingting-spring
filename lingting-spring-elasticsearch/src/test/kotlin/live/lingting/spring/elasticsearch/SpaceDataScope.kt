@@ -10,8 +10,7 @@ import org.springframework.stereotype.Component
  */
 @Component
 class SpaceDataScope : ElasticsearchDataScope {
-    val resource: String
-        get() = "null"
+    override val resource: String = "null"
 
     override fun includes(index: String): Boolean {
         return true

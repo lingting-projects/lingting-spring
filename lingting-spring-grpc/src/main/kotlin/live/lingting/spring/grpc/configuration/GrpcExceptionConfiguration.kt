@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Bean
 /**
  * @author lingting 2024-03-27 10:14
  */
-class GrpcExceptionConfiguration {
+open class GrpcExceptionConfiguration {
     @Bean
     @ConditionalOnMissingBean
     fun grpcExceptionProcessor(instances: MutableList<GrpcExceptionInstance>): GrpcExceptionProcessor {

@@ -9,8 +9,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
  */
 @EnableGrpcServer
 @SpringBootApplication
-object SpringGrpcApplication {
-    @JvmStatic
+open class SpringGrpcApplication {
     fun main(args: Array<String>) {
         SpringApplication.run(SpringGrpcApplication::class.java, *args)
     }

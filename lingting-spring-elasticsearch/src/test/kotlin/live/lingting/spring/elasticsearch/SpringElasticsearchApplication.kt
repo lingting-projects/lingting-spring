@@ -11,8 +11,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
  */
 @SpringBootApplication
 @ImportAutoConfiguration(SpringObjectMapperAutoConfiguration::class, SpringJacksonModuleAutoConfiguration::class)
-object SpringElasticsearchApplication {
-    @JvmStatic
+open class SpringElasticsearchApplication {
     fun main(args: Array<String>) {
         SpringApplication.run(SpringElasticsearchApplication::class.java, *args)
     }

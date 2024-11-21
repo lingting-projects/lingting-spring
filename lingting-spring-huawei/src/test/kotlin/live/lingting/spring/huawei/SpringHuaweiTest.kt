@@ -8,7 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest
  * @author lingting 2024-09-18 20:55
  */
 @SpringBootTest
-internal class SpringHuaweiTest {
+class SpringHuaweiTest {
     @Autowired
     var iam: HuaweiIam = null
 

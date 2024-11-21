@@ -10,7 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest
  * @author lingting 2024-03-12 14:26
  */
 @SpringBootTest
-internal class SpringMybatisTest {
+class SpringMybatisTest {
     @Autowired
     var userService: UserService = null
 

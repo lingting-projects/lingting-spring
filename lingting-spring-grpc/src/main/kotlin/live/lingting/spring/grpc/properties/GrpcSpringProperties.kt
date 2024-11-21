@@ -1,6 +1,7 @@
 package live.lingting.spring.grpc.properties
 
 import java.time.Duration
+import live.lingting.framework.util.MdcUtils
 import org.springframework.boot.context.properties.ConfigurationProperties
 
 /**
@@ -8,7 +9,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties
  */
 @ConfigurationProperties(prefix = GrpcSpringProperties.PREFIX)
 class GrpcSpringProperties {
-    var traceIdKey: String = TRACE_ID
+    var traceIdKey: String = MdcUtils.TRACE_ID
 
     var traceOrder: Int = Int.MIN_VALUE + 100
 
@@ -21,7 +22,7 @@ class GrpcSpringProperties {
     var server: Server = Server()
 
     class Client {
-        var host: String = null
+        var host: String? = null
 
         var port: Int = 80
 
@@ -38,7 +39,7 @@ class GrpcSpringProperties {
     }
 
     class Server {
-        var port: Int = null
+        var port: Int? = null
 
         var messageSize: Long = 524288
 

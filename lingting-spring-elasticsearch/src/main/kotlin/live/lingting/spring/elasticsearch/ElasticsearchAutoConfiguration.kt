@@ -28,15 +28,15 @@ import org.springframework.context.annotation.Bean
  */
 @EnableConfigurationProperties(ElasticsearchSpringProperties::class)
 @AutoConfiguration(after = [ElasticsearchRestClientAutoConfiguration::class, SpringObjectMapperAutoConfiguration::class])
-class ElasticsearchAutoConfiguration {
+open class ElasticsearchAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
-    fun elasticsearchProperties(properties: ElasticsearchSpringProperties): ElasticsearchProperties {
+    open fun elasticsearchProperties(properties: ElasticsearchSpringProperties): ElasticsearchProperties {
         return properties.properties()
     }
 
     @Bean
-    fun restClientBuilderCustomizer(): RestClientBuilderCustomizer {
+    open fun restClientBuilderCustomizer(): RestClientBuilderCustomizer {
         return RestClientBuilderCustomizer { builder ->
             builder!!.setHttpClientConfigCallback(HttpClientConfigCallback { httpClientBuilder ->
                 httpClientBuilder!!
@@ -48,40 +48,40 @@ class ElasticsearchAutoConfiguration {
     @Bean
     @ConditionalOnBean(ObjectMapper::class)
     @ConditionalOnMissingBean(JsonpMapper::class)
-    fun jsonpMapper(mapper: ObjectMapper): JsonpMapper {
+    open fun jsonpMapper(mapper: ObjectMapper): JsonpMapper {
         return JacksonJsonpMapper(mapper)
     }
 
     @Bean
     @ConditionalOnBean(RestClientBuilder::class)
     @ConditionalOnMissingBean(RestClient::class)
-    fun restClient(builder: RestClientBuilder): RestClient {
+    open fun restClient(builder: RestClientBuilder): RestClient {
         return builder.build()
     }
 
     @Bean
     @ConditionalOnMissingBean
     @ConditionalOnBean(RestClient::class, JsonpMapper::class)
-    fun restClientTransport(restClient: RestClient, jsonpMapper: JsonpMapper): ElasticsearchTransport {
+    open fun restClientTransport(restClient: RestClient, jsonpMapper: JsonpMapper): ElasticsearchTransport {
         return RestClientTransport(restClient, jsonpMapper)
     }
 
     @Bean
     @ConditionalOnMissingBean
     @ConditionalOnBean(ElasticsearchTransport::class)
-    fun elasticsearchClient(transport: ElasticsearchTransport): ElasticsearchClient {
+    open fun elasticsearchClient(transport: ElasticsearchTransport): ElasticsearchClient {
         return ElasticsearchClient(transport)
     }
 
     @Bean
     @ConditionalOnMissingBean
-    fun elasticsearchDataPermissionHandler(scopes: MutableList<ElasticsearchDataScope>): ElasticsearchDataPermissionHandler {
+    open fun elasticsearchDataPermissionHandler(scopes: MutableList<ElasticsearchDataScope>): ElasticsearchDataPermissionHandler {
         return DefaultElasticsearchDataPermissionHandler(scopes)
     }
 
     @Bean
     @ConditionalOnMissingBean
-    fun elasticsearchServiceImplBeanPost(
+    open fun elasticsearchServiceImplBeanPost(
         properties: ElasticsearchProperties,
         client: ElasticsearchClient, handler: ElasticsearchDataPermissionHandler
     ): ElasticsearchServiceImplBeanPost {

@@ -13,16 +13,16 @@ import org.springframework.context.annotation.Bean
  * @author lingting 2024-02-02 16:40
  */
 @AutoConfiguration
-class DataScopeAutoConfiguration {
+open class DataScopeAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
-    fun dataPermissionHandler(scopes: MutableList<JsqlDataScope>): DataPermissionHandler {
+    open fun dataPermissionHandler(scopes: MutableList<JsqlDataScope>): DataPermissionHandler {
         return DefaultDataPermissionHandler(scopes)
     }
 
     @Bean
     @ConditionalOnMissingBean
-    fun dataScopeParser(): DataScopeParser {
+    open fun dataScopeParser(): DataScopeParser {
         return DefaultDataScopeParser()
     }
 }

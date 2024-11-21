@@ -10,7 +10,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
  */
 @SpringBootTest
 @AutoConfigureMockMvc
-internal class SpringSecurityWebTest {
+class SpringSecurityWebTest {
     @Autowired
     private val mock: MockMvc = null
 

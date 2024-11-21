@@ -16,7 +16,7 @@ import org.springframework.boot.test.context.SpringBootTest
  * @author lingting 2024-09-18 20:55
  */
 @SpringBootTest
-internal class SpringAliTest {
+class SpringAliTest {
     @Autowired
     var sts: AliSts? = null
 

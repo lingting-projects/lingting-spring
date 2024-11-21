@@ -1,40 +1,44 @@
 package live.lingting.spring.elasticsearch
 
+import live.lingting.framework.api.PaginationParams
 import live.lingting.framework.elasticsearch.annotation.Document
-import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 
 /**
  * @author lingting 2024-03-08 17:32
  */
 @SpringBootTest
-internal class SpringElasticsearchTest {
+class SpringElasticsearchTest {
     @Autowired
-    private val handler: SwitchElasticsearchDataPermissionHandler = null
+    private val handler: SwitchElasticsearchDataPermissionHandler? = null
 
     @Autowired
-    private val service: EntityServiceImpl = null
+    private val service: EntityServiceImpl? = null
 
     @Test
     fun test() {
-        val params: PaginationParams = PaginationParams()
-        val list: MutableList<Entity> = service!!.page(params).records
-        Assertions.assertFalse(list.isEmpty())
+        val params = PaginationParams()
+        val list = service!!.page(params).records
+        assertFalse(list.isEmpty())
         handler!!.enable()
         val byQuery = service.getByQuery()
-        Assertions.assertNotNull(byQuery)
-        assertEquals("Default", byQuery!!.space!!.get("name"))
+        assertNotNull(byQuery)
+        assertEquals("Default", byQuery!!.space["name"])
     }
 
     @Document(index = ".kibana_8.12.2_001")
     class Entity {
-        var id: String = null
+        var id: String = ""
 
-        var space: MutableMap<String, Any> = null
+        var space: Map<String, Any> = emptyMap<String, Any>()
 
-        var config: MutableMap<String, Any> = null
+        var config: Map<String, Any> = emptyMap<String, Any>()
 
-        var references: Any = null
+        var references: Any? = null
     }
 }

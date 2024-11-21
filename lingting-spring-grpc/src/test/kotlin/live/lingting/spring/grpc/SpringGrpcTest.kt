@@ -1,20 +1,22 @@
 package live.lingting.spring.grpc
 
-import org.junit.jupiter.api.Assertions
+import live.lingting.framework.grpc.GrpcServer
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 
 /**
  * @author lingting 2024-03-26 10:10
  */
 @SpringBootTest
-internal class SpringGrpcTest {
+class SpringGrpcTest {
     @Autowired
-    private val server: GrpcServer = null
+    private val server: GrpcServer? = null
 
     @Test
     fun test() {
-        Assertions.assertTrue(server.port() > -1)
-        Assertions.assertTrue(server.fullMethodNameMap.isEmpty())
+        assertTrue(server!!.port() > -1)
+        assertTrue(server.fullMethodNameMap.isEmpty())
     }
 }

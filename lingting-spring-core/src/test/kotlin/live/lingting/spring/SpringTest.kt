@@ -11,7 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest
  * @author lingting 2024-02-02 13:54
  */
 @SpringBootTest
-internal class SpringTest {
+class SpringTest {
     @Test
     fun test() {
         assertTrue(EnvironmentUtils.isActiveProfiles("test"))

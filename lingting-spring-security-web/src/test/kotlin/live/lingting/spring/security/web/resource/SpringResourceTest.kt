@@ -9,7 +9,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
  */
 @SpringBootTest
 @AutoConfigureMockMvc
-internal class SpringResourceTest {
+class SpringResourceTest {
     @Autowired
     private val resolver: SecurityTokenDefaultResolver = null
 

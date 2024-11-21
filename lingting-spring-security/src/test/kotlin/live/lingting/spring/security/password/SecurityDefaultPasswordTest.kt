@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test
 /**
  * @author lingting 2024-03-28 20:19
  */
-internal class SecurityDefaultPasswordTest {
+class SecurityDefaultPasswordTest {
     var key: String = "==Lingting-Key=="
 
     var raw: String = "lingting"

@@ -7,7 +7,6 @@ import live.lingting.framework.grpc.GrpcServerBuilder
 import live.lingting.framework.grpc.interceptor.GrpcClientTraceIdInterceptor
 import live.lingting.framework.grpc.properties.GrpcClientProperties
 import live.lingting.framework.grpc.properties.GrpcServerProperties
-import live.lingting.spring.grpc.mapstruct.SpringGrpcMapstruct
 import live.lingting.spring.grpc.properties.GrpcSpringProperties
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
@@ -20,35 +19,54 @@ import org.springframework.context.annotation.Bean
  */
 @AutoConfiguration
 @EnableConfigurationProperties(GrpcSpringProperties::class)
-class GrpcAutoConfiguration {
+open class GrpcAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
-    fun grpcClientProperties(properties: GrpcSpringProperties): GrpcClientProperties {
-        return SpringGrpcMapstruct.INSTANCE.client(properties, properties.getClient())
+    open fun grpcClientProperties(properties: GrpcSpringProperties): GrpcClientProperties {
+        val client = GrpcClientProperties()
+        client.host = properties.client.host
+        client.port = properties.client.port
+        client.traceIdKey = properties.traceIdKey
+        client.traceOrder = properties.traceOrder
+        client.isUsePlaintext = properties.client.isUsePlaintext
+        client.isDisableSsl = properties.client.isDisableSsl
+        client.isEnableRetry = properties.client.isEnableRetry
+        client.isEnableKeepAlive = properties.client.isEnableKeepAlive
+        client.keepAliveTime = properties.keepAliveTime
+        client.keepAliveTimeout = properties.keepAliveTimeout
+        return client
     }
 
     @Bean
     @ConditionalOnMissingBean
-    fun grpcServerProperties(properties: GrpcSpringProperties): GrpcServerProperties {
-        return SpringGrpcMapstruct.INSTANCE.server(properties, properties.getServer())
+    open fun grpcServerProperties(properties: GrpcSpringProperties): GrpcServerProperties {
+        val server = GrpcServerProperties()
+        server.port = properties.server.port
+        server.messageSize = properties.server.messageSize
+        server.keepAliveTime = properties.keepAliveTime
+        server.keepAliveTimeout = properties.keepAliveTimeout
+        server.traceIdKey = properties.traceIdKey
+        server.traceOrder = properties.traceOrder
+        server.exceptionHandlerOrder = properties.server.exceptionHandlerOrder
+        return server
     }
 
     @Bean
     @ConditionalOnMissingBean
-    fun grpcClientProvide(properties: GrpcClientProperties, interceptors: MutableList<ClientInterceptor>): GrpcClientProvide {
+    open fun grpcClientProvide(properties: GrpcClientProperties, interceptors: MutableList<ClientInterceptor>): GrpcClientProvide {
         return GrpcClientProvide(properties, interceptors)
     }
 
     @Bean
     @ConditionalOnMissingBean
     @ConditionalOnBean(GrpcServerBuilder::class)
-    fun grpcServer(builder: GrpcServerBuilder): GrpcServer {
+    open fun grpcServer(builder: GrpcServerBuilder): GrpcServer {
         return builder.build()
     }
 
     @Bean
     @ConditionalOnMissingBean
-    fun grpcClientTraceIdInterceptor(properties: GrpcClientProperties): GrpcClientTraceIdInterceptor {
+    open fun grpcClientTraceIdInterceptor(properties: GrpcClientProperties): GrpcClientTraceIdInterceptor {
         return GrpcClientTraceIdInterceptor(properties)
     }
 }

@@ -8,7 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest
  * @author lingting 2024-02-02 15:56
  */
 @SpringBootTest
-internal class SpringJacksonTest {
+class SpringJacksonTest {
     @Autowired
     private val mapper: ObjectMapper = null
 

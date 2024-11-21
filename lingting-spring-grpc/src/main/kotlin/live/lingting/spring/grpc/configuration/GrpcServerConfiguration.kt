@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Bean
 /**
  * @author lingting 2024-02-05 16:23
  */
-class GrpcServerConfiguration {
+open class GrpcServerConfiguration {
     @Bean
     @ConditionalOnMissingBean
     fun grpcServerBuilder(

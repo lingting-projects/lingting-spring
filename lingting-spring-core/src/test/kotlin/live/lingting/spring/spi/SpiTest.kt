@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test
 /**
  * @author lingting 2024-05-21 11:34
  */
-internal class SpiTest {
+class SpiTest {
     @Test
     fun test() {
         val optional = providers()

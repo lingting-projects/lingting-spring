@@ -1,5 +1,6 @@
 package live.lingting.spring.elasticsearch
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient
 import co.elastic.clients.elasticsearch._types.Script
 import co.elastic.clients.elasticsearch._types.SortOptions
 import co.elastic.clients.elasticsearch._types.aggregations.Aggregate
@@ -28,10 +29,13 @@ import live.lingting.framework.api.ScrollCursor
 import live.lingting.framework.api.ScrollParams
 import live.lingting.framework.api.ScrollResult
 import live.lingting.framework.elasticsearch.ElasticsearchApi
+import live.lingting.framework.elasticsearch.ElasticsearchProperties
+import live.lingting.framework.elasticsearch.ElasticsearchProvider
 import live.lingting.framework.elasticsearch.ElasticsearchUtils.getEntityClass
 import live.lingting.framework.elasticsearch.ElasticsearchUtils.index
 import live.lingting.framework.elasticsearch.builder.QueryBuilder
 import live.lingting.framework.elasticsearch.builder.ScriptBuilder
+import live.lingting.framework.elasticsearch.datascope.ElasticsearchDataPermissionHandler
 import live.lingting.framework.function.ThrowingRunnable
 import live.lingting.framework.function.ThrowingSupplier
 import org.slf4j.Logger
@@ -40,14 +44,26 @@ import org.slf4j.LoggerFactory
 /**
  * @author lingting 2024-03-08 16:43
  */
-abstract class AbstractElasticsearchServiceImpl<T> {
+abstract class AbstractElasticsearchServiceImpl<T : Any> {
     protected val log: Logger = LoggerFactory.getLogger(javaClass)
 
     val index: String = index(getEntityClass<Any>(javaClass))
 
     val cls: Class<T> = getEntityClass<T>(javaClass)
 
-    protected var api: ElasticsearchApi<T> = null
+    var api: ElasticsearchApi<T>? = null
+        private set
+
+    fun newApi(
+        properties: ElasticsearchProperties,
+        handler: ElasticsearchDataPermissionHandler,
+        client: ElasticsearchClient,
+    ) {
+        if (api != null) {
+            return
+        }
+        api = ElasticsearchProvider.api(index, cls, Function { documentId(it) }, properties, handler, client)
+    }
 
     abstract fun documentId(t: T): String
 
@@ -57,7 +73,7 @@ abstract class AbstractElasticsearchServiceImpl<T> {
     }
 
     fun query(): QueryBuilder<T> {
-        return builder()
+        return QueryBuilder.builder()
     }
 
     fun tryIgnore(runnable: ThrowingRunnable) {
@@ -110,18 +126,18 @@ abstract class AbstractElasticsearchServiceImpl<T> {
     }
 
 
-    fun getByQuery(vararg queries: Query): T {
+    fun getByQuery(vararg queries: Query): T? {
         return api!!.getByQuery(*queries)
     }
 
 
-    fun getByQuery(queries: QueryBuilder<T>): T {
+    fun getByQuery(queries: QueryBuilder<T>): T? {
         return api!!.getByQuery(queries)
     }
 
 
-    fun getByQuery(operator: UnaryOperator<SearchRequest.Builder>, queries: QueryBuilder<T>): T {
-        return api.getByQuery(operator, queries)
+    fun getByQuery(operator: UnaryOperator<SearchRequest.Builder>, queries: QueryBuilder<T>): T? {
+        return api!!.getByQuery(operator, queries)
     }
 
 
@@ -146,16 +162,16 @@ abstract class AbstractElasticsearchServiceImpl<T> {
 
 
     fun search(operator: UnaryOperator<SearchRequest.Builder>, queries: QueryBuilder<T>): HitsMetadata<T> {
-        return api.search(operator, queries)
+        return api!!.search(operator, queries)
     }
 
-    fun ofLimitSort(sorts: MutableCollection<PaginationParams.Sort>): MutableList<SortOptions> {
+    fun ofLimitSort(sorts: MutableCollection<PaginationParams.Sort>): List<SortOptions> {
         return api!!.ofLimitSort(sorts)
     }
 
 
     fun page(params: PaginationParams): PaginationResult<T> {
-        return api!!.page(params, builder())
+        return api!!.page(params, QueryBuilder.builder())
     }
 
 
@@ -176,7 +192,7 @@ abstract class AbstractElasticsearchServiceImpl<T> {
         operator: UnaryOperator<SearchRequest.Builder>, consumer: BiConsumer<String, Aggregate>,
         aggregationMap: MutableMap<String, Aggregation>, queries: QueryBuilder<T>
     ) {
-        api.aggs(operator, consumer, aggregationMap, queries)
+        api!!.aggs(operator, consumer, aggregationMap, queries)
     }
 
 
@@ -184,12 +200,12 @@ abstract class AbstractElasticsearchServiceImpl<T> {
         operator: UnaryOperator<SearchRequest.Builder>, consumer: Consumer<SearchResponse<T>>,
         aggregationMap: MutableMap<String, Aggregation>, queries: QueryBuilder<T>
     ) {
-        api.aggs(operator, consumer, aggregationMap, queries)
+        api!!.aggs(operator, consumer, aggregationMap, queries)
     }
 
 
     fun update(documentId: String, scriptOperator: Function<Script.Builder, ObjectBuilder<Script>>): Boolean {
-        return api.update(documentId, scriptOperator)
+        return api!!.update(documentId, scriptOperator)
     }
 
 
@@ -219,7 +235,7 @@ abstract class AbstractElasticsearchServiceImpl<T> {
 
 
     fun update(operator: UnaryOperator<UpdateRequest.Builder<T, T>>, documentId: String): Boolean {
-        return api.update(operator, documentId)
+        return api!!.update(operator, documentId)
     }
 
 
@@ -232,7 +248,7 @@ abstract class AbstractElasticsearchServiceImpl<T> {
         scriptOperator: Function<Script.Builder, ObjectBuilder<Script>>,
         queries: QueryBuilder<T>
     ): Boolean {
-        return api.updateByQuery(scriptOperator, queries)
+        return api!!.updateByQuery(scriptOperator, queries)
     }
 
 
@@ -245,7 +261,7 @@ abstract class AbstractElasticsearchServiceImpl<T> {
         operator: UnaryOperator<UpdateByQueryRequest.Builder>, script: Script,
         queries: QueryBuilder<T>
     ): Boolean {
-        return api.updateByQuery(operator, script, queries)
+        return api!!.updateByQuery(operator, script, queries)
     }
 
 
@@ -255,12 +271,12 @@ abstract class AbstractElasticsearchServiceImpl<T> {
 
 
     fun bulk(operations: MutableList<BulkOperation>): BulkResponse {
-        return api.bulk(operations)
+        return api!!.bulk(operations)
     }
 
 
     fun bulk(operator: UnaryOperator<BulkRequest.Builder>, operations: MutableList<BulkOperation>): BulkResponse {
-        return api.bulk(operator, operations)
+        return api!!.bulk(operator, operations)
     }
 
 
@@ -303,27 +319,27 @@ abstract class AbstractElasticsearchServiceImpl<T> {
 
 
     fun deleteByQuery(operator: UnaryOperator<DeleteByQueryRequest.Builder>, queries: QueryBuilder<T>): Boolean {
-        return api.deleteByQuery(operator, queries)
+        return api!!.deleteByQuery(operator, queries)
     }
 
 
-    fun list(vararg queries: Query): MutableList<T> {
+    fun list(vararg queries: Query): List<T> {
         return api!!.list(*queries)
     }
 
 
-    fun list(queries: QueryBuilder<T>): MutableList<T> {
+    fun list(queries: QueryBuilder<T>): List<T> {
         return api!!.list(queries)
     }
 
 
-    fun list(operator: UnaryOperator<SearchRequest.Builder>, vararg queries: Query): MutableList<T> {
-        return api.list(operator, *queries)
+    fun list(operator: UnaryOperator<SearchRequest.Builder>, vararg queries: Query): List<T> {
+        return api!!.list(operator, *queries)
     }
 
 
-    fun list(operator: UnaryOperator<SearchRequest.Builder>, queries: QueryBuilder<T>): MutableList<T> {
-        return api.list(operator, queries)
+    fun list(operator: UnaryOperator<SearchRequest.Builder>, queries: QueryBuilder<T>): List<T> {
+        return api!!.list(operator, queries)
     }
 
 
@@ -333,7 +349,7 @@ abstract class AbstractElasticsearchServiceImpl<T> {
 
 
     fun scroll(params: ScrollParams<String>, queries: QueryBuilder<T>): ScrollResult<T, String> {
-        return api.scroll(params, queries)
+        return api!!.scroll(params, queries)
     }
 
 
@@ -341,14 +357,12 @@ abstract class AbstractElasticsearchServiceImpl<T> {
         operator: UnaryOperator<SearchRequest.Builder>, params: ScrollParams<String>,
         queries: QueryBuilder<T>
     ): ScrollResult<T, String> {
-        return api.scroll(operator, params, queries)
+        return api!!.scroll(operator, params, queries)
     }
-
 
     fun scroll(operator: UnaryOperator<ScrollRequest.Builder>, scrollId: String): ScrollResult<T, String> {
-        return api.scroll(operator, scrollId)
+        return api!!.scroll(operator, scrollId)
     }
-
 
     fun clearScroll(scrollId: String) {
         api!!.clearScroll(scrollId)
@@ -369,14 +383,7 @@ abstract class AbstractElasticsearchServiceImpl<T> {
 
 
     fun scrollCursor(params: ScrollParams<String>, queries: QueryBuilder<T>): ScrollCursor<T, String> {
-        return api.scrollCursor(params, queries)
+        return api!!.scrollCursor(params, queries)
     }
 
-    fun getApi(): ElasticsearchApi<T> {
-        return this.api!!
-    }
-
-    fun setApi(api: ElasticsearchApi<T>) {
-        this.api = api
-    }
 }

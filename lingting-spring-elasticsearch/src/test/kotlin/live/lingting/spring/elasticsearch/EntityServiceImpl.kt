@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component
  */
 @Component
 class EntityServiceImpl : AbstractElasticsearchServiceImpl<SpringElasticsearchTest.Entity>() {
-    public override fun documentId(entity: SpringElasticsearchTest.Entity): String {
-        return entity.getId()
+    override fun documentId(entity: SpringElasticsearchTest.Entity): String {
+        return entity.id
     }
 }
