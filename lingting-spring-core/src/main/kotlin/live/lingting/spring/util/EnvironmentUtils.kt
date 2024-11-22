@@ -2,6 +2,7 @@ package live.lingting.spring.util
 
 import java.util.Optional
 import java.util.function.Function
+import live.lingting.framework.util.ArrayUtils
 import live.lingting.framework.util.ArrayUtils.containsIgnoreCase
 import org.springframework.core.convert.support.ConfigurableConversionService
 import org.springframework.core.env.ConfigurableEnvironment
@@ -22,7 +23,7 @@ object EnvironmentUtils {
     }
 
     @JvmStatic
-    fun getProperty(key: String): String {
+    fun getProperty(key: String): String? {
         return environment!!.getProperty(key)
     }
 
@@ -32,7 +33,7 @@ object EnvironmentUtils {
     }
 
     @JvmStatic
-    fun <T> getProperty(key: String, targetType: Class<T>): T {
+    fun <T> getProperty(key: String, targetType: Class<T>): T? {
         return environment!!.getProperty<T>(key, targetType)
     }
 
@@ -72,12 +73,12 @@ object EnvironmentUtils {
         get() = environment!!.propertySources
 
     @JvmStatic
-    val systemProperties: MutableMap<String, Any>
-        get() = environment!!.systemProperties
+    val systemProperties: Map<String, Any>
+        get() = environment!!.systemProperties ?: emptyMap()
 
     @JvmStatic
-    val systemEnvironment: MutableMap<String, Any>
-        get() = environment!!.systemEnvironment
+    val systemEnvironment: Map<String, Any>
+        get() = environment!!.systemEnvironment ?: emptyMap()
 
     @JvmStatic
     fun merge(parent: ConfigurableEnvironment) {
@@ -169,7 +170,10 @@ object EnvironmentUtils {
      */
     @JvmStatic
     fun isActiveProfiles(vararg profiles: String): Boolean {
-        val activeProfiles: Array<String> = environment!!.activeProfiles
+        val activeProfiles = environment!!.activeProfiles
+        if (ArrayUtils.isEmpty(activeProfiles)) {
+            return false
+        }
 
         for (profile in profiles) {
             // 未激活指定环境

@@ -9,6 +9,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties
  */
 @ConfigurationProperties(prefix = SecurityGrpcSpringProperties.PREFIX)
 class SecurityGrpcSpringProperties {
+    companion object {
+        const val PREFIX: String = SecuritySpringProperties.PREFIX + ".grpc"
+    }
     var authorizationKey: String = "Authorization"
 
     fun properties(): SecurityGrpcProperties {
@@ -17,7 +20,4 @@ class SecurityGrpcSpringProperties {
         return properties
     }
 
-    companion object {
-        const val PREFIX: String = SecuritySpringProperties.PREFIX + ".grpc"
-    }
 }

@@ -8,6 +8,10 @@ import org.springframework.boot.context.properties.ConfigurationProperties
  */
 @ConfigurationProperties(SecurityWebProperties.PREFIX)
 class SecurityWebProperties {
+    companion object {
+        const val PREFIX: String = SecuritySpringProperties.PREFIX + ".web"
+    }
+
     var ignoreUris: Set<String> = emptySet()
 
     @JvmField
@@ -15,7 +19,4 @@ class SecurityWebProperties {
 
     var paramAuthorization: String = "token"
 
-    companion object {
-        const val PREFIX: String = SecuritySpringProperties.PREFIX + ".web"
-    }
 }

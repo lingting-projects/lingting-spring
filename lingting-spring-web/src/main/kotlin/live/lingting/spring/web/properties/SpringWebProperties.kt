@@ -7,6 +7,10 @@ import org.springframework.boot.context.properties.ConfigurationProperties
  */
 @ConfigurationProperties(SpringWebProperties.PREFIX)
 class SpringWebProperties {
+    companion object {
+        const val PREFIX: String = "lingting.web"
+    }
+
     var headerTraceId: String = "X-Trace-Id"
 
     var headerRequestId: String = "X-Request-Id"
@@ -32,7 +36,4 @@ class SpringWebProperties {
         var fieldSize: String = "size"
     }
 
-    companion object {
-        const val PREFIX: String = "lingting.web"
-    }
 }

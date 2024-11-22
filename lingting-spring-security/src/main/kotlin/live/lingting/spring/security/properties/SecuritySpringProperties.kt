@@ -8,6 +8,10 @@ import org.springframework.boot.context.properties.ConfigurationProperties
  */
 @ConfigurationProperties(prefix = SecuritySpringProperties.PREFIX)
 class SecuritySpringProperties {
+    companion object {
+        const val PREFIX: String = "lingting.security"
+    }
+
     var authorization: Authorization = Authorization()
 
     /**
@@ -35,10 +39,7 @@ class SecuritySpringProperties {
         /**
          * 前后端交互使用的对称加密算法的密钥，必须 16 位字符
          */
-        var passwordSecretKey: String = "1234567890123456"
+        var passwordSecretKey: String = "==lingting-key=="
     }
 
-    companion object {
-        const val PREFIX: String = "lingting.security"
-    }
 }

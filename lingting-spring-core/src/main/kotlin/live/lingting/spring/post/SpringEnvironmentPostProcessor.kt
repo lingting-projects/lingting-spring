@@ -14,7 +14,9 @@ import org.springframework.core.env.ConfigurableEnvironment
  */
 @Order(Ordered.HIGHEST_PRECEDENCE)
 class SpringEnvironmentPostProcessor : EnvironmentPostProcessor {
+
     override fun postProcessEnvironment(environment: ConfigurableEnvironment, application: SpringApplication) {
         EnvironmentUtils.environment = environment
     }
+
 }
