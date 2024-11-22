@@ -32,14 +32,14 @@ import org.springframework.data.redis.serializer.RedisSerializer
 /**
  * @author lingting 2024-04-17 14:29
  */
+@Suppress("UNCHECKED_CAST")
 class Redis(
     private val template: StringRedisTemplate, private val redisson: Redisson, private val properties: RedisProperties,
     providers: MutableList<RedisScriptProvider>
 ) : InitializingBean {
-    private val scriptExecutor: RedisScriptExecutor<String>
+    private val scriptExecutor: RedisScriptExecutor<String> = RedisScriptExecutor<String>(template)
 
     init {
-        this.scriptExecutor = RedisScriptExecutor<String>(template)
         for (provider in providers) {
             val scripts = provider.scripts()
             loadScripts(scripts)
@@ -95,11 +95,11 @@ class Redis(
     }
 
     fun lock(name: String): RedissonLock {
-        return RedissonLock(redisson.getCommandExecutor(), name)
+        return RedissonLock(redisson.commandExecutor, name)
     }
 
     fun spinLock(name: String): RedissonSpinLock {
-        return RedissonSpinLock(redisson.getCommandExecutor(), name, LockOptions.defaults())
+        return RedissonSpinLock(redisson.commandExecutor, name, LockOptions.defaults())
     }
 
     @JvmOverloads
@@ -281,7 +281,7 @@ class Redis(
      */
     fun decrement(key: String): Long {
         val l = valueOps().decrement(key)
-        return if (l == null) 0 else l
+        return l ?: 0
     }
 
     /**
