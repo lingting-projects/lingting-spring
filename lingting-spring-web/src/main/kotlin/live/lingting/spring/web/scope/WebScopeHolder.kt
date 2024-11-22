@@ -33,12 +33,12 @@ object WebScopeHolder {
 
     @JvmStatic
     fun of(request: HttpServletRequest, traceId: String, requestId: String): WebScope {
-        val headers = HttpUtils.headers(request)
+        val headers = HttpUtils.headers(request).unmodifiable()
         return WebScope(
             request.scheme, headers.host() ?: "", headers.origin() ?: "",
             getFirstIp(request), request.requestURI, traceId, requestId,
             headers.language() ?: "", headers.authorization() ?: "",
-            headers.ua() ?: ""
+            headers.ua() ?: "", headers
         )
     }
 

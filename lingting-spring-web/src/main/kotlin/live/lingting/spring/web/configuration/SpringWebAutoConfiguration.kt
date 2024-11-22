@@ -4,6 +4,7 @@ import jakarta.servlet.DispatcherType
 import java.util.EnumSet
 import live.lingting.spring.web.filter.WebScopeFilter
 import live.lingting.spring.web.properties.SpringWebProperties
+import live.lingting.spring.web.request.ServletRequestConsumer
 import live.lingting.spring.web.resolve.ApiPaginationParamsResolve
 import org.hibernate.validator.BaseHibernateValidatorConfiguration
 import org.springframework.boot.autoconfigure.AutoConfiguration
@@ -32,8 +33,8 @@ open class SpringWebAutoConfiguration {
     @Bean
     @ConditionalOnMissingFilterBean
     @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
-    open fun webScopeFilter(properties: SpringWebProperties): FilterRegistrationBean<WebScopeFilter> {
-        val filter = WebScopeFilter(properties)
+    open fun webScopeFilter(properties: SpringWebProperties, consumers: List<ServletRequestConsumer>): FilterRegistrationBean<WebScopeFilter> {
+        val filter = WebScopeFilter(properties, consumers)
         val bean = FilterRegistrationBean<WebScopeFilter>(filter)
         bean.setDispatcherTypes(EnumSet.allOf<DispatcherType>(DispatcherType::class.java))
         bean.order = properties.scopeFilterOrder

@@ -1,5 +1,8 @@
 package live.lingting.spring.web.scope
 
+import java.time.LocalDateTime
+import live.lingting.framework.http.header.HttpHeaders
+
 /**
  * @author lingting 2024-03-20 15:02
  */
@@ -18,6 +21,7 @@ class WebScope {
         language: String = "",
         authorization: String = "",
         userAgent: String = "",
+        headers: HttpHeaders = HttpHeaders.empty(false),
         attributes: MutableMap<String, Any> = HashMap(),
     ) {
         this.scheme = scheme
@@ -30,9 +34,11 @@ class WebScope {
         this.language = language
         this.authorization = authorization
         this.userAgent = userAgent
+        this.headers = headers
         this.attributes = attributes
     }
 
+    val time = LocalDateTime.now()
     val scheme: String
     val host: String
     val origin: String
@@ -43,6 +49,7 @@ class WebScope {
     val language: String
     val authorization: String
     val userAgent: String
+    val headers: HttpHeaders
     val attributes: MutableMap<String, Any>
 
     fun putAttribute(key: String, value: Any) {
