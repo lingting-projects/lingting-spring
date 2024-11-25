@@ -10,7 +10,6 @@ import org.springframework.core.annotation.Order
 
 /**
  * 监听spring上下文初始化完成事件
- *
  * @author lingting 2022/10/15 15:27
  */
 @Order(Ordered.HIGHEST_PRECEDENCE)

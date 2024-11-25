@@ -234,8 +234,6 @@ class Redis(
 
     /**
      * TTL 命令返回 [EXPIRE][this.expire] 命令设置的剩余生存时间（以秒为单位）.。
-     *
-     *
      * 时间复杂度: O(1)
      * @param key 待查询的 key
      * @return TTL 以秒为单位，或负值以指示错误

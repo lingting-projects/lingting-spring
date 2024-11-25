@@ -2,7 +2,6 @@ package live.lingting.spring.redis.cache
 
 /**
  * 删除
- *
  * @author lishangbu
  */
 @MustBeDocumented

@@ -7,7 +7,6 @@ import org.springframework.core.annotation.AnnotationUtils
 
 /**
  * 切面工具类
- *
  * @author lingting 2022/10/28 15:03
  */
 object AspectUtils {

@@ -167,14 +167,8 @@ class GlobalExceptionHandler : AbstractExceptionHandler() {
 
     /**
      * 404异常. 需要配合两个设置
-     *
-     *
      * 1. spring.mvc.throw-exception-if-no-handler-found=true
-     *
-     *
-     *
      * 2. spring.web.resources.add-mappings=false
-     *
      */
     @ExceptionHandler(NoHandlerFoundException::class)
     fun handlerNoHandlerFoundException(e: NoHandlerFoundException): ResponseEntity<R<String>> {

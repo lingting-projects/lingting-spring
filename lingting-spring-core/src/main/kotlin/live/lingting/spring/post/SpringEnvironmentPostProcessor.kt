@@ -9,7 +9,6 @@ import org.springframework.core.env.ConfigurableEnvironment
 
 /**
  * 高优先级, 用于注入环境配置到工具类
- *
  * @author lingting 2022/10/15 11:33
  */
 @Order(Ordered.HIGHEST_PRECEDENCE)
