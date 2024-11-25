@@ -5,12 +5,9 @@ import com.baomidou.mybatisplus.autoconfigure.ConfigurationCustomizer
 import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor
 import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor
-import live.lingting.framework.datascope.JsqlDataScope
-import live.lingting.framework.datascope.handler.DataPermissionHandler
-import live.lingting.framework.datascope.handler.DefaultDataPermissionHandler
-import live.lingting.framework.datascope.parser.DataScopeParser
-import live.lingting.framework.datascope.parser.DefaultDataScopeParser
-import live.lingting.framework.mybatis.datascope.DataPermissionInterceptor
+import live.lingting.framework.mybatis.methods.AbstractMybatisMethod
+import live.lingting.framework.mybatis.methods.InsertIgnore
+import live.lingting.framework.mybatis.methods.MethodsInjector
 import live.lingting.framework.mybatis.typehandler.AutoRegisterTypeHandler
 import live.lingting.spring.jackson.ObjectMapperAfter
 import org.springframework.boot.autoconfigure.AutoConfiguration
@@ -22,23 +19,6 @@ import org.springframework.context.annotation.Bean
  */
 @AutoConfiguration
 open class SpringMybatisAutoConfiguration {
-    @Bean
-    @ConditionalOnMissingBean
-    open fun dataScopeParser(): DataScopeParser {
-        return DefaultDataScopeParser()
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    open fun dataPermissionHandler(scopes: MutableList<JsqlDataScope>): DataPermissionHandler {
-        return DefaultDataPermissionHandler(scopes)
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    open fun dataPermissionInterceptor(parser: DataScopeParser, handler: DataPermissionHandler): DataPermissionInterceptor {
-        return DataPermissionInterceptor(parser, handler)
-    }
 
     /**
      * MybatisPlusInterceptor 插件，默认提供分页插件
@@ -73,4 +53,17 @@ open class SpringMybatisAutoConfiguration {
             }
         }
     }
+
+    @Bean
+    @ConditionalOnMissingBean
+    open fun frameworkIgnore(): InsertIgnore {
+        return InsertIgnore()
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    open fun frameworkMethodsInjector(methods: List<AbstractMybatisMethod>): MethodsInjector {
+        return MethodsInjector(methods)
+    }
+
 }

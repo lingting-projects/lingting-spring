@@ -1,6 +1,5 @@
 dependencies {
     api("live.lingting.framework:lingting-mybatis")
-    api(project(":lingting-spring-datascope-jsql"))
     api("com.baomidou:mybatis-plus-spring-boot3-starter") {
         exclude("org.springframework.boot")
         exclude("org.springframework")
@@ -10,5 +9,7 @@ dependencies {
     implementation(project(":lingting-spring-core"))
     implementation(project(":lingting-spring-jackson"))
 
+    compileOnly(project(":lingting-spring-datascope"))
+    testImplementation(project(":lingting-spring-datascope"))
     testImplementation("com.mysql:mysql-connector-j")
 }
