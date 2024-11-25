@@ -8,14 +8,9 @@ import live.lingting.spring.redis.properties.RedisProperties
  * @author lingting 2024-04-17 15:12
  */
 class DefaultKeyPrefixConvert(properties: RedisProperties) : KeyPrefixConvert {
-    val prefix: String
+    val prefix: String = properties.keyPrefix
 
-    val bytes: ByteArray
-
-    init {
-        this.prefix = properties.keyPrefix
-        this.bytes = prefix.toByteArray(StandardCharsets.UTF_8)
-    }
+    val bytes: ByteArray = prefix.toByteArray(StandardCharsets.UTF_8)
 
     override fun isMatch(key: ByteArray): Boolean {
         return !isEmpty(bytes)

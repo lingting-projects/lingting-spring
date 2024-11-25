@@ -8,6 +8,8 @@ import live.lingting.spring.redis.prefix.KeyPrefixConvert
 import live.lingting.spring.redis.prefix.StringKeyPrefixSerializer
 import live.lingting.spring.redis.properties.RedisProperties
 import live.lingting.spring.redis.script.RedisScriptProvider
+import live.lingting.spring.redis.script.RepeatRedisScript
+import live.lingting.spring.redis.unique.RedisId
 import org.redisson.Redisson
 import org.redisson.spring.starter.RedissonAutoConfiguration
 import org.redisson.spring.starter.RedissonAutoConfigurationV2
@@ -128,5 +130,16 @@ open class SpringRedisAutoConfiguration {
     @ConditionalOnBean(Redis::class)
     open fun cacheAspect(redis: Redis, properties: RedisProperties): CacheAspect {
         return CacheAspect(redis, properties)
+    }
+
+    @Bean
+    open fun springRedisScriptProvider(): RedisScriptProvider {
+        return object : RedisScriptProvider {
+            override fun scripts(): Collection<RepeatRedisScript<*>> {
+                return listOf(
+                    RedisId.SCRIPT
+                )
+            }
+        }
     }
 }

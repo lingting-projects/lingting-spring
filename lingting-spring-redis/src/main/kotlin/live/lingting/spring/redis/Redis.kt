@@ -34,9 +34,21 @@ import org.springframework.data.redis.serializer.RedisSerializer
  */
 @Suppress("UNCHECKED_CAST")
 class Redis(
-    private val template: StringRedisTemplate, private val redisson: Redisson, private val properties: RedisProperties,
+    private val template: StringRedisTemplate,
+    private val redisson: Redisson,
+    private val properties: RedisProperties,
     providers: MutableList<RedisScriptProvider>
 ) : InitializingBean {
+
+    companion object {
+        private val INSTANCE = WaitValue<Redis>()
+
+        @JvmStatic
+        fun instance(): Redis {
+            return INSTANCE.notNull()
+        }
+    }
+
     private val scriptExecutor: RedisScriptExecutor<String> = RedisScriptExecutor<String>(template)
 
     init {
@@ -123,12 +135,13 @@ class Redis(
         if (isEmpty(scripts)) {
             return
         }
-        for (script in scripts!!) {
+        for (script in scripts) {
             loadScript(script)
         }
     }
 
     // endregion
+
     // region key
     /**
      * 删除指定的 key
@@ -272,6 +285,7 @@ class Redis(
     }
 
     // endregion
+
     // region string
     /**
      * 当 key 存在时，对其值进行自减操作 （自减步长为 1），当 key 不存在时，则先赋值为 0 再进行自减
@@ -529,12 +543,4 @@ class Redis(
         return true == valueOps().setIfAbsent(key, value, timeout, timeUnit)
     } // endregion
 
-    companion object {
-        private val INSTANCE = WaitValue<Redis>()
-
-        @JvmStatic
-        fun instance(): Redis {
-            return INSTANCE.notNull()
-        }
-    }
 }

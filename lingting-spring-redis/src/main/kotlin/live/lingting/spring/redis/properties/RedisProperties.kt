@@ -9,6 +9,10 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 @ConfigurationProperties(RedisProperties.PREFIX)
 class RedisProperties {
 
+    companion object {
+        const val PREFIX: String = "lingting.redis"
+    }
+
     var keyPrefix: String = "lingting:"
 
     var keyDelimiter: String = ":"
@@ -30,7 +34,4 @@ class RedisProperties {
      */
     var leaseTime: Duration = Duration.ofSeconds(30)
 
-    companion object {
-        const val PREFIX: String = "lingting.redis"
-    }
 }
