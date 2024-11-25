@@ -2,21 +2,19 @@ package live.lingting.spring.redis
 
 import java.time.Duration
 import java.time.Instant
-import java.util.Arrays
 import java.util.Date
 import java.util.concurrent.TimeUnit
 import java.util.function.Function
+import live.lingting.framework.lock.SpinLock
 import live.lingting.framework.util.CollectionUtils.isEmpty
 import live.lingting.framework.value.WaitValue
 import live.lingting.spring.redis.cache.RedisCache
+import live.lingting.spring.redis.lock.RedisLock
+import live.lingting.spring.redis.lock.RedisLockParams
 import live.lingting.spring.redis.properties.RedisProperties
 import live.lingting.spring.redis.script.RedisScriptExecutor
 import live.lingting.spring.redis.script.RedisScriptProvider
 import live.lingting.spring.redis.script.RepeatRedisScript
-import org.redisson.Redisson
-import org.redisson.RedissonLock
-import org.redisson.RedissonSpinLock
-import org.redisson.api.LockOptions
 import org.springframework.beans.factory.InitializingBean
 import org.springframework.data.redis.core.Cursor
 import org.springframework.data.redis.core.HashOperations
@@ -35,7 +33,6 @@ import org.springframework.data.redis.serializer.RedisSerializer
 @Suppress("UNCHECKED_CAST")
 class Redis(
     private val template: StringRedisTemplate,
-    private val redisson: Redisson,
     private val properties: RedisProperties,
     providers: MutableList<RedisScriptProvider>
 ) : InitializingBean {
@@ -60,10 +57,6 @@ class Redis(
 
     fun template(): StringRedisTemplate {
         return template
-    }
-
-    fun redisson(): Redisson {
-        return redisson
     }
 
     fun scriptExecutor(): RedisScriptExecutor<String> {
@@ -106,19 +99,10 @@ class Redis(
         return template.opsForStream<String, String>()
     }
 
-    fun lock(name: String): RedissonLock {
-        return RedissonLock(redisson.commandExecutor, name)
-    }
-
-    fun spinLock(name: String): RedissonSpinLock {
-        return RedissonSpinLock(redisson.commandExecutor, name, LockOptions.defaults())
-    }
-
     @JvmOverloads
-    fun cache(expireTime: Duration? = properties.cacheExpireTime, lockTimeout: Duration = properties.lockTimeout, leaseTime: Duration = properties.leaseTime): RedisCache {
-        return RedisCache(this, properties.nullValue, expireTime, lockTimeout, leaseTime)
+    fun cache(key: String, expireTime: Duration? = properties.cacheExpireTime, lockTimeout: Duration = properties.lockTimeout, leaseTime: Duration? = properties.leaseTime): RedisCache {
+        return RedisCache(key, this, properties.nullValue, expireTime, lockTimeout, leaseTime)
     }
-
 
     override fun afterPropertiesSet() {
         Redis.INSTANCE.update(this)
@@ -127,7 +111,7 @@ class Redis(
     // region script
     fun loadScript(script: RepeatRedisScript<*>) {
         if (!script.isLoad) {
-            script.load(redisson)
+            script.load(scriptExecutor)
         }
     }
 
@@ -138,6 +122,16 @@ class Redis(
         for (script in scripts) {
             loadScript(script)
         }
+    }
+
+    @JvmOverloads
+    fun lock(key: String, params: RedisLockParams = RedisLockParams.DEFAULT): RedisLock {
+        return RedisLock(key, params, this)
+    }
+
+    @JvmOverloads
+    fun spin(key: String, params: RedisLockParams = RedisLockParams.DEFAULT): SpinLock {
+        return RedisLock.spin(key, params, this)
     }
 
     // endregion
@@ -159,12 +153,12 @@ class Redis(
      * @return 如果删除了一个或多个 key，则为大于 0 的整数，如果指定的 key 都不存在，则为 0
      */
     fun delete(vararg keys: String): Long {
-        return delete(Arrays.asList<String>(*keys))
+        return delete(keys.toList())
     }
 
     fun delete(keys: Collection<String>): Long {
         val l = template().delete(keys)
-        return if (l == null) 0 else l
+        return l ?: 0
     }
 
     /**
@@ -189,11 +183,7 @@ class Redis(
 
     fun exists(keys: Collection<String>): Long {
         val l = template().countExistingKeys(keys)
-        return if (l == null) 0 else l
-    }
-
-    fun expire(key: String, timeout: Duration): Boolean {
-        return expire(key, timeout.toSeconds(), TimeUnit.SECONDS)
+        return l ?: 0
     }
 
     /**
@@ -202,6 +192,10 @@ class Redis(
      * @param timeout 时长
      * @param timeUnit 时间单位
      */
+    fun expire(key: String, timeout: Duration): Boolean {
+        return expire(key, timeout.toSeconds(), TimeUnit.SECONDS)
+    }
+
     /**
      * 设置过期时间
      * @param key 待修改过期时间的 key
@@ -316,7 +310,7 @@ class Redis(
      * @return 当 key 不存在时返回 null
      * @see [Get Command](http://redis.io/commands/get)
      */
-    fun get(key: String): String {
+    fun get(key: String): String? {
         return valueOps().get(key)
     }
 
@@ -326,7 +320,7 @@ class Redis(
      * @return 当 key 不存在时返回 null
      * @see [GetDel Command](http://redis.io/commands/getdel/)
      */
-    fun getAndDelete(key: String): String {
+    fun getAndDelete(key: String): String? {
         return valueOps().getAndDelete(key)
     }
 
@@ -337,7 +331,7 @@ class Redis(
      * @return 当 key 不存在时返回 null
      * @see [GetEx Command](http://redis.io/commands/getex/)
      */
-    fun getAndExpire(key: String, timeout: Long): String {
+    fun getAndExpire(key: String, timeout: Long): String? {
         return getAndExpire(key, timeout, TimeUnit.SECONDS)
     }
 
@@ -349,7 +343,7 @@ class Redis(
      * @return 当 key 不存在时返回 null
      * @see [GetEx Command](http://redis.io/commands/getex/)
      */
-    fun getAndExpire(key: String, timeout: Long, timeUnit: TimeUnit): String {
+    fun getAndExpire(key: String, timeout: Long, timeUnit: TimeUnit): String? {
         return valueOps().getAndExpire(key, timeout, timeUnit)
     }
 
@@ -360,7 +354,7 @@ class Redis(
      * @return 当 key 存在时返回其 value 值，否则返回 null
      * @see [GetSet Command](http://redis.io/commands/getset)
      */
-    fun getAndSet(key: String, value: String): String {
+    fun getAndSet(key: String, value: String): String? {
         return valueOps().getAndSet(key, value)
     }
 
@@ -372,7 +366,7 @@ class Redis(
      */
     fun increment(key: String): Long {
         val l = valueOps().increment(key)
-        return if (l == null) 0 else l
+        return l ?: 0
     }
 
     /**
@@ -384,7 +378,7 @@ class Redis(
      */
     fun incrementBy(key: String, delta: Long): Long {
         val l = valueOps().increment(key, delta)
-        return if (l == null) 0 else l
+        return l ?: 0
     }
 
     /**
@@ -392,7 +386,7 @@ class Redis(
      */
     fun incrementByFloat(key: String, delta: Double): Double {
         val d = valueOps().increment(key, delta)
-        return if (d == null) 0.0 else d
+        return d ?: 0.0
     }
 
     /**
@@ -401,15 +395,15 @@ class Redis(
      * @return values list，当值为空时，该 key 对应的 value 为 null
      * @see [MGet Command](http://redis.io/commands/mget)
      */
-    fun multiGet(keys: Collection<String>): MutableList<String> {
+    fun multiGet(keys: Collection<String>): MutableList<String?> {
         return valueOps().multiGet(keys)
     }
 
     /**
      * @see this.multiGet
      */
-    fun multiGet(vararg keys: String): MutableList<String> {
-        return multiGet(Arrays.asList<String>(*keys))
+    fun multiGet(vararg keys: String): MutableList<String?> {
+        return multiGet(keys.toList())
     }
 
     /**
@@ -473,14 +467,6 @@ class Redis(
      * @param key key
      * @param value value
      * @param timeout 过期时间 单位：秒
-     * @param timeUnit 过期时间单位
-     * @see this.set
-     */
-    /**
-     * 设置 value for key, 同时为其设置过期时间
-     * @param key key
-     * @param value value
-     * @param timeout 过期时间 单位：秒
      * @see this.set
      */
     @JvmOverloads
@@ -495,7 +481,7 @@ class Redis(
      * @param expireTime 在指定时间过期
      */
     fun set(key: String, value: String, expireTime: Instant) {
-        val timeout = expireTime.getEpochSecond() - Instant.now().getEpochSecond()
+        val timeout = expireTime.epochSecond - Instant.now().epochSecond
         set(key, value, timeout)
     }
 
@@ -541,6 +527,7 @@ class Redis(
      */
     fun setIfAbsent(key: String, value: String, timeout: Long, timeUnit: TimeUnit): Boolean {
         return true == valueOps().setIfAbsent(key, value, timeout, timeUnit)
-    } // endregion
+    }
+// endregion
 
 }

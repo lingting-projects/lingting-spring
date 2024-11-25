@@ -14,6 +14,19 @@ import org.springframework.data.redis.serializer.RedisSerializer
 @Suppress("UNCHECKED_CAST")
 class RedisScriptExecutor<K>(val template: RedisTemplate<K, String>) : DefaultScriptExecutor<K>(template) {
 
+    fun load(script: RepeatRedisScript<*>) {
+        template.execute(RedisCallback {
+            val commands = it.scriptingCommands()
+            val bytes = scriptBytes(script)
+            commands.scriptLoad(bytes)
+        })
+    }
+
+    fun scriptBytes(script: RepeatRedisScript<*>): ByteArray {
+        val serializer = template.stringSerializer
+        return serializer.serialize(script.source)
+    }
+
     override fun keysAndArgs(argsSerializer: RedisSerializer<*>, keys: List<K?>?, args: Array<out Any?>): Array<out ByteArray?> {
         val map = args.map { it?.toString() }
         return super.keysAndArgs(argsSerializer, keys, map.toTypedArray())
@@ -28,7 +41,8 @@ class RedisScriptExecutor<K>(val template: RedisTemplate<K, String>) : DefaultSc
     ): T? {
         return template.execute<T>(RedisCallback { connection ->
             val returnType = ReturnType.fromJavaType(script.getResultType())
-            eval<T>(connection, returnType, argsSerializer, resultSerializer, scriptBytes(script), keys, *args)
+            val bytes = scriptBytes(script)
+            eval<T>(connection, returnType, argsSerializer, resultSerializer, bytes, keys, *args)
         })
     }
 
@@ -37,7 +51,8 @@ class RedisScriptExecutor<K>(val template: RedisTemplate<K, String>) : DefaultSc
         vararg args: Any
     ): T? {
         val returnType = ReturnType.fromJavaType(script.getResultType())
-        return eval<T>(connection, returnType, scriptBytes(script), keys, *args)
+        val bytes = scriptBytes(script)
+        return eval<T>(connection, returnType, bytes, keys, *args)
     }
 
     fun <T> execute(script: RepeatRedisScript<T>, keys: List<K>?, vararg args: Any): T? {
@@ -48,9 +63,8 @@ class RedisScriptExecutor<K>(val template: RedisTemplate<K, String>) : DefaultSc
         if (script.isLoad) {
             return evalSha1<T>(connection, script.type, script.sha1, keys, *args)
         }
-        val serializer = template.stringSerializer
-        val bytes = serializer.serialize(script.source)
-        return eval<T>(connection, script.type, bytes!!, keys, *args)
+        val bytes = scriptBytes(script)
+        return eval<T>(connection, script.type, bytes, keys, *args)
     }
 
     fun <T> eval(
@@ -100,4 +114,5 @@ class RedisScriptExecutor<K>(val template: RedisTemplate<K, String>) : DefaultSc
         }
         return deserializeResult<T>(resultSerializer, result)
     }
+
 }

@@ -1,6 +1,5 @@
 [versions]
 framework = "2024.11.21-Bata-1"
-redisson = "3.34.1"
 publish = "0.29.0"
 kotlin = "2.0.21"
 kotlin-ksp = "2.0.21-1.0.28"
@@ -9,7 +8,6 @@ kotlin-coroutines = "1.9.0"
 [libraries]
 framework-dependencies = { group = "live.lingting.framework", name = "lingting-dependencies", version.ref = "framework" }
 spring-test = { group = "org.springframework.boot", name = "spring-boot-starter-test" }
-redisson = { group = "org.redisson", name = "redisson-spring-boot-starter", version.ref = "redisson" }
 slf4j = { group = "org.slf4j", name = "slf4j-api" }
 awaitility = { group = "org.awaitility", name = "awaitility" }
 junit = { group = "org.junit.jupiter", name = "junit-jupiter" }

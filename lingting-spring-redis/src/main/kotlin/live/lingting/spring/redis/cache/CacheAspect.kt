@@ -19,6 +19,7 @@ import org.springframework.util.CollectionUtils
  */
 @Order
 @Aspect
+@Suppress("UNCHECKED_CAST")
 class CacheAspect(private val redis: Redis, private val properties: RedisProperties) : Ordered {
     @Pointcut("@annotation(live.lingting.spring.redis.cache.Cached) || @annotation(live.lingting.spring.redis.cache.CacheClear) || @annotation(live.lingting.spring.redis.cache.CacheBatchClear)")
     fun pointCut() {
@@ -46,22 +47,21 @@ class CacheAspect(private val redis: Redis, private val properties: RedisPropert
             val key = generator.cached(cached)
             Assert.hasText(key, "Cached key is required!")
             val ttl = cached.ttl
-            val expireTime: Duration?
-            if (ttl > 0) {
-                expireTime = Duration.ofSeconds(ttl)
+            val expireTime = if (ttl > 0) {
+                Duration.ofSeconds(ttl)
             } else if (ttl < 0) {
-                expireTime = null
+                null
             } else {
-                expireTime = properties.cacheExpireTime
+                properties.cacheExpireTime
             }
 
-            val cache = redis.cache(expireTime, properties.lockTimeout, properties.leaseTime)
+            val cache = redis.cache(key, expireTime)
 
-            val onLockFailure = ThrowableSupplier { cache.get<Any>(key, type) }
+            val onLockFailure = ThrowableSupplier { cache.get<Any>(type) }
             result = if (cached.ifAbsent)
-                cache.setIfAbsent<Any>(key, ThrowableSupplier { point.proceed() }, onLockFailure, type)
+                cache.setIfAbsent<Any>(ThrowableSupplier { point.proceed() }, onLockFailure, type)
             else
-                cache.set(key, ThrowableSupplier { point.proceed() }, onLockFailure)
+                cache.set(ThrowableSupplier { point.proceed() }, onLockFailure)
         }
 
         if (cacheClear != null || cacheBatchClear != null) {

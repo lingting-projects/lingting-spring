@@ -8,13 +8,9 @@ import live.lingting.framework.kt.milliseconds
  */
 data class RedisLockParams @JvmOverloads constructor(
     /**
-     * 锁如果一直不释放, 则在多久后自动是否
+     * 锁如果一直不释放, 则在多久后自动释放
      */
     val timeout: Duration? = null,
-    /**
-     * 重复获取锁时是否重新设置过期时间(如果指定了自动释放时间)
-     */
-    val renew: Boolean = true,
     /**
      * 当重复尝试获取时, 每次获取失败后的休眠时间
      */

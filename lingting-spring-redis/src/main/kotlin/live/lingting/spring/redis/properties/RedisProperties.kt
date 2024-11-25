@@ -32,6 +32,6 @@ class RedisProperties {
     /**
      * 锁持有最长时间, 超过该时间还未完成缓存操作则直接释放锁
      */
-    var leaseTime: Duration = Duration.ofSeconds(30)
+    var leaseTime: Duration? = Duration.ofSeconds(30)
 
 }

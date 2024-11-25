@@ -2,6 +2,7 @@ package live.lingting.spring.redis.configuration
 
 import live.lingting.spring.redis.Redis
 import live.lingting.spring.redis.cache.CacheAspect
+import live.lingting.spring.redis.lock.RedisLock
 import live.lingting.spring.redis.prefix.DefaultKeyPrefixConvert
 import live.lingting.spring.redis.prefix.JdkKeyPrefixSerializer
 import live.lingting.spring.redis.prefix.KeyPrefixConvert
@@ -10,9 +11,6 @@ import live.lingting.spring.redis.properties.RedisProperties
 import live.lingting.spring.redis.script.RedisScriptProvider
 import live.lingting.spring.redis.script.RepeatRedisScript
 import live.lingting.spring.redis.unique.RedisId
-import org.redisson.Redisson
-import org.redisson.spring.starter.RedissonAutoConfiguration
-import org.redisson.spring.starter.RedissonAutoConfigurationV2
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
@@ -31,8 +29,8 @@ import org.springframework.data.redis.core.ZSetOperations
 /**
  * @author lingting 2024-04-17 14:41
  */
+@AutoConfiguration
 @EnableConfigurationProperties(RedisProperties::class)
-@AutoConfiguration(before = [RedissonAutoConfiguration::class, RedissonAutoConfigurationV2::class])
 open class SpringRedisAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
@@ -119,10 +117,10 @@ open class SpringRedisAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     open fun redis(
-        template: StringRedisTemplate, redisson: Redisson, properties: RedisProperties,
+        template: StringRedisTemplate, properties: RedisProperties,
         providers: MutableList<RedisScriptProvider>
     ): Redis {
-        return Redis(template, redisson, properties, providers)
+        return Redis(template, properties, providers)
     }
 
     @Bean
@@ -137,7 +135,7 @@ open class SpringRedisAutoConfiguration {
         return object : RedisScriptProvider {
             override fun scripts(): Collection<RepeatRedisScript<*>> {
                 return listOf(
-                    RedisId.SCRIPT
+                    RedisId.SCRIPT, RedisLock.SCRIPT_LOCK, RedisLock.SCRIPT_UNLOCK
                 )
             }
         }
