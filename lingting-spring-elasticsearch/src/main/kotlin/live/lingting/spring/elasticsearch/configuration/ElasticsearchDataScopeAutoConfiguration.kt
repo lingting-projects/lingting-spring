@@ -1,7 +1,7 @@
 package live.lingting.spring.elasticsearch.configuration
 
 import live.lingting.framework.datascope.DataScope
-import live.lingting.framework.elasticsearch.datascope.DataPermissionInterceptor
+import live.lingting.framework.elasticsearch.datascope.DataScopeInterceptor
 import live.lingting.framework.elasticsearch.datascope.ElasticsearchDataScope
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
@@ -17,8 +17,8 @@ open class ElasticsearchDataScopeAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    open fun elasticsearchDataPermissionInterceptor(scopes: List<ElasticsearchDataScope>): DataPermissionInterceptor {
-        return DataPermissionInterceptor(scopes)
+    open fun elasticsearchDataScopeInterceptor(scopes: List<ElasticsearchDataScope>): DataScopeInterceptor {
+        return DataScopeInterceptor(scopes)
     }
 
 }

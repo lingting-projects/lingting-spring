@@ -1,7 +1,7 @@
 package live.lingting.spring.mybatis
 
 import live.lingting.framework.datascope.DataScope
-import live.lingting.framework.mybatis.datascope.DataPermissionInterceptor
+import live.lingting.framework.mybatis.datascope.DataScopeInterceptor
 import live.lingting.framework.mybatis.datascope.DefaultJSqlDataScopeParserFactory
 import live.lingting.framework.mybatis.datascope.JSqlDataScope
 import live.lingting.framework.mybatis.datascope.JSqlDataScopeParserFactory
@@ -15,7 +15,7 @@ import org.springframework.context.annotation.Bean
  */
 @AutoConfiguration
 @ConditionalOnClass(DataScope::class, JSqlDataScope::class)
-open class DataScopeMybatisAutoConfiguration {
+open class MybatisDataScopeAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
@@ -25,8 +25,8 @@ open class DataScopeMybatisAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    open fun mybatisDataPermissionInterceptor(factory: JSqlDataScopeParserFactory, scopes: List<JSqlDataScope>): DataPermissionInterceptor {
-        return DataPermissionInterceptor(factory, scopes)
+    open fun mybatisDataScopeInterceptor(factory: JSqlDataScopeParserFactory, scopes: List<JSqlDataScope>): DataScopeInterceptor {
+        return DataScopeInterceptor(factory, scopes)
     }
 
 }

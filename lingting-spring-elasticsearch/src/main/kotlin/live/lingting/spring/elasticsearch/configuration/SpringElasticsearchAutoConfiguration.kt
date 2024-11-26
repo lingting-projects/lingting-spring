@@ -31,7 +31,7 @@ import org.springframework.context.annotation.Bean
  */
 @EnableConfigurationProperties(ElasticsearchSpringProperties::class)
 @AutoConfiguration(after = [ElasticsearchRestClientAutoConfiguration::class, SpringObjectMapperAutoConfiguration::class])
-open class ElasticsearchAutoConfiguration {
+open class SpringElasticsearchAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     open fun elasticsearchProperties(properties: ElasticsearchSpringProperties): ElasticsearchProperties {
