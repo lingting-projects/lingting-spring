@@ -59,7 +59,7 @@ class CacheAspect(private val redis: Redis, private val properties: RedisPropert
 
             val onLockFailure = ThrowableSupplier { cache.get<Any>(type) }
             result = if (cached.ifAbsent)
-                cache.setIfAbsent<Any>(ThrowableSupplier { point.proceed() }, onLockFailure, type)
+                cache.setIfAbsent(ThrowableSupplier { point.proceed() }, onLockFailure, type)
             else
                 cache.set(ThrowableSupplier { point.proceed() }, onLockFailure)
         }

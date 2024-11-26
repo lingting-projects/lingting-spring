@@ -28,10 +28,10 @@ open class GrpcAutoConfiguration {
         client.port = properties.client.port
         client.traceIdKey = properties.traceIdKey
         client.traceOrder = properties.traceOrder
-        client.isUsePlaintext = properties.client.isUsePlaintext
-        client.isDisableSsl = properties.client.isDisableSsl
-        client.isEnableRetry = properties.client.isEnableRetry
-        client.isEnableKeepAlive = properties.client.isEnableKeepAlive
+        client.usePlaintext = properties.client.usePlaintext
+        client.disableSsl = properties.client.disableSsl
+        client.enableRetry = properties.client.enableRetry
+        client.enableKeepAlive = properties.client.enableKeepAlive
         client.keepAliveTime = properties.keepAliveTime
         client.keepAliveTimeout = properties.keepAliveTimeout
         return client

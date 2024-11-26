@@ -22,7 +22,7 @@ class SecuritySpringProperties {
     fun properties(): SecurityProperties {
         val sa = SecurityProperties.Authorization()
         val a = this.authorization
-        sa.isRemote = a.isRemote
+        sa.remote = a.remote
         sa.remoteHost = a.remoteHost
 
         val properties = SecurityProperties()
@@ -32,7 +32,7 @@ class SecuritySpringProperties {
     }
 
     class Authorization {
-        var isRemote: Boolean = false
+        var remote: Boolean = false
 
         var remoteHost: String? = null
 
