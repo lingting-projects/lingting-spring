@@ -1,7 +1,7 @@
 package live.lingting.spring.elasticsearch
 
 import live.lingting.framework.api.PaginationParams
-import live.lingting.framework.elasticsearch.annotation.Document
+import live.lingting.framework.elasticsearch.annotation.Index
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -15,7 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest
 @SpringBootTest
 class SpringElasticsearchTest {
     @Autowired
-    private val handler: SwitchElasticsearchDataPermissionHandler? = null
+    private val scope: SpaceDataScope? = null
 
     @Autowired
     private val service: EntityServiceImpl? = null
@@ -25,13 +25,14 @@ class SpringElasticsearchTest {
         val params = PaginationParams()
         val list = service!!.page(params).records
         assertFalse(list.isEmpty())
-        handler!!.enable()
+        assertNotNull(scope)
+        assertFalse(scope!!.ignore())
         val byQuery = service.getByQuery()
         assertNotNull(byQuery)
         assertEquals("Default", byQuery!!.space["name"])
     }
 
-    @Document(index = ".kibana_8.12.2_001")
+    @Index(index = ".kibana_8.12.2_001")
     class Entity {
         var id: String = ""
 

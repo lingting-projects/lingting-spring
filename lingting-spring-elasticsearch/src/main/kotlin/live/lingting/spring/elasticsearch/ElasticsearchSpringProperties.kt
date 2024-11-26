@@ -1,6 +1,7 @@
 package live.lingting.spring.elasticsearch
 
 import live.lingting.framework.elasticsearch.ElasticsearchProperties
+import live.lingting.framework.elasticsearch.ElasticsearchProperties.Index
 import live.lingting.framework.elasticsearch.ElasticsearchProperties.Scroll
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.NestedConfigurationProperty
@@ -10,6 +11,17 @@ import org.springframework.boot.context.properties.NestedConfigurationProperty
  */
 @ConfigurationProperties(ElasticsearchSpringProperties.PREFIX)
 class ElasticsearchSpringProperties {
+
+    companion object {
+        const val PREFIX: String = "lingting.elasticsearch"
+    }
+
+    /**
+     * 索引设置
+     */
+    @NestedConfigurationProperty
+    var index: Index = Index()
+
     /**
      * 重试配置
      */
@@ -24,12 +36,10 @@ class ElasticsearchSpringProperties {
 
     fun properties(): ElasticsearchProperties {
         val properties = ElasticsearchProperties()
-        properties.retry = this.retry
-        properties.scroll = this.scroll
+        properties.index = index
+        properties.retry = retry
+        properties.scroll = scroll
         return properties
     }
 
-    companion object {
-        const val PREFIX: String = "lingting.elasticsearch"
-    }
 }

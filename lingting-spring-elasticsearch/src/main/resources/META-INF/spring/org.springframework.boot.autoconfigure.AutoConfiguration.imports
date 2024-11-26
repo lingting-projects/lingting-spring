@@ -1,1 +1,2 @@
-live.lingting.spring.elasticsearch.ElasticsearchAutoConfiguration
+live.lingting.spring.elasticsearch.configuration.ElasticsearchAutoConfiguration
+live.lingting.spring.elasticsearch.configuration.ElasticsearchDataScopeAutoConfiguration

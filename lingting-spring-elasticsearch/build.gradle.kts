@@ -3,4 +3,7 @@ dependencies {
 
     implementation(project(":lingting-spring-core"))
     implementation(project(":lingting-spring-jackson"))
+
+    compileOnly(project(":lingting-spring-datascope"))
+    testImplementation(project(":lingting-spring-datascope"))
 }

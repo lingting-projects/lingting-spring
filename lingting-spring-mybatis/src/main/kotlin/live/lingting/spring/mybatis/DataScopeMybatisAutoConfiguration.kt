@@ -25,7 +25,7 @@ open class DataScopeMybatisAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    open fun dataPermissionInterceptor(factory: JSqlDataScopeParserFactory, scopes: List<JSqlDataScope>): DataPermissionInterceptor {
+    open fun mybatisDataPermissionInterceptor(factory: JSqlDataScopeParserFactory, scopes: List<JSqlDataScope>): DataPermissionInterceptor {
         return DataPermissionInterceptor(factory, scopes)
     }
 

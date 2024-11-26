@@ -1,6 +1,7 @@
 package live.lingting.spring.elasticsearch
 
 import co.elastic.clients.elasticsearch._types.query_dsl.Query
+import live.lingting.framework.elasticsearch.IndexInfo
 import live.lingting.framework.elasticsearch.composer.QueryComposer.term
 import live.lingting.framework.elasticsearch.datascope.ElasticsearchDataScope
 import org.springframework.stereotype.Component
@@ -16,7 +17,8 @@ class SpaceDataScope : ElasticsearchDataScope {
         return true
     }
 
-    override fun invoke(index: String): Query {
+    override fun handler(p: IndexInfo): Query? {
         return term<String>("space.name", "default")
     }
+
 }

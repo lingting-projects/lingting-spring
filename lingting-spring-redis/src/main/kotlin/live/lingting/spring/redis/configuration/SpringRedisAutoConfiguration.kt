@@ -140,4 +140,10 @@ open class SpringRedisAutoConfiguration {
             }
         }
     }
+
+    @Bean
+    @ConditionalOnMissingBean
+    open fun redisId(redis: Redis): RedisId {
+        return RedisId(redis.scriptExecutor())
+    }
 }

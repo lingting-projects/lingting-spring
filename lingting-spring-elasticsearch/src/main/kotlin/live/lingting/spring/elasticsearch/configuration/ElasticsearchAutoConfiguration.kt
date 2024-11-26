@@ -1,4 +1,4 @@
-package live.lingting.spring.elasticsearch
+package live.lingting.spring.elasticsearch.configuration
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient
 import co.elastic.clients.json.JsonpMapper
@@ -6,10 +6,13 @@ import co.elastic.clients.json.jackson.JacksonJsonpMapper
 import co.elastic.clients.transport.ElasticsearchTransport
 import co.elastic.clients.transport.rest_client.RestClientTransport
 import com.fasterxml.jackson.databind.ObjectMapper
+import live.lingting.framework.Sequence
 import live.lingting.framework.elasticsearch.ElasticsearchProperties
-import live.lingting.framework.elasticsearch.datascope.DefaultElasticsearchDataPermissionHandler
-import live.lingting.framework.elasticsearch.datascope.ElasticsearchDataPermissionHandler
-import live.lingting.framework.elasticsearch.datascope.ElasticsearchDataScope
+import live.lingting.framework.elasticsearch.interceptor.Interceptor
+import live.lingting.framework.elasticsearch.polymerize.PolymerizeFactory
+import live.lingting.spring.elasticsearch.ElasticsearchServiceImplBeanPost
+import live.lingting.spring.elasticsearch.ElasticsearchSpringProperties
+import live.lingting.spring.elasticsearch.SpringPolymerizeFactory
 import live.lingting.spring.jackson.configuration.SpringObjectMapperAutoConfiguration
 import org.apache.http.impl.nio.reactor.IOReactorConfig
 import org.elasticsearch.client.RestClient
@@ -75,16 +78,20 @@ open class ElasticsearchAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    open fun elasticsearchDataPermissionHandler(scopes: MutableList<ElasticsearchDataScope>): ElasticsearchDataPermissionHandler {
-        return DefaultElasticsearchDataPermissionHandler(scopes)
+    open fun polymerizeFactory(): PolymerizeFactory {
+        return SpringPolymerizeFactory()
     }
 
     @Bean
     @ConditionalOnMissingBean
     open fun elasticsearchServiceImplBeanPost(
         properties: ElasticsearchProperties,
-        client: ElasticsearchClient, handler: ElasticsearchDataPermissionHandler
+        client: ElasticsearchClient,
+        interceptors: Collection<Interceptor>,
+        polymerizeFactory: PolymerizeFactory,
     ): ElasticsearchServiceImplBeanPost {
-        return ElasticsearchServiceImplBeanPost(properties, client, handler)
+        val asc = Sequence.asc(interceptors)
+        return ElasticsearchServiceImplBeanPost(properties, client, asc, polymerizeFactory)
     }
+
 }
