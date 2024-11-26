@@ -31,10 +31,10 @@ local ttl = tonumber(ARGV[2])
 local currentLockValue = redis.call('GET', lockKey)
 
 -- lockKey 不与传入值相等
-if currentLockValue != value then
+if currentLockValue ~= value then
     return 0
 -- lockKey 不存在
-elseif currentLockValue == nil or currentLockValue == false then
+elseif currentLockValue == nil then
     redis.call('SET', lockKey, value)
     redis.call('SET', counterKey, 1)
 -- lockKey 相等
@@ -64,7 +64,7 @@ local ttl = tonumber(ARGV[2])
 local currentLockValue = redis.call('GET', lockKey)
 
 -- lockKey 不存在 或 不与传入值相等
-if currentLockValue == nil or currentLockValue == false or currentLockValue != value then
+if currentLockValue == nil or currentLockValue ~= value then
     return 0
 end
 -- lockKey 相等, 计数-1
