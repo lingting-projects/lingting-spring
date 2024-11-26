@@ -59,7 +59,7 @@ class SpringSecurityWebTest {
         val json: String = mock.perform(get("/authorization/password?username=lingting&password=$password"))
             .andDo(print())
             .andExpect(status().isOk())
-            .andExpect(jsonPath("token").isNotEmpty())
+            .andExpect(jsonPath("authorization").isNotEmpty())
             .andExpect(jsonPath("username").value("lingting"))
             .andReturn()
             .response
@@ -68,18 +68,18 @@ class SpringSecurityWebTest {
         val vo: AuthorizationVO = toObj<AuthorizationVO>(json, AuthorizationVO::class.java)
         Assertions.assertEquals("lingting", vo.nickname)
 
-        mock.perform(get("/authorization/resolve").header(properties!!.headerAuthorization, vo.token))
+        mock.perform(get("/authorization/resolve").header(properties!!.headerAuthorization, vo.authorization))
             .andDo(print())
             .andExpect(status().isOk())
-            .andExpect(jsonPath("token").value(vo.token))
+            .andExpect(jsonPath("authorization").value(vo.authorization))
             .andExpect(jsonPath("username").value("lingting"))
 
-        mock.perform(delete("/authorization/logout").header(properties.headerAuthorization, vo.token))
+        mock.perform(delete("/authorization/logout").header(properties.headerAuthorization, vo.authorization))
             .andDo(print())
             .andExpect(status().isOk())
-            .andExpect(jsonPath("token").value(vo.token))
+            .andExpect(jsonPath("authorization").value(vo.authorization))
 
-        mock.perform(get("/authorization/resolve").header(properties.headerAuthorization, vo.token))
+        mock.perform(get("/authorization/resolve").header(properties.headerAuthorization, vo.authorization))
             .andDo(print())
             .andExpect(status().isOk())
             .andExpect(jsonPath("code").value(ApiResultCode.UNAUTHORIZED_ERROR.code))

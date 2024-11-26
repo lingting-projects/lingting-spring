@@ -1,9 +1,6 @@
 package live.lingting.spring.security.web.configuration
 
-import live.lingting.framework.security.authorize.SecurityAuthorizationService
-import live.lingting.framework.security.convert.SecurityConvert
-import live.lingting.framework.security.password.SecurityPassword
-import live.lingting.framework.security.store.SecurityStore
+import live.lingting.framework.security.SecurityEndpointService
 import live.lingting.spring.security.conditional.ConditionalOnAuthorization
 import live.lingting.spring.security.web.endpoint.SecurityWebEndpoint
 import live.lingting.spring.security.web.endpoint.SecurityWebEndpointHandlerMapping
@@ -22,11 +19,8 @@ import org.springframework.web.servlet.HandlerInterceptor
 open class SecurityWebAuthorizationAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
-    open fun securityWebEndpoint(
-        service: SecurityAuthorizationService, store: SecurityStore,
-        password: SecurityPassword, convert: SecurityConvert
-    ): SecurityWebEndpoint {
-        return SecurityWebEndpoint(service, store, password, convert)
+    open fun securityWebEndpoint(service: SecurityEndpointService): SecurityWebEndpoint {
+        return SecurityWebEndpoint(service)
     }
 
     @Bean

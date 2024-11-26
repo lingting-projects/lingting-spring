@@ -1,5 +1,8 @@
 package live.lingting.spring.security.configuration
 
+import live.lingting.framework.security.SecurityEndpointService
+import live.lingting.framework.security.authorize.SecurityAuthorizationService
+import live.lingting.framework.security.convert.SecurityConvert
 import live.lingting.framework.security.password.SecurityPassword
 import live.lingting.framework.security.store.SecurityMemoryStore
 import live.lingting.framework.security.store.SecurityStore
@@ -19,12 +22,27 @@ open class SecurityAuthorizationConfiguration {
         return SecurityMemoryStore()
     }
 
+    @Bean
+    @ConditionalOnMissingBean
+    fun securityEndpointService(
+        service: SecurityAuthorizationService,
+        store: SecurityStore,
+        password: SecurityPassword,
+        convert: SecurityConvert,
+    ): SecurityEndpointService {
+        return SecurityEndpointService(service, store, password, convert)
+    }
+
     /**
      * 使用 password-secret-key 可以匹配 - 和驼峰
      */
     @Bean
     @ConditionalOnMissingBean
-    @ConditionalOnProperty(prefix = SecuritySpringProperties.PREFIX + ".authorization", name = ["password-secret-key"])
+    @ConditionalOnProperty(
+        prefix = SecuritySpringProperties.PREFIX + ".authorization",
+        name = ["password-secret-key"],
+        matchIfMissing = true,
+    )
     fun securityPassword(properties: SecuritySpringProperties): SecurityPassword {
         val authorization = properties.authorization
         return SecurityDefaultPassword(authorization.passwordSecretKey)

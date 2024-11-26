@@ -8,18 +8,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 /**
  * @author lingting 2024-02-05 17:26
  */
-class SecurityDefaultPassword(securityKey: String) : SecurityPassword {
-    protected val securityKey: String
+class SecurityDefaultPassword(val securityKey: String) : SecurityPassword {
 
-    protected val front: Cipher
+    val front: Cipher = Cipher.aesBuilder().secret(securityKey).iv(securityKey).cbc().pkcs7().build()
 
-    protected val encode: BCryptPasswordEncoder
-
-    init {
-        this.securityKey = securityKey
-        this.front = Cipher.aesBuilder().secret(securityKey).iv(securityKey).cbc().pkcs7().build()
-        this.encode = BCryptPasswordEncoder()
-    }
+    val encode: BCryptPasswordEncoder = BCryptPasswordEncoder()
 
     override fun valid(plaintext: String?): Boolean {
         return hasText(plaintext)

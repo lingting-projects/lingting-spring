@@ -7,6 +7,7 @@ import live.lingting.framework.interceptor.SecurityGrpcResourceServerInterceptor
 import live.lingting.framework.properties.SecurityGrpcProperties
 import live.lingting.framework.resource.SecurityTokenGrpcRemoteResolver
 import live.lingting.framework.security.authorize.SecurityAuthorize
+import live.lingting.framework.security.convert.SecurityConvert
 import live.lingting.framework.security.properties.SecurityProperties
 import live.lingting.framework.security.resource.SecurityResourceService
 import live.lingting.spring.grpc.configuration.GrpcAutoConfiguration
@@ -23,9 +24,12 @@ open class SecurityGrpcResourceAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     open fun securityGrpcResourceServerInterceptor(
-        properties: SecurityGrpcProperties, service: SecurityResourceService, authorize: SecurityAuthorize
+        properties: SecurityGrpcProperties,
+        service: SecurityResourceService,
+        authorize: SecurityAuthorize,
+        convert: SecurityConvert,
     ): SecurityGrpcResourceServerInterceptor {
-        return SecurityGrpcResourceServerInterceptor(properties.authorizationKey(), service, authorize)
+        return SecurityGrpcResourceServerInterceptor(properties.authorizationKey(), service, authorize, convert)
     }
 
     @Bean

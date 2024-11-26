@@ -17,7 +17,10 @@ import org.springframework.web.filter.OncePerRequestFilter
 /**
  * @author lingting 2024-03-21 19:49
  */
-class SecurityWebResourceFilter(private val properties: SecurityWebProperties, private val service: SecurityResourceService) : OncePerRequestFilter() {
+class SecurityWebResourceFilter(
+    private val properties: SecurityWebProperties,
+    private val service: SecurityResourceService
+) : OncePerRequestFilter() {
 
     override fun doFilterInternal(
         request: HttpServletRequest, response: HttpServletResponse,

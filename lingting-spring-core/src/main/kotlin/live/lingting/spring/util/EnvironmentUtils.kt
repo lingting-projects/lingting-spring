@@ -1,7 +1,6 @@
 package live.lingting.spring.util
 
 import java.util.Optional
-import java.util.function.Function
 import live.lingting.framework.util.ArrayUtils
 import live.lingting.framework.util.ArrayUtils.containsIgnoreCase
 import org.springframework.core.convert.support.ConfigurableConversionService
@@ -146,7 +145,6 @@ object EnvironmentUtils {
     val replaceMapPropertySource: MutableMap<String, Any>
         get() {
             val replaceEnvironment = "replaceEnvironment"
-            val propertySources: MutablePropertySources = propertySources
             var target: MapPropertySource? = null
 
             if (propertySources.contains(replaceEnvironment)) {
@@ -159,7 +157,7 @@ object EnvironmentUtils {
                 propertySources.addFirst(target)
             }
 
-            return Optional.ofNullable<MapPropertySource>(target).map<MutableMap<String, Any>>(Function { obj -> obj.getSource() }).orElse(null)
+            return Optional.ofNullable(target).map { it.source }.orElse(null)
         }
 
     /**

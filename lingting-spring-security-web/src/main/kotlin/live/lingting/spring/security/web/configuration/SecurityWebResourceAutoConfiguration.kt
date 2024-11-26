@@ -51,7 +51,7 @@ open class SecurityWebResourceAutoConfiguration {
         val filter = SecurityWebResourceFilter(webProperties, service)
         val bean = FilterRegistrationBean<SecurityWebResourceFilter>(filter)
         bean.setDispatcherTypes(EnumSet.allOf<DispatcherType>(DispatcherType::class.java))
-        bean.setOrder(properties.order)
+        bean.order = properties.order
         return bean
     }
 
@@ -69,7 +69,7 @@ open class SecurityWebResourceAutoConfiguration {
     open fun securityWebResourceWebMvcConfigurer(interceptor: SecurityWebResourceInterceptor): WebMvcConfigurer {
         return object : WebMvcConfigurer {
             override fun addInterceptors(registry: InterceptorRegistry) {
-                registry!!.addInterceptor(interceptor).addPathPatterns("/**")
+                registry.addInterceptor(interceptor).addPathPatterns("/**")
             }
         }
     }
