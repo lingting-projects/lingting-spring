@@ -1,6 +1,5 @@
 package live.lingting.spring.web
 
-
 import com.fasterxml.jackson.core.type.TypeReference
 import live.lingting.framework.api.ApiResultCode
 import live.lingting.framework.api.R
@@ -39,8 +38,6 @@ class SpringWebTest {
             .andExpect(jsonPath("$.code").value(200))
             .andExpect(jsonPath("$.message").value(ApiResultCode.SUCCESS.message))
 
-
-
         mock.perform(get("/pagination?page=2&size=30&sort=id,desc"))
             .andDo(print())
             .andExpect(status().isOk())
@@ -49,15 +46,11 @@ class SpringWebTest {
             .andExpect(jsonPath("$.data.sorts[0].field").value("id"))
             .andExpect(jsonPath("$.data.sorts[0].desc").value(true))
 
-
-
         mock.perform(get("/exception"))
             .andDo(print())
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.code").value(500))
             .andExpect(jsonPath("$.message").value(ApiResultCode.SERVER_ERROR.message))
-
-
 
         mock.perform(get("/validation"))
             .andDo(print())
@@ -65,15 +58,11 @@ class SpringWebTest {
             .andExpect(jsonPath("$.code").value(400))
             .andExpect(jsonPath("$.message").value(SpringTestController.P.MESSAGE))
 
-
-
         mock.perform(get("/validation?name=lingting"))
             .andDo(print())
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.code").value(200))
             .andExpect(jsonPath("$.data.name").value("lingting"))
-
-
 
         mock.perform(get("/scope"))
             .andDo(print())

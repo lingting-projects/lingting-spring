@@ -42,7 +42,6 @@ object EnvironmentUtils {
         return environment!!.getProperty<T>(key, targetType, defaultValue)
     }
 
-
     @JvmStatic
     fun getRequiredProperty(key: String): String {
         return environment!!.getRequiredProperty(key)
@@ -116,7 +115,6 @@ object EnvironmentUtils {
     fun setRequiredProperties(vararg requiredProperties: String) {
         environment!!.setRequiredProperties(*requiredProperties)
     }
-
 
     @JvmStatic
     fun validateRequiredProperties() {

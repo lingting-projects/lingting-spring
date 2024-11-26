@@ -57,7 +57,6 @@ open class SpringWebAutoConfiguration {
         }
     }
 
-
     @Bean
     @Order(Ordered.HIGHEST_PRECEDENCE)
     open fun lingtingSpringValidationConfigurationCustomizer(): ValidationConfigurationCustomizer {

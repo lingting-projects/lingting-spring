@@ -41,7 +41,6 @@ interface SpringBeanPostProcessor : BeanPostProcessor, Ordered {
         return Ordered.HIGHEST_PRECEDENCE
     }
 
-
     override fun postProcessBeforeInitialization(bean: Any, beanName: String): Any {
         if (isProcess(bean, beanName, true)) {
             return postProcessBefore(bean, beanName)
@@ -49,7 +48,6 @@ interface SpringBeanPostProcessor : BeanPostProcessor, Ordered {
 
         return super<BeanPostProcessor>.postProcessBeforeInitialization(bean, beanName)
     }
-
 
     override fun postProcessAfterInitialization(bean: Any, beanName: String): Any {
         if (isProcess(bean, beanName, false)) {

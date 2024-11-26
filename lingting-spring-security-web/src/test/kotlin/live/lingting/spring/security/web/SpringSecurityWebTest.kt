@@ -46,14 +46,10 @@ class SpringSecurityWebTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("code").value(ApiResultCode.UNAUTHORIZED_ERROR.code))
 
-
-
         mock.perform(get("/authorization/resolve"))
             .andDo(print())
             .andExpect(status().isOk())
             .andExpect(jsonPath("code").value(ApiResultCode.UNAUTHORIZED_ERROR.code))
-
-
 
         mock.perform(get("/authorization/refresh"))
             .andDo(print())
@@ -69,7 +65,6 @@ class SpringSecurityWebTest {
             .response
             .contentAsString
 
-
         val vo: AuthorizationVO = toObj<AuthorizationVO>(json, AuthorizationVO::class.java)
         Assertions.assertEquals("lingting", vo.nickname)
 
@@ -79,14 +74,10 @@ class SpringSecurityWebTest {
             .andExpect(jsonPath("token").value(vo.token))
             .andExpect(jsonPath("username").value("lingting"))
 
-
-
         mock.perform(delete("/authorization/logout").header(properties.headerAuthorization, vo.token))
             .andDo(print())
             .andExpect(status().isOk())
             .andExpect(jsonPath("token").value(vo.token))
-
-
 
         mock.perform(get("/authorization/resolve").header(properties.headerAuthorization, vo.token))
             .andDo(print())

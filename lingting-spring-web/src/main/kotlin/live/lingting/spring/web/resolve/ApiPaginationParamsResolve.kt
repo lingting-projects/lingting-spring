@@ -26,7 +26,6 @@ class ApiPaginationParamsResolve(private val pagination: Pagination) : HandlerMe
         return PaginationParams::class.java.isAssignableFrom(parameter.getParameterType())
     }
 
-
     override fun resolveArgument(
         parameter: MethodParameter,
         mavContainer: ModelAndViewContainer?,
@@ -120,7 +119,6 @@ class ApiPaginationParamsResolve(private val pagination: Pagination) : HandlerMe
             defaultValue
         }
     }
-
 
     fun validate(
         params: PaginationParams,

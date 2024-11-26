@@ -33,13 +33,11 @@ class RepeatBodyRequestWrapper(request: HttpServletRequest) : HttpServletRequest
         closeableList = ArrayList<Closeable>()
     }
 
-
     override fun getReader(): BufferedReader {
         val bufferedReader = BufferedReader(FileReader(bodyFile))
         closeableList.add(bufferedReader)
         return bufferedReader
     }
-
 
     override fun getInputStream(): ServletInputStream {
         val stream = FileInputStream(bodyFile)
@@ -56,11 +54,9 @@ class RepeatBodyRequestWrapper(request: HttpServletRequest) : HttpServletRequest
                 //
             }
 
-
             override fun read(): Int {
                 return stream.read()
             }
-
 
             override fun close() {
                 stream.close()
@@ -73,7 +69,6 @@ class RepeatBodyRequestWrapper(request: HttpServletRequest) : HttpServletRequest
     override fun getParameterMap(): MutableMap<String, Array<String>> {
         return paramsMap
     }
-
 
     override fun close() {
         for (closeable in this.closeableList) {

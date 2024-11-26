@@ -32,7 +32,6 @@ class DataScopeRuleInterceptor : AbstractPointcutAdvisor(), MethodInterceptor {
         }
     }
 
-
     override fun getAdvice(): Advice = this
 
     override fun getPointcut(): Pointcut = p
