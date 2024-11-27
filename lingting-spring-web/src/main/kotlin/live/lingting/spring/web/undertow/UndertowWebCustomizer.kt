@@ -32,7 +32,7 @@ class UndertowWebCustomizer(private val properties: SpringWebProperties) : Under
 
     protected fun executor(): ExecutorService {
         val property = getProperty("spring.threads.virtual.enabled")
-        val enabled = isTrue(property)
+        val enabled = property.isTrue()
         if (enabled && properties.useVirtualThread) {
             return VirtualThread.executor()
         }

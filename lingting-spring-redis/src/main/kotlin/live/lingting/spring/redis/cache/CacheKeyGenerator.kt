@@ -1,7 +1,6 @@
 package live.lingting.spring.redis.cache
 
 import java.lang.reflect.Method
-import live.lingting.framework.util.CollectionUtils.isEmpty
 import live.lingting.framework.util.CollectionUtils.multiToList
 import live.lingting.framework.util.StringUtils.hasText
 import live.lingting.spring.util.SpelUtils
@@ -10,19 +9,20 @@ import org.springframework.expression.spel.support.StandardEvaluationContext
 /**
  * @author lingting 2024-04-18 10:04
  */
-class CacheKeyGenerator(protected val delimiter: String, target: Any, method: Method, arguments: Array<Any>) {
-    protected val context: StandardEvaluationContext
+class CacheKeyGenerator(
+    val delimiter: String,
+    target: Any,
+    method: Method,
+    arguments: Array<Any>
+) {
+    val context: StandardEvaluationContext = SpelUtils.getSpelContext(target, method, arguments)
 
-    init {
-        this.context = SpelUtils.getSpelContext(target!!, method!!, arguments!!)
-    }
-
-    fun resolve(spel: String): MutableList<String> {
+    fun resolve(spel: String): List<String> {
         if (!hasText(spel)) {
             return mutableListOf<String>()
         }
 
-        val obj = SpelUtils.parseValue(context, spel!!)
+        val obj = SpelUtils.parseValue(context, spel)
         return multiToList(obj).stream().map<String> { o -> if (o == null) "" else o.toString() }.toList()
     }
 
@@ -31,7 +31,7 @@ class CacheKeyGenerator(protected val delimiter: String, target: Any, method: Me
 
         val list = resolve(spel)
 
-        if (!isEmpty(list)) {
+        if (!list.isEmpty()) {
             for (s in list) {
                 builder.append(delimiter).append(s)
             }
@@ -40,13 +40,13 @@ class CacheKeyGenerator(protected val delimiter: String, target: Any, method: Me
         return builder.toString()
     }
 
-    fun multi(key: String, spel: String): MutableList<String> {
+    fun multi(key: String, spel: String): List<String> {
         val list = resolve(spel)
-        if (!isEmpty(list)) {
-            return mutableListOf<String>(key)
+        if (list.isEmpty()) {
+            return listOf(key)
         }
 
-        val strings: MutableList<String> = ArrayList<String>(list.size)
+        val strings = ArrayList<String>(list.size)
 
         for (s in list) {
             strings.add("$key$delimiter$s")
@@ -62,7 +62,7 @@ class CacheKeyGenerator(protected val delimiter: String, target: Any, method: Me
         return join(cached.key, cached.keyJoint)
     }
 
-    fun cacheClear(clear: CacheClear?): MutableList<String> {
+    fun cacheClear(clear: CacheClear?): List<String> {
         if (clear == null) {
             return mutableListOf<String>()
         }
@@ -72,8 +72,8 @@ class CacheKeyGenerator(protected val delimiter: String, target: Any, method: Me
         return mutableListOf<String>(join(clear.key, clear.keyJoint))
     }
 
-    fun cacheClear(clear: CacheClear, batchClear: CacheBatchClear): MutableList<String> {
-        val strings: MutableList<String> = ArrayList<String>(cacheClear(clear))
+    fun cacheClear(clear: CacheClear, batchClear: CacheBatchClear): List<String> {
+        val strings = ArrayList<String>(cacheClear(clear))
         for (cacheClear in batchClear.value) {
             strings.addAll(cacheClear(cacheClear))
         }

@@ -1,7 +1,7 @@
 package live.lingting.spring.web.scope
 
-import java.time.LocalDateTime
 import live.lingting.framework.http.header.HttpHeaders
+import live.lingting.framework.time.DateTime
 
 /**
  * @author lingting 2024-03-20 15:02
@@ -38,7 +38,7 @@ class WebScope {
         this.attributes = attributes
     }
 
-    val time = LocalDateTime.now()
+    val time = DateTime.current()
     val scheme: String
     val host: String
     val origin: String

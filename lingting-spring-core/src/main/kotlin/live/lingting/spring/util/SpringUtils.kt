@@ -5,7 +5,6 @@ import java.lang.reflect.Constructor
 import java.util.function.Function
 import live.lingting.framework.util.ClassUtils.classFields
 import live.lingting.framework.util.ClassUtils.constructors
-import live.lingting.framework.util.CollectionUtils.isEmpty
 import org.springframework.beans.factory.NoSuchBeanDefinitionException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
@@ -25,9 +24,9 @@ object SpringUtils {
     @JvmStatic
     fun hasBean(cls: Class<*>): Boolean {
         try {
-            val map: MutableMap<String, *> = getBeansOfType(cls)
-            return !isEmpty(map)
-        } catch (e: NoSuchBeanDefinitionException) {
+            val map = getBeansOfType(cls)
+            return !map.isEmpty()
+        } catch (_: NoSuchBeanDefinitionException) {
             return false
         }
     }
@@ -48,7 +47,7 @@ object SpringUtils {
     }
 
     @JvmStatic
-    fun <T> getBeansOfType(type: Class<T>): MutableMap<String, T> {
+    fun <T> getBeansOfType(type: Class<T>): Map<String, T> {
         return context!!.getBeansOfType<T>(type)
     }
 

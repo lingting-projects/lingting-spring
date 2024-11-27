@@ -1,13 +1,13 @@
 package live.lingting.spring.security.web
 
-import java.time.LocalDateTime
 import live.lingting.framework.security.authorize.SecurityAuthorizationService
 import live.lingting.framework.security.domain.SecurityScope
 import live.lingting.framework.security.domain.SecurityScopeAttributes
 import live.lingting.framework.security.domain.SecurityToken
 import live.lingting.framework.security.exception.AuthorizationException
 import live.lingting.framework.security.store.SecurityStore
-import live.lingting.framework.util.LocalDateTimeUtils.toTimestamp
+import live.lingting.framework.time.DateTime
+import live.lingting.framework.util.LocalDateTimeUtils.timestamp
 import org.springframework.stereotype.Component
 
 /**
@@ -28,7 +28,7 @@ class SecurityAuthorizationServiceImpl(private val store: SecurityStore) : Secur
             scope.password = password
             scope.avatar = ""
             scope.enabled = true
-            scope.expireTime = toTimestamp(LocalDateTime.now().plusMonths(3))
+            scope.expireTime = DateTime.current().plusMonths(3).timestamp
             scope.roles = mutableSetOf<String>(username)
             scope.permissions = mutableSetOf<String>(username)
             scope.attributes = SecurityScopeAttributes()

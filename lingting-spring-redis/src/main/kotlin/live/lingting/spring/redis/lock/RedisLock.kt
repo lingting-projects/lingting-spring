@@ -1,9 +1,9 @@
 package live.lingting.spring.redis.lock
 
 import java.time.Duration
-import live.lingting.framework.kt.optional
 import live.lingting.framework.lock.AbstractLock
 import live.lingting.framework.lock.SpinLock
+import live.lingting.framework.util.OptionalUtils.optional
 import live.lingting.framework.util.ValueUtils
 import live.lingting.spring.redis.Redis
 import live.lingting.spring.redis.script.RepeatRedisScript

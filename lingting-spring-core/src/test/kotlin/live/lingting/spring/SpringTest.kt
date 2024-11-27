@@ -15,7 +15,7 @@ class SpringTest {
     @Test
     fun test() {
         assertTrue(EnvironmentUtils.isActiveProfiles("test"))
-        val beans: MutableMap<String, SpringTestBean> = SpringUtils.getBeansOfType(SpringTestBean::class.java)
+        val beans = SpringUtils.getBeansOfType(SpringTestBean::class.java)
         assertEquals(1, beans.size)
         val bean = beans.values.iterator().next()
         assertEquals("bean", bean.value)

@@ -6,7 +6,7 @@ import java.util.Date
 import java.util.concurrent.TimeUnit
 import java.util.function.Function
 import live.lingting.framework.lock.SpinLock
-import live.lingting.framework.util.CollectionUtils.isEmpty
+import live.lingting.framework.time.DateTime
 import live.lingting.framework.value.WaitValue
 import live.lingting.spring.redis.cache.RedisCache
 import live.lingting.spring.redis.lock.RedisLock
@@ -116,7 +116,7 @@ class Redis(
     }
 
     fun loadScripts(scripts: Collection<RepeatRedisScript<*>>) {
-        if (isEmpty(scripts)) {
+        if (scripts.isEmpty()) {
             return
         }
         for (script in scripts) {
@@ -422,11 +422,11 @@ class Redis(
      */
     fun <T> multiGetMap(keys: Collection<String>, convert: Function<String, T>): Map<String, T> {
         val map: MutableMap<String, T> = HashMap<String, T>()
-        if (isEmpty(keys)) {
+        if (keys.isEmpty()) {
             return map
         }
         val values = valueOps().multiGet(keys)
-        if (values == null || isEmpty(values)) {
+        if (values.isNullOrEmpty()) {
             return map
         }
         val keysIterator: Iterator<String> = keys.iterator()
@@ -479,7 +479,7 @@ class Redis(
      * @param expireTime 在指定时间过期
      */
     fun set(key: String, value: String, expireTime: Instant) {
-        val timeout = expireTime.epochSecond - Instant.now().epochSecond
+        val timeout = expireTime.epochSecond - DateTime.instant().epochSecond
         set(key, value, timeout)
     }
 

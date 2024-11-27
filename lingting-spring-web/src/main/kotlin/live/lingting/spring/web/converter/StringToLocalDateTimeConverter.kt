@@ -1,7 +1,7 @@
 package live.lingting.spring.web.converter
 
 import java.time.LocalDateTime
-import live.lingting.framework.util.LocalDateTimeUtils.parse
+import live.lingting.framework.util.LocalDateTimeUtils
 import org.springframework.core.convert.TypeDescriptor
 import org.springframework.core.convert.converter.GenericConverter.ConvertiblePair
 import org.springframework.stereotype.Component
@@ -22,6 +22,6 @@ class StringToLocalDateTimeConverter : Converter<LocalDateTime> {
 
     override fun convert(source: Any?, sourceType: TypeDescriptor, targetType: TypeDescriptor): LocalDateTime {
         val string = source as String
-        return parse(string)
+        return LocalDateTimeUtils.parse(string)
     }
 }

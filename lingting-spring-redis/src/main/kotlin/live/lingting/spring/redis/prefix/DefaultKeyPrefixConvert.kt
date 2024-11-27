@@ -13,11 +13,11 @@ class DefaultKeyPrefixConvert(properties: RedisProperties) : KeyPrefixConvert {
     val bytes: ByteArray = prefix.toByteArray(StandardCharsets.UTF_8)
 
     override fun isMatch(key: ByteArray): Boolean {
-        return !isEmpty(bytes)
+        return !bytes.isEmpty()
     }
 
     override fun wrap(key: ByteArray): ByteArray {
-        if (isEmpty(key) || isEmpty(bytes)) {
+        if (key.isEmpty() || bytes.isEmpty()) {
             return key
         }
 
@@ -28,7 +28,7 @@ class DefaultKeyPrefixConvert(properties: RedisProperties) : KeyPrefixConvert {
     }
 
     override fun unwrap(key: ByteArray): ByteArray {
-        if (isEmpty(key) || isEmpty(bytes)) {
+        if (key.isEmpty() || bytes.isEmpty()) {
             return key
         }
 

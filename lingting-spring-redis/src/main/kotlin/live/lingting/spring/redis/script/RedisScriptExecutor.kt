@@ -11,7 +11,7 @@ import org.springframework.data.redis.serializer.RedisSerializer
 /**
  * @author lingting 2024-04-17 17:19
  */
-@Suppress("UNCHECKED_CAST")
+@Suppress("UNCHECKED_CAST", "WRONG_NULLABILITY_FOR_JAVA_OVERRIDE")
 class RedisScriptExecutor<K>(val template: RedisTemplate<K, String>) : DefaultScriptExecutor<K>(template) {
 
     fun load(script: RepeatRedisScript<*>) {

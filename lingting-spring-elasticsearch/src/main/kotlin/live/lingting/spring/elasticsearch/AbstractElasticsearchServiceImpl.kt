@@ -39,7 +39,7 @@ import live.lingting.framework.elasticsearch.interceptor.Interceptor
 import live.lingting.framework.elasticsearch.polymerize.PolymerizeFactory
 import live.lingting.framework.function.ThrowingRunnable
 import live.lingting.framework.function.ThrowingSupplier
-import live.lingting.framework.kt.logger
+import live.lingting.framework.util.Slf4jUtils.logger
 import org.slf4j.Logger
 
 /**

@@ -29,10 +29,9 @@ class SpringAliTest {
         assertNotNull(ossBucket)
         val obsObject = ossBucket!!.use("key")
         assertTrue(obsObject.publicUrl().contains("key"))
-        val awsS3BucketMap: MutableMap<String, AwsS3Bucket> = SpringUtils.getBeansOfType(AwsS3Bucket::class.java)
+        val awsS3BucketMap = SpringUtils.getBeansOfType(AwsS3Bucket::class.java)
         assertEquals(1, awsS3BucketMap.size)
-        val awsS3BucketInterfaceMap: MutableMap<String, AwsS3BucketInterface> = SpringUtils
-            .getBeansOfType(AwsS3BucketInterface::class.java)
+        val awsS3BucketInterfaceMap = SpringUtils.getBeansOfType(AwsS3BucketInterface::class.java)
         assertEquals(2, awsS3BucketInterfaceMap.size)
     }
 }

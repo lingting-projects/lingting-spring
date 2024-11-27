@@ -1,7 +1,6 @@
 package live.lingting.spring.util
 
 import java.util.Optional
-import live.lingting.framework.util.ArrayUtils
 import live.lingting.framework.util.ArrayUtils.containsIgnoreCase
 import org.springframework.core.convert.support.ConfigurableConversionService
 import org.springframework.core.env.ConfigurableEnvironment
@@ -167,13 +166,13 @@ object EnvironmentUtils {
     @JvmStatic
     fun isActiveProfiles(vararg profiles: String): Boolean {
         val activeProfiles = environment!!.activeProfiles
-        if (ArrayUtils.isEmpty(activeProfiles)) {
+        if (activeProfiles.isNullOrEmpty()) {
             return false
         }
 
         for (profile in profiles) {
             // 未激活指定环境
-            if (!containsIgnoreCase(activeProfiles, profile)) {
+            if (!activeProfiles.containsIgnoreCase(profile)) {
                 return false
             }
         }

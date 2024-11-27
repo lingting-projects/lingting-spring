@@ -77,12 +77,12 @@ class ApiPaginationParamsResolve(private val pagination: Pagination) : HandlerMe
         val strings: MutableList<String> = ArrayList<String>()
         // sort 可以传多个，所以同时支持 sort 和 sort[]
         val sortArray1 = parameterMap[pagination.fieldSort]
-        if (!isEmpty<String>(sortArray1)) {
-            strings.addAll(sortArray1!!)
+        if (!sortArray1.isNullOrEmpty()) {
+            strings.addAll(sortArray1)
         }
         val sortArray2 = parameterMap[pagination.fieldSort + "[]"]
-        if (!isEmpty<String>(sortArray2)) {
-            strings.addAll(sortArray2!!)
+        if (!sortArray2.isNullOrEmpty()) {
+            strings.addAll(sortArray2)
         }
 
         val sorts = ArrayList<PaginationParams.Sort>()
