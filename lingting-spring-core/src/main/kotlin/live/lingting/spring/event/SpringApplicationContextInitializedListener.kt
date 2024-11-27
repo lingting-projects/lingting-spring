@@ -1,8 +1,7 @@
 package live.lingting.spring.event
 
+import live.lingting.framework.util.Slf4jUtils.logger
 import live.lingting.spring.util.SpringUtils
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import org.springframework.boot.context.event.ApplicationContextInitializedEvent
 import org.springframework.context.ApplicationListener
 import org.springframework.core.Ordered
@@ -23,7 +22,6 @@ class SpringApplicationContextInitializedListener
     }
 
     companion object {
-        private val log: Logger = LoggerFactory
-            .getLogger(SpringApplicationContextInitializedListener::class.java)
+        private val log = logger()
     }
 }

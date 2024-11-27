@@ -3,8 +3,7 @@ package live.lingting.spring.event
 import live.lingting.framework.Sequence
 import live.lingting.framework.context.ContextComponent
 import live.lingting.framework.context.ContextHolder.stop
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+import live.lingting.framework.util.Slf4jUtils.logger
 import org.springframework.context.ApplicationContext
 import org.springframework.context.ApplicationListener
 import org.springframework.context.event.ContextClosedEvent
@@ -43,6 +42,6 @@ class SpringContextClosedListener : ApplicationListener<ContextClosedEvent> {
     }
 
     companion object {
-        private val log: Logger = LoggerFactory.getLogger(SpringContextClosedListener::class.java)
+        private val log = logger()
     }
 }

@@ -8,10 +8,9 @@ import live.lingting.framework.security.domain.SecurityToken
 import live.lingting.framework.security.exception.AuthorizationException
 import live.lingting.framework.security.exception.PermissionsException
 import live.lingting.framework.security.resource.SecurityResourceService
+import live.lingting.framework.util.Slf4jUtils.logger
 import live.lingting.framework.util.StringUtils.hasText
 import live.lingting.spring.security.web.properties.SecurityWebProperties
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import org.springframework.web.filter.OncePerRequestFilter
 
 /**
@@ -70,6 +69,6 @@ class SecurityWebResourceFilter(
     }
 
     companion object {
-        private val log: Logger = LoggerFactory.getLogger(SecurityWebResourceFilter::class.java)
+        private val log = logger()
     }
 }

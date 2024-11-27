@@ -5,9 +5,8 @@ import java.sql.SQLIntegrityConstraintViolationException
 import live.lingting.framework.api.ApiResultCode
 import live.lingting.framework.api.R
 import live.lingting.framework.exception.BizException
+import live.lingting.framework.util.Slf4jUtils.logger
 import live.lingting.spring.web.scope.WebScopeHolder
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import org.springframework.core.annotation.Order
 import org.springframework.core.convert.ConversionFailedException
 import org.springframework.http.ResponseEntity
@@ -179,6 +178,6 @@ class GlobalExceptionHandler : AbstractExceptionHandler() {
     companion object {
         const val ORDER: Int = -100
 
-        private val log: Logger = LoggerFactory.getLogger(GlobalExceptionHandler::class.java)
+        private val log = logger()
     }
 }

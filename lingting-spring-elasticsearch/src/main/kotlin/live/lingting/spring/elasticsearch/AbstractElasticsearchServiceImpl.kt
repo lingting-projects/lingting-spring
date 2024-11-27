@@ -40,13 +40,12 @@ import live.lingting.framework.elasticsearch.polymerize.PolymerizeFactory
 import live.lingting.framework.function.ThrowingRunnable
 import live.lingting.framework.function.ThrowingSupplier
 import live.lingting.framework.util.Slf4jUtils.logger
-import org.slf4j.Logger
 
 /**
  * @author lingting 2024-03-08 16:43
  */
 abstract class AbstractElasticsearchServiceImpl<T : Any> {
-    protected val log: Logger = logger()
+    protected val log = logger()
 
     val cls = getEntityClass<T>(javaClass)
 

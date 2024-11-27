@@ -4,9 +4,8 @@ import live.lingting.framework.api.ApiResultCode
 import live.lingting.framework.api.R
 import live.lingting.framework.security.exception.AuthorizationException
 import live.lingting.framework.security.exception.PermissionsException
+import live.lingting.framework.util.Slf4jUtils.logger
 import live.lingting.spring.web.exception.AbstractExceptionHandler
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import org.springframework.core.Ordered
 import org.springframework.core.annotation.Order
 import org.springframework.http.ResponseEntity
@@ -38,6 +37,6 @@ class SecurityWebExceptionHandler : AbstractExceptionHandler() {
     }
 
     companion object {
-        private val log: Logger = LoggerFactory.getLogger(SecurityWebExceptionHandler::class.java)
+        private val log = logger()
     }
 }

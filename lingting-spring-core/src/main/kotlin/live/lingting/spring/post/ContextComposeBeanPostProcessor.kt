@@ -1,8 +1,7 @@
 package live.lingting.spring.post
 
 import live.lingting.framework.context.ContextComponent
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+import live.lingting.framework.util.Slf4jUtils.logger
 
 /**
  * @author lingting 2022/10/22 15:10
@@ -19,6 +18,6 @@ class ContextComposeBeanPostProcessor : SpringBeanPostProcessor {
     }
 
     companion object {
-        private val log: Logger = LoggerFactory.getLogger(ContextComposeBeanPostProcessor::class.java)
+        private val log = logger()
     }
 }
