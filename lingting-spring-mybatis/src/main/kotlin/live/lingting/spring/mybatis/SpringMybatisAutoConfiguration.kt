@@ -2,14 +2,13 @@ package live.lingting.spring.mybatis
 
 import com.baomidou.mybatisplus.annotation.DbType
 import com.baomidou.mybatisplus.autoconfigure.ConfigurationCustomizer
-import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor
 import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor
 import live.lingting.framework.mybatis.methods.AbstractMybatisMethod
 import live.lingting.framework.mybatis.methods.InsertIgnore
 import live.lingting.framework.mybatis.methods.MethodsInjector
 import live.lingting.framework.mybatis.typehandler.AutoRegisterTypeHandler
-import live.lingting.spring.jackson.ObjectMapperAfter
+import live.lingting.spring.mybatis.jackson.MybatisObjectMapperCustomizer
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean
@@ -34,8 +33,9 @@ open class SpringMybatisAutoConfiguration {
     }
 
     @Bean
-    open fun mybatisObjectMapperAfter(): ObjectMapperAfter {
-        return ObjectMapperAfter { objectMapper -> JacksonTypeHandler.setObjectMapper(objectMapper) }
+    @ConditionalOnMissingBean
+    open fun mybatisObjectMapperAfter(): MybatisObjectMapperCustomizer {
+        return MybatisObjectMapperCustomizer()
     }
 
     @Bean

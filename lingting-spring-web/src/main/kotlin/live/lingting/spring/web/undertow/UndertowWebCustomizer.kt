@@ -15,6 +15,7 @@ import org.springframework.boot.web.embedded.undertow.UndertowDeploymentInfoCust
  * @author lingting 2024-03-20 16:01
  */
 class UndertowWebCustomizer(private val properties: SpringWebProperties) : UndertowDeploymentInfoCustomizer {
+
     override fun customize(info: DeploymentInfo) {
         val websocket = websocket()
         info.addServletContextAttribute("io.undertow.websockets.jsr.WebSocketDeploymentInfo", websocket)

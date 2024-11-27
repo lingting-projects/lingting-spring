@@ -16,6 +16,7 @@ import org.springframework.context.annotation.Bean
  */
 @AutoConfiguration
 open class SpringJacksonModuleAutoConfiguration {
+
     @Bean
     @ConditionalOnMissingBean
     open fun javaTimeModule(): JavaTimeModule {
@@ -57,4 +58,5 @@ open class SpringJacksonModuleAutoConfiguration {
     open fun nullSerializerProvider(): NullSerializerProvider {
         return NullSerializerProvider()
     }
+
 }

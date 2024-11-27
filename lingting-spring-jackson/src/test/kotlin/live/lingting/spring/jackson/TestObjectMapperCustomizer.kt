@@ -11,8 +11,7 @@ class TestObjectMapperCustomizer : ObjectMapperCustomizer {
     var objectMapper: ObjectMapper? = null
         private set
 
-    override fun apply(mapper: ObjectMapper): ObjectMapper {
+    override fun apply(mapper: ObjectMapper) {
         objectMapper = mapper.copy()
-        return objectMapper!!
     }
 }
