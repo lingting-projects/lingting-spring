@@ -3,23 +3,28 @@ package live.lingting.spring.security.web.resource
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import live.lingting.framework.security.convert.SecurityConvert
 import live.lingting.framework.security.domain.SecurityScope
 import live.lingting.framework.security.domain.SecurityToken
 import live.lingting.framework.security.exception.AuthorizationException
 import live.lingting.framework.security.exception.PermissionsException
 import live.lingting.framework.security.resource.SecurityResourceService
 import live.lingting.framework.util.Slf4jUtils.logger
-import live.lingting.framework.util.StringUtils.hasText
 import live.lingting.spring.security.web.properties.SecurityWebProperties
 import org.springframework.web.filter.OncePerRequestFilter
 
 /**
  * @author lingting 2024-03-21 19:49
  */
-class SecurityWebResourceFilter(
-    private val properties: SecurityWebProperties,
-    private val service: SecurityResourceService
+open class SecurityWebResourceFilter(
+    val properties: SecurityWebProperties,
+    val service: SecurityResourceService,
+    val convert: SecurityConvert,
 ) : OncePerRequestFilter() {
+
+    companion object {
+        private val log = logger()
+    }
 
     override fun doFilterInternal(
         request: HttpServletRequest, response: HttpServletResponse,
@@ -42,9 +47,9 @@ class SecurityWebResourceFilter(
         }
         try {
             return service.resolve(token)
-        } catch (e: AuthorizationException) {
+        } catch (_: AuthorizationException) {
             return null
-        } catch (e: PermissionsException) {
+        } catch (_: PermissionsException) {
             return null
         } catch (e: Exception) {
             log.debug("resolve token error!", e)
@@ -53,22 +58,15 @@ class SecurityWebResourceFilter(
     }
 
     fun getToken(request: HttpServletRequest): SecurityToken {
-        val raw = request.getHeader(properties.headerAuthorization)
+        val rawByHeader = request.getHeader(properties.headerAuthorization)
 
-        // 走参数
-        if (!hasText(raw)) {
-            return getTokenByParams(request)
+        if (!rawByHeader.isNullOrBlank()) {
+            return convert.toToken(rawByHeader)
         }
 
-        return SecurityToken.ofDelimiter(raw!!, " ")
+        // 走参数
+        val rawByParams = request.getParameter(properties.paramAuthorization)
+        return convert.toToken(rawByParams)
     }
 
-    fun getTokenByParams(request: HttpServletRequest): SecurityToken {
-        val value = request.getParameter(properties.paramAuthorization)
-        return SecurityToken.ofDelimiter(value, " ")
-    }
-
-    companion object {
-        private val log = logger()
-    }
 }

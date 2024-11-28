@@ -50,9 +50,11 @@ open class SecurityWebResourceAutoConfiguration {
     @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
     open fun securityWebResourceFilter(
         properties: SecurityProperties,
-        webProperties: SecurityWebProperties, service: SecurityResourceService
+        webProperties: SecurityWebProperties,
+        service: SecurityResourceService,
+        convert: SecurityConvert,
     ): FilterRegistrationBean<SecurityWebResourceFilter> {
-        val filter = SecurityWebResourceFilter(webProperties, service)
+        val filter = SecurityWebResourceFilter(webProperties, service, convert)
         val bean = FilterRegistrationBean<SecurityWebResourceFilter>(filter)
         bean.setDispatcherTypes(EnumSet.allOf<DispatcherType>(DispatcherType::class.java))
         bean.order = properties.order
