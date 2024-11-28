@@ -10,15 +10,17 @@ import live.lingting.spring.util.SpringUtils
  */
 @Suppress("UNCHECKED_CAST")
 class ExtendServiceImplBeanPost : SpringBeanPostProcessor {
+
     override fun isProcess(bean: Any, beanName: String, isBefore: Boolean): Boolean {
         return bean is ExtendServiceImpl<*, *>
     }
 
     override fun postProcessAfter(bean: Any, beanName: String): Any {
         if (bean is ExtendServiceImpl<*, *>) {
-            val mapperClass: Class<*> = bean.mapperClass
+            val impl = bean as ExtendServiceImpl<ExtendMapper<Any>, Any>
+            val mapperClass = impl.mapperClass
             val mapper = SpringUtils.getBean(mapperClass)
-            (bean as ExtendServiceImpl<ExtendMapper<Any>, Any>).mapper = mapper as ExtendMapper<Any>
+            impl.mapper = mapper
         }
         return bean
     }
