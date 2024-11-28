@@ -1,6 +1,6 @@
 package live.lingting.spring.security.grpc.properties
 
-import live.lingting.framework.properties.SecurityGrpcProperties
+import live.lingting.framework.security.grpc.properties.SecurityGrpcProperties
 import live.lingting.spring.security.properties.SecuritySpringProperties
 import org.springframework.boot.context.properties.ConfigurationProperties
 

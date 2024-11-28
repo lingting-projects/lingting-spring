@@ -1,13 +1,13 @@
 package live.lingting.spring.security.grpc.configuration
 
-import live.lingting.framework.convert.SecurityGrpcConvert
 import live.lingting.framework.grpc.GrpcClientProvide
-import live.lingting.framework.interceptor.SecurityGrpcRemoteResourceClientInterceptor
-import live.lingting.framework.interceptor.SecurityGrpcResourceServerInterceptor
-import live.lingting.framework.properties.SecurityGrpcProperties
-import live.lingting.framework.resource.SecurityTokenGrpcRemoteResolver
 import live.lingting.framework.security.authorize.SecurityAuthorize
 import live.lingting.framework.security.convert.SecurityConvert
+import live.lingting.framework.security.grpc.convert.SecurityGrpcConvert
+import live.lingting.framework.security.grpc.interceptor.SecurityGrpcRemoteResourceClientInterceptor
+import live.lingting.framework.security.grpc.interceptor.SecurityGrpcResourceServerInterceptor
+import live.lingting.framework.security.grpc.properties.SecurityGrpcProperties
+import live.lingting.framework.security.grpc.resource.SecurityTokenGrpcRemoteResolver
 import live.lingting.framework.security.properties.SecurityProperties
 import live.lingting.framework.security.resource.SecurityResourceService
 import live.lingting.spring.grpc.configuration.GrpcAutoConfiguration
@@ -21,6 +21,7 @@ import org.springframework.context.annotation.Bean
 @ConditionalOnResource
 @AutoConfiguration(after = [GrpcAutoConfiguration::class], beforeName = ["SecurityWebResourceAutoConfiguration"])
 open class SecurityGrpcResourceAutoConfiguration {
+
     @Bean
     @ConditionalOnMissingBean
     open fun securityGrpcResourceServerInterceptor(

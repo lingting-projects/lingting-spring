@@ -1,9 +1,9 @@
 package live.lingting.spring.security.grpc.configuration
 
-import live.lingting.framework.convert.SecurityGrpcConvert
-import live.lingting.framework.exception.SecurityGrpcExceptionInstance
-import live.lingting.framework.properties.SecurityGrpcProperties
 import live.lingting.framework.security.convert.SecurityConvert
+import live.lingting.framework.security.grpc.convert.SecurityGrpcConvert
+import live.lingting.framework.security.grpc.exception.SecurityGrpcExceptionInstance
+import live.lingting.framework.security.grpc.properties.SecurityGrpcProperties
 import live.lingting.spring.security.grpc.properties.SecurityGrpcSpringProperties
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
