@@ -3,6 +3,7 @@ package live.lingting.spring.util
 import jakarta.annotation.Resource
 import java.lang.reflect.Constructor
 import java.util.function.Function
+import kotlin.reflect.KClass
 import live.lingting.framework.util.ClassUtils.classFields
 import live.lingting.framework.util.ClassUtils.constructors
 import org.springframework.beans.factory.NoSuchBeanDefinitionException
@@ -31,6 +32,8 @@ object SpringUtils {
         }
     }
 
+    fun hasBean(cls: KClass<*>) = hasBean(cls.java)
+
     @JvmStatic
     fun <T> getBean(name: String): T {
         return context!!.getBean(name) as T
@@ -41,26 +44,36 @@ object SpringUtils {
         return context!!.getBean<T>(clazz)
     }
 
+    fun <T : Any> getBean(cls: KClass<T>): T = getBean(cls.java)
+
     @JvmStatic
     fun <T> getBean(name: String, clazz: Class<T>): T {
         return context!!.getBean<T>(name, clazz)
     }
+
+    fun <T : Any> getBean(name: String, cls: KClass<T>): T = getBean(name, cls.java)
 
     @JvmStatic
     fun <T> getBeansOfType(type: Class<T>): Map<String, T> {
         return context!!.getBeansOfType<T>(type)
     }
 
+    fun <T : Any> getBeansOfType(cls: KClass<T>): Map<String, T> = getBeansOfType(cls.java)
+
     @JvmStatic
     fun getBeanNamesForType(type: Class<*>): Array<String> {
         return context!!.getBeanNamesForType(type)
     }
+
+    fun getBeanNamesForType(cls: KClass<*>): Array<String> = getBeanNamesForType(cls.java)
 
     @JvmStatic
     fun <T> ofBean(cls: Class<T>): T {
         val constructors: Array<Constructor<T>> = constructors<T>(cls)
         return ofBean<T>(constructors[0], Function { clazz: Class<*> -> getBean(clazz) })
     }
+
+    fun <T : Any> ofBean(cls: KClass<T>): T = ofBean(cls.java)
 
     @JvmStatic
     fun <T> ofBean(constructor: Constructor<T>, getArgument: Function<Class<*>, Any>): T {

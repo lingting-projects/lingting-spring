@@ -5,8 +5,8 @@ import com.baomidou.mybatisplus.autoconfigure.ConfigurationCustomizer
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor
 import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor
 import live.lingting.framework.mybatis.methods.AbstractMybatisMethod
+import live.lingting.framework.mybatis.methods.CustomerSqlInjector
 import live.lingting.framework.mybatis.methods.InsertIgnore
-import live.lingting.framework.mybatis.methods.MethodsInjector
 import live.lingting.framework.mybatis.typehandler.AutoRegisterTypeHandler
 import live.lingting.spring.mybatis.jackson.MybatisObjectMapperCustomizer
 import org.springframework.boot.autoconfigure.AutoConfiguration
@@ -39,12 +39,6 @@ open class SpringMybatisAutoConfiguration {
     }
 
     @Bean
-    @ConditionalOnMissingBean
-    open fun extendServiceImplBeanPost(): ExtendServiceImplBeanPost {
-        return ExtendServiceImplBeanPost()
-    }
-
-    @Bean
     open fun autoRegisterConfigurationCustomizer(list: MutableList<AutoRegisterTypeHandler<*>>): ConfigurationCustomizer {
         return ConfigurationCustomizer { configuration ->
             val registry = configuration.getTypeHandlerRegistry()
@@ -62,8 +56,8 @@ open class SpringMybatisAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    open fun frameworkMethodsInjector(methods: List<AbstractMybatisMethod>): MethodsInjector {
-        return MethodsInjector(methods)
+    open fun frameworkCustomerSqlInjector(methods: List<AbstractMybatisMethod>): CustomerSqlInjector {
+        return CustomerSqlInjector(methods)
     }
 
 }

@@ -14,9 +14,9 @@ class ThreadPoolHealthIndicator : AbstractHealthIndicator() {
         val instance = ThreadPool.instance
 
         builder.status(if (instance.isRunning) Status.UP else Status.DOWN)
-            .withDetail("CorePoolSize", instance.corePoolSize)
-            .withDetail("TaskCount", instance.taskCount)
-            .withDetail("ActiveCount", instance.activeCount)
-            .withDetail("MaximumPoolSize", instance.maximumPoolSize)
+            .withDetail("corePoolSize", instance.corePoolSize)
+            .withDetail("taskCount", instance.taskCount)
+            .withDetail("activeCount", instance.activeCount)
+            .withDetail("maximumPoolSize", instance.maximumPoolSize)
     }
 }

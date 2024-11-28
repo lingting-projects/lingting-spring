@@ -9,6 +9,11 @@ import org.springframework.boot.context.properties.ConfigurationProperties
  */
 @ConfigurationProperties(prefix = GrpcSpringProperties.PREFIX)
 class GrpcSpringProperties {
+
+    companion object {
+        const val PREFIX: String = "lingting.grpc"
+    }
+
     var traceIdKey: String = MdcUtils.TRACE_ID
 
     var traceOrder: Int = Int.MIN_VALUE + 100
@@ -46,7 +51,4 @@ class GrpcSpringProperties {
         var exceptionHandlerOrder: Int = Int.MIN_VALUE + 200
     }
 
-    companion object {
-        const val PREFIX: String = "lingting.grpc"
-    }
 }

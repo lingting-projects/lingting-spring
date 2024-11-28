@@ -12,6 +12,7 @@ class GrpcServerHealthIndicator(private val server: GrpcServer) : AbstractHealth
 
     override fun doHealthCheck(builder: Health.Builder) {
         builder.status(if (server.isRunning) Status.UP else Status.DOWN)
-            .withDetail("Port", server.port().toString())
+            .withDetail("port", server.port().toString())
     }
+
 }

@@ -20,6 +20,7 @@ import org.springframework.context.annotation.Bean
  */
 @AutoConfiguration(before = [DiskSpaceHealthContributorAutoConfiguration::class])
 open class ActuatorAutoConfiguration {
+
     @Bean
     @ConditionalOnMissingBean
     @ConditionalOnBean(MeterRegistry::class)

@@ -20,6 +20,7 @@ import org.springframework.context.annotation.Bean
 @AutoConfiguration
 @EnableConfigurationProperties(GrpcSpringProperties::class)
 open class GrpcAutoConfiguration {
+
     @Bean
     @ConditionalOnMissingBean
     open fun grpcClientProperties(properties: GrpcSpringProperties): GrpcClientProperties {

@@ -27,10 +27,10 @@ class DiskSpaceReadableHealthIndicator
         val free = DataSize.ofBytes(diskFreeInBytes)
 
         builder.status(if (isUp) Status.UP else Status.DOWN)
-            .withDetail("Total", total.toString())
-            .withDetail("Free", free.toString())
-            .withDetail("Threshold", threshold.toString())
-            .withDetail("Exists", path.exists())
+            .withDetail("total", total.toString())
+            .withDetail("free", free.toString())
+            .withDetail("threshold", threshold.toString())
+            .withDetail("exists", path.exists())
     }
 
 }
