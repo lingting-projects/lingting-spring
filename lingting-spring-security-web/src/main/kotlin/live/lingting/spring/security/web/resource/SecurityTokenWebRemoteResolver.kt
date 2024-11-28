@@ -15,8 +15,10 @@ import live.lingting.spring.security.web.properties.SecurityWebProperties
 /**
  * @author lingting 2024-03-21 19:41
  */
-class SecurityTokenWebRemoteResolver(
-    host: String, protected val client: HttpClient, protected val convert: SecurityConvert,
+open class SecurityTokenWebRemoteResolver(
+    host: String,
+    protected val client: HttpClient,
+    protected val convert: SecurityConvert,
     protected val properties: SecurityWebProperties
 ) : SecurityTokenResolver, Sequence {
     protected val urlResolve: URI

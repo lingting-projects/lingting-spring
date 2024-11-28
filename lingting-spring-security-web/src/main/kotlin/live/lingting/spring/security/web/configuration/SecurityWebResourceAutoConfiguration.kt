@@ -29,8 +29,12 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 @AutoConfiguration
 @ConditionalOnResource
 open class SecurityWebResourceAutoConfiguration {
+
     @Bean
-    @ConditionalOnMissingBean
+    @ConditionalOnMissingBean(
+        value = [SecurityTokenWebRemoteResolver::class],
+        name = ["securityTokenGrpcRemoteResolver"]
+    )
     @ConditionalOnUsingRemoteAuthorization
     open fun securityTokenWebRemoteResolver(
         properties: SecurityProperties,
