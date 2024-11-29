@@ -23,7 +23,7 @@ class CacheKeyGenerator(
         }
 
         val obj = SpelUtils.parseValue(context, spel)
-        return multiToList(obj).stream().map<String> { o -> if (o == null) "" else o.toString() }.toList()
+        return multiToList(obj).stream().map<String> { it?.toString() ?: "" }.toList()
     }
 
     fun join(key: String, spel: String): String {
@@ -40,10 +40,10 @@ class CacheKeyGenerator(
         return builder.toString()
     }
 
-    fun multi(key: String, spel: String): List<String> {
+    fun multi(key: String, spel: String): MutableList<String> {
         val list = resolve(spel)
         if (list.isEmpty()) {
-            return listOf(key)
+            return mutableListOf(key)
         }
 
         val strings = ArrayList<String>(list.size)
@@ -62,7 +62,7 @@ class CacheKeyGenerator(
         return join(cached.key, cached.keyJoint)
     }
 
-    fun cacheClear(clear: CacheClear?): List<String> {
+    fun cacheClear(clear: CacheClear?): MutableList<String> {
         if (clear == null) {
             return mutableListOf<String>()
         }
@@ -72,10 +72,13 @@ class CacheKeyGenerator(
         return mutableListOf<String>(join(clear.key, clear.keyJoint))
     }
 
-    fun cacheClear(clear: CacheClear, batchClear: CacheBatchClear): List<String> {
-        val strings = ArrayList<String>(cacheClear(clear))
-        for (cacheClear in batchClear.value) {
-            strings.addAll(cacheClear(cacheClear))
+    fun cacheClear(clear: CacheClear?, batchClear: CacheBatchClear?): List<String> {
+        val strings = cacheClear(clear)
+        batchClear?.let {
+            for (cacheClear in it.value) {
+                val elements = cacheClear(cacheClear)
+                strings.addAll(elements)
+            }
         }
         return strings
     }

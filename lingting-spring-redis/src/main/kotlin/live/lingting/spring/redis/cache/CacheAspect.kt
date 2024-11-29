@@ -21,6 +21,7 @@ import org.springframework.util.CollectionUtils
 @Aspect
 @Suppress("UNCHECKED_CAST")
 class CacheAspect(private val redis: Redis, private val properties: RedisProperties) : Ordered {
+
     @Pointcut("@annotation(live.lingting.spring.redis.cache.Cached) || @annotation(live.lingting.spring.redis.cache.CacheClear) || @annotation(live.lingting.spring.redis.cache.CacheBatchClear)")
     fun pointCut() {
         // do nothing
