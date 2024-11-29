@@ -1,5 +1,6 @@
 package live.lingting.spring.redis.script
 
+import kotlin.reflect.KClass
 import live.lingting.spring.redis.Redis
 import org.springframework.data.redis.connection.RedisConnection
 import org.springframework.data.redis.connection.ReturnType
@@ -10,7 +11,7 @@ import org.springframework.util.StringUtils
 /**
  * @author lingting 2024-04-17 16:19
  */
-class RepeatRedisScript<T> @JvmOverloads constructor(source: String, type: ReturnType = ReturnType.STATUS) {
+class RepeatRedisScript<T : Any> @JvmOverloads constructor(source: String, type: ReturnType = ReturnType.STATUS) {
     val source: String
 
     val sha1: String
@@ -21,6 +22,8 @@ class RepeatRedisScript<T> @JvmOverloads constructor(source: String, type: Retur
         private set
 
     constructor(source: String, resultType: Class<T>) : this(source, ReturnType.fromJavaType(resultType))
+
+    constructor(source: String, resultType: KClass<T>) : this(source, resultType.java)
 
     init {
         Assert.state(StringUtils.hasText(source), "Redis script source must not be empty")

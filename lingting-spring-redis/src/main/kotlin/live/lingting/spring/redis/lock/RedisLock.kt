@@ -20,23 +20,23 @@ class RedisLock @JvmOverloads constructor(
 
     companion object {
 
-        const val SCRIPT_LOCK_LUA = """
--- 获取传入的参数
+        const val SCRIPT_LOCK_LUA = """-- 获取传入的参数
 local lockKey = KEYS[1]
 local counterKey = KEYS[2]
 local value = ARGV[1]
 local ttl = tonumber(ARGV[2])
 
 -- 获取lockKey当前的值
-local currentLockValue = redis.call('GET', lockKey)
+-- 当key不存在时, 这里的返回值是false 不是nil
+local lockValue = redis.call('GET', lockKey)
 
--- lockKey 不与传入值相等
-if currentLockValue ~= value then
-    return 0
--- lockKey 不存在
-elseif currentLockValue == nil then
+-- lockKey不存在
+if lockValue == false then
     redis.call('SET', lockKey, value)
     redis.call('SET', counterKey, 1)
+-- lockKey与传入值不相等
+elseif lockValue ~= value then
+    return 0
 -- lockKey 相等
 else
     redis.call('INCR', counterKey)
@@ -53,18 +53,17 @@ return 1
         @JvmField
         val SCRIPT_LOCK = RepeatRedisScript(SCRIPT_LOCK_LUA, Boolean::class.java)
 
-        const val SCRIPT_UNLOCK_LUA = """
-            -- 获取传入的参数
+        const val SCRIPT_UNLOCK_LUA = """-- 获取传入的参数
 local lockKey = KEYS[1]
 local counterKey = KEYS[2]
 local value = ARGV[1]
 local ttl = tonumber(ARGV[2])
 
 -- 获取lockKey当前的值
-local currentLockValue = redis.call('GET', lockKey)
+local lockValue = redis.call('GET', lockKey)
 
 -- lockKey 不存在 或 不与传入值相等
-if currentLockValue == nil or currentLockValue ~= value then
+if lockValue == false or lockValue ~= value then
     return 0
 end
 -- lockKey 相等, 计数-1
