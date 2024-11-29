@@ -21,7 +21,11 @@ import org.springframework.web.method.support.ModelAndViewContainer
 /**
  * @author lingting 2024-03-20 16:06
  */
-class ApiPaginationParamsResolve(private val pagination: Pagination) : HandlerMethodArgumentResolver {
+open class ApiPaginationParamsResolve(val pagination: Pagination) : HandlerMethodArgumentResolver {
+
+    // 参数名列表
+    val names = arrayOf("sorts", "sorts[]", pagination.fieldSort, "${pagination.fieldSort}[]")
+
     override fun supportsParameter(parameter: MethodParameter): Boolean {
         return PaginationParams::class.java.isAssignableFrom(parameter.getParameterType())
     }
@@ -74,15 +78,14 @@ class ApiPaginationParamsResolve(private val pagination: Pagination) : HandlerMe
     fun sorts(request: HttpServletRequest): MutableList<PaginationParams.Sort> {
         val parameterMap = request.parameterMap
         // 原始sort字符串
-        val strings: MutableList<String> = ArrayList<String>()
-        // sort 可以传多个，所以同时支持 sort 和 sort[]
-        val sortArray1 = parameterMap[pagination.fieldSort]
-        if (!sortArray1.isNullOrEmpty()) {
-            strings.addAll(sortArray1)
-        }
-        val sortArray2 = parameterMap[pagination.fieldSort + "[]"]
-        if (!sortArray2.isNullOrEmpty()) {
-            strings.addAll(sortArray2)
+        val strings = LinkedHashSet<String>()
+
+        // 支持多种格式的sort传入
+        names.forEach {
+            val value = parameterMap[it]
+            if (!value.isNullOrEmpty()) {
+                strings.addAll(value)
+            }
         }
 
         val sorts = ArrayList<PaginationParams.Sort>()
