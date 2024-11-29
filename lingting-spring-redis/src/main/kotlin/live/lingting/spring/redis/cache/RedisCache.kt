@@ -64,7 +64,11 @@ open class RedisCache(
         if (nullValue == cache) {
             return null
         }
-        return deserialize.apply(cache!!)
+        // 没有key, 返回null
+        if (cache == null) {
+            return null
+        }
+        return deserialize.apply(cache)
     }
 
     fun <T> set(t: T) {
