@@ -1,6 +1,6 @@
 package live.lingting.spring.event
 
-import live.lingting.framework.context.ContextHolder.start
+import live.lingting.framework.application.ApplicationHolder
 import live.lingting.framework.util.Slf4jUtils.logger
 import org.springframework.boot.context.event.ApplicationStartingEvent
 import org.springframework.context.ApplicationListener
@@ -14,7 +14,7 @@ import org.springframework.core.annotation.Order
 class SpringApplicationStartingListener : ApplicationListener<ApplicationStartingEvent> {
     override fun onApplicationEvent(event: ApplicationStartingEvent) {
         log.debug("spring application starting")
-        start()
+        ApplicationHolder.start()
     }
 
     companion object {

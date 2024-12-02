@@ -1,13 +1,13 @@
 package live.lingting.spring
 
-import live.lingting.framework.context.ContextComponent
+import live.lingting.framework.application.ApplicationComponent
 import org.springframework.stereotype.Component
 
 /**
  * @author lingting 2024-02-02 15:27
  */
 @Component
-class SpringTestBean : ContextComponent {
+class SpringTestBean : ApplicationComponent {
     val value: String = "bean"
 
     var isStart: Boolean = false
