@@ -59,12 +59,20 @@ class RedisScriptExecutor<K>(val template: RedisTemplate<K, String>) : DefaultSc
         return template.execute<T>(RedisCallback { connection -> execute<T>(connection, script, keys, *args) })
     }
 
+    fun <T : Any> execute(script: RepeatRedisScript<T>, keys: List<K>?, args: Collection<Any>): T? {
+        return execute(script, keys, *args.toTypedArray())
+    }
+
     fun <T : Any> execute(connection: RedisConnection, script: RepeatRedisScript<T>, keys: List<K>?, vararg args: Any): T? {
         if (script.isLoad) {
             return evalSha1<T>(connection, script.type, script.sha1, keys, *args)
         }
         val bytes = scriptBytes(script)
         return eval<T>(connection, script.type, bytes, keys, *args)
+    }
+
+    fun <T : Any> execute(connection: RedisConnection, script: RepeatRedisScript<T>, keys: List<K>?, args: Collection<Any>): T? {
+        return execute(connection, script, keys, *args.toTypedArray())
     }
 
     fun <T : Any> eval(
@@ -75,6 +83,13 @@ class RedisScriptExecutor<K>(val template: RedisTemplate<K, String>) : DefaultSc
             connection, returnType, template.valueSerializer,
             template.valueSerializer as RedisSerializer<T>, script, keys, *args
         )
+    }
+
+    fun <T : Any> eval(
+        connection: RedisConnection, returnType: ReturnType, script: ByteArray, keys: List<K>?,
+        args: Collection<Any>
+    ): T? {
+        return eval<T>(connection, returnType, script, keys, *args.toTypedArray())
     }
 
     fun <T : Any> eval(
@@ -91,6 +106,14 @@ class RedisScriptExecutor<K>(val template: RedisTemplate<K, String>) : DefaultSc
         return deserializeResult<T>(resultSerializer, result)
     }
 
+    fun <T : Any> eval(
+        connection: RedisConnection, returnType: ReturnType, argsSerializer: RedisSerializer<*>,
+        resultSerializer: RedisSerializer<T>, script: ByteArray, keys: List<K>?, args: Collection<Any>
+    ): T? {
+        return eval<T>(connection, returnType, argsSerializer, resultSerializer, script, keys, *args.toTypedArray())
+    }
+
+
     fun <T : Any> evalSha1(
         connection: RedisConnection, returnType: ReturnType, sha1: String, keys: List<K>?,
         vararg args: Any
@@ -99,6 +122,10 @@ class RedisScriptExecutor<K>(val template: RedisTemplate<K, String>) : DefaultSc
             connection, returnType, template.valueSerializer,
             template.valueSerializer as RedisSerializer<T>, sha1, keys, *args
         )
+    }
+
+    fun <T : Any> evalSha1(connection: RedisConnection, script: RepeatRedisScript<T>, keys: List<K>?, vararg args: Any): T? {
+        return evalSha1(connection, script.type, script.sha1, keys, *args)
     }
 
     fun <T : Any> evalSha1(
@@ -113,6 +140,10 @@ class RedisScriptExecutor<K>(val template: RedisTemplate<K, String>) : DefaultSc
             return null
         }
         return deserializeResult<T>(resultSerializer, result)
+    }
+
+    fun <T : Any> evalSha1(connection: RedisConnection, script: RepeatRedisScript<T>, keys: List<K>?, args: Collection<Any>): T? {
+        return evalSha1(connection, script.type, script.sha1, keys, *args.toTypedArray())
     }
 
 }

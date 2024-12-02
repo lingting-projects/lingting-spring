@@ -36,8 +36,16 @@ class RepeatRedisScript<T : Any> @JvmOverloads constructor(source: String, type:
         return Redis.instance().scriptExecutor().execute<T>(this, keys, *args)
     }
 
+    fun execute(keys: List<String>, args: Collection<Any>): T? {
+        return execute(keys, *args.toTypedArray())
+    }
+
     fun execute(connection: RedisConnection, keys: List<String>, vararg args: Any): T? {
         return Redis.instance().scriptExecutor().execute<T>(connection, this, keys, *args)
+    }
+
+    fun execute(connection: RedisConnection, keys: List<String>, args: Collection<Any>): T? {
+        return execute(connection, keys, *args.toTypedArray())
     }
 
     fun load(executor: RedisScriptExecutor<*>) {
