@@ -5,7 +5,6 @@ import java.sql.SQLIntegrityConstraintViolationException
 import live.lingting.framework.api.ApiResultCode
 import live.lingting.framework.api.R
 import live.lingting.framework.exception.BizException
-import live.lingting.framework.util.Slf4jUtils.logger
 import live.lingting.spring.web.scope.WebScopeHolder
 import org.springframework.core.annotation.Order
 import org.springframework.core.convert.ConversionFailedException
@@ -29,18 +28,25 @@ import org.springframework.web.servlet.resource.NoResourceFoundException
 @ControllerAdvice
 @Order(GlobalExceptionHandler.ORDER)
 class GlobalExceptionHandler : AbstractExceptionHandler() {
+
+    companion object {
+
+        const val ORDER: Int = -100
+
+    }
+
     /**
      * Business error
      * @param e the e
      * @return R
      */
     @ExceptionHandler(BizException::class)
-    fun handle2BizException(e: BizException): ResponseEntity<R<String>> {
-        log.error(
-            "uri: {}, Business error! code: {}; message: {};", WebScopeHolder.uri(), e.code, e.message,
-            e.cause
-        )
-        return extract<R<String>>(R.failed<String>(e.code, e.message))
+    fun handleBizException(e: BizException): ResponseEntity<R<String>> {
+        val uri = WebScopeHolder.uri()
+        val code = e.code
+        val message = e.message
+        log.error("uri: {}, Business error! code: {}; message: {};", uri, code, message, e.cause)
+        return extract<R<String>>(R.failed<String>(code, message))
     }
 
     /**
@@ -161,7 +167,7 @@ class GlobalExceptionHandler : AbstractExceptionHandler() {
     @ExceptionHandler(NoResourceFoundException::class)
     fun handlerNoResourceFoundException(e: NoResourceFoundException): ResponseEntity<R<String>> {
         log.warn("uri: {}, NoResourceFoundException! {}", WebScopeHolder.uri(), e.message)
-        return extract<R<String>>(R.failed<String>(ApiResultCode.NOT_FOUND))
+        return extract<R<String>>(R.failed<String>(ApiResultCode.NOT_FOUND_ERROR))
     }
 
     /**
@@ -175,9 +181,4 @@ class GlobalExceptionHandler : AbstractExceptionHandler() {
         return extract<R<String>>(R.failed<String>(ApiResultCode.NOT_FOUND_ERROR))
     }
 
-    companion object {
-        const val ORDER: Int = -100
-
-        private val log = logger()
-    }
 }

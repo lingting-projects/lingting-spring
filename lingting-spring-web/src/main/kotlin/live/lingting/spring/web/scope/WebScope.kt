@@ -1,5 +1,6 @@
 package live.lingting.spring.web.scope
 
+import java.util.Locale
 import live.lingting.framework.http.header.HttpHeaders
 import live.lingting.framework.time.DateTime
 
@@ -58,6 +59,17 @@ class WebScope {
 
     fun <T> getAttribute(key: String): T {
         return this.attributes[key] as T
+    }
+
+    fun language(): Locale? {
+        try {
+            if (language.isBlank()) {
+                return null
+            }
+            return Locale.forLanguageTag(language)
+        } catch (_: Exception) {
+            return null
+        }
     }
 
 }

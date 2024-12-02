@@ -4,6 +4,7 @@ import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import java.time.Duration
+import live.lingting.framework.i18n.I18n
 import live.lingting.framework.time.StopWatch
 import live.lingting.framework.util.MdcUtils.fillTraceId
 import live.lingting.framework.util.MdcUtils.removeTraceId
@@ -35,6 +36,10 @@ open class WebScopeFilter(protected val properties: SpringWebProperties, protect
         val scope = WebScopeHolder.of(request, traceId, requestId)
         WebScopeHolder.put(scope)
         fillTraceId(scope.traceId)
+        val language = scope.language()
+        if (language != null) {
+            I18n.set(language)
+        }
         response.addHeader(properties.headerTraceId, scope.traceId)
         response.addHeader(properties.headerRequestId, scope.requestId)
         val watch = StopWatch()
@@ -58,6 +63,7 @@ open class WebScopeFilter(protected val properties: SpringWebProperties, protect
             // 关闭包装请求
             request.close()
             WebScopeHolder.pop()
+            I18n.remove()
             removeTraceId()
         }
     }

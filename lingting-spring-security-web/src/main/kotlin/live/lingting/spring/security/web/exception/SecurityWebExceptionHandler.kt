@@ -4,7 +4,6 @@ import live.lingting.framework.api.ApiResultCode
 import live.lingting.framework.api.R
 import live.lingting.framework.security.exception.AuthorizationException
 import live.lingting.framework.security.exception.PermissionsException
-import live.lingting.framework.util.Slf4jUtils.logger
 import live.lingting.spring.web.exception.AbstractExceptionHandler
 import org.springframework.core.Ordered
 import org.springframework.core.annotation.Order
@@ -18,6 +17,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler
 @ControllerAdvice
 @Order(Ordered.HIGHEST_PRECEDENCE)
 class SecurityWebExceptionHandler : AbstractExceptionHandler() {
+
     /**
      * 鉴权异常
      */
@@ -36,7 +36,4 @@ class SecurityWebExceptionHandler : AbstractExceptionHandler() {
         return extract<R<String>>(R.failed<String>(ApiResultCode.FORBIDDEN_ERROR))
     }
 
-    companion object {
-        private val log = logger()
-    }
 }

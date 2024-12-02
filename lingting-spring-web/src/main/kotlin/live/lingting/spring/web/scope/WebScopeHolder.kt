@@ -3,7 +3,7 @@ package live.lingting.spring.web.scope
 import jakarta.servlet.http.HttpServletRequest
 import java.util.Optional
 import java.util.function.Function
-import live.lingting.framework.thread.StackThreadLocal
+import live.lingting.framework.context.StackContext
 import live.lingting.framework.util.HttpUtils
 import live.lingting.framework.util.IpUtils.getFirstIp
 
@@ -11,19 +11,19 @@ import live.lingting.framework.util.IpUtils.getFirstIp
  * @author lingting 2024-03-20 15:09
  */
 object WebScopeHolder {
-    val LOCAL: StackThreadLocal<WebScope> = StackThreadLocal<WebScope>()
+    val LOCAL = StackContext<WebScope>()
 
     @JvmStatic
     fun get(): WebScope? {
-        return LOCAL.get()
+        return LOCAL.peek()
     }
 
     val optional: Optional<WebScope>
-        get() = Optional.ofNullable<WebScope>(LOCAL.get())
+        get() = Optional.ofNullable<WebScope>(LOCAL.peek())
 
     @JvmStatic
     fun put(webScope: WebScope) {
-        LOCAL.put(webScope)
+        LOCAL.push(webScope)
     }
 
     @JvmStatic
@@ -35,10 +35,17 @@ object WebScopeHolder {
     fun of(request: HttpServletRequest, traceId: String, requestId: String): WebScope {
         val headers = HttpUtils.headers(request).unmodifiable()
         return WebScope(
-            request.scheme, headers.host() ?: "", headers.origin() ?: "",
-            getFirstIp(request), request.requestURI, traceId, requestId,
-            headers.language() ?: "", headers.authorization() ?: "",
-            headers.ua() ?: "", headers
+            request.scheme,
+            headers.host() ?: "",
+            headers.origin() ?: "",
+            getFirstIp(request),
+            request.requestURI,
+            traceId,
+            requestId,
+            headers.language() ?: "",
+            headers.authorization() ?: "",
+            headers.ua() ?: "",
+            headers
         )
     }
 
