@@ -9,6 +9,7 @@ import live.lingting.framework.time.StopWatch
 import live.lingting.framework.util.MdcUtils.fillTraceId
 import live.lingting.framework.util.MdcUtils.removeTraceId
 import live.lingting.framework.util.MdcUtils.traceId
+import live.lingting.framework.util.Slf4jUtils.logger
 import live.lingting.spring.web.properties.SpringWebProperties
 import live.lingting.spring.web.request.ServletRequestConsumer
 import live.lingting.spring.web.scope.WebScope
@@ -23,21 +24,24 @@ import org.springframework.web.util.ContentCachingResponseWrapper
  */
 open class WebScopeFilter(protected val properties: SpringWebProperties, protected val consumers: List<ServletRequestConsumer>) : OncePerRequestFilter() {
 
+    val log = logger()
+
     override fun doFilterInternal(
         httpServletRequest: HttpServletRequest, httpServletResponse: HttpServletResponse,
         filterChain: FilterChain
     ) {
         val request: RepeatBodyRequestWrapper = RepeatBodyRequestWrapper.of(httpServletRequest)
         val response = ContentCachingResponseWrapper(httpServletResponse)
-
         val traceId = traceId(request)
         val requestId = requestId()
-
+        log.trace("request start. traceId: {}, requestId: {}", traceId, requestId)
         val scope = WebScopeHolder.of(request, traceId, requestId)
+        log.trace("request scope: {}", scope)
         WebScopeHolder.put(scope)
         fillTraceId(scope.traceId)
         val language = scope.language()
         if (language != null) {
+            log.trace("request language: {}", language)
             I18n.set(language)
         }
         response.addHeader(properties.headerTraceId, scope.traceId)
@@ -47,6 +51,7 @@ open class WebScopeFilter(protected val properties: SpringWebProperties, protect
             watch.start()
             filterChain.doFilter(request, response)
             watch.stop()
+            log.trace("request end. traceId: {}, requestId: {}", traceId, requestId)
             consumer(watch.duration(), scope, request, response, null)
         } catch (e: Throwable) {
             // 如果是程序运行异常, 则停止并消费.
@@ -55,6 +60,7 @@ open class WebScopeFilter(protected val properties: SpringWebProperties, protect
                 consumer(watch.duration(), scope, request, response, e)
                 return
             }
+            log.debug("Filter do error.", e)
             // 消费异常直接抛出
             throw e
         } finally {
@@ -70,6 +76,7 @@ open class WebScopeFilter(protected val properties: SpringWebProperties, protect
 
     protected fun consumer(duration: Duration, scope: WebScope, request: RepeatBodyRequestWrapper, response: ContentCachingResponseWrapper, t: Throwable?) {
         consumers.forEach {
+            log.trace("request consumer: {}", it.javaClass.simpleName)
             it.consumer(duration, scope, request, response, t)
         }
     }
