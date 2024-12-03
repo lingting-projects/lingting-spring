@@ -21,9 +21,9 @@ class DefaultExceptionHandler : AbstractExceptionHandler() {
      * @return R
      */
     @ExceptionHandler(Exception::class)
-    fun handleException(e: Exception): ResponseEntity<R<String>> {
+    fun handleException(e: Exception): ResponseEntity<R<Unit>> {
         log.error("uri: {}, unknown error!", WebScopeHolder.uri(), e)
-        return extract<R<String>>(R.failed<String>(ApiResultCode.SERVER_ERROR))
+        return extract(R.failed(ApiResultCode.SERVER_ERROR))
     }
 
 }

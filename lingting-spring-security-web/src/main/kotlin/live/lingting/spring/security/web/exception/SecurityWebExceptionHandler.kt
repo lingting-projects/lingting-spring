@@ -1,6 +1,7 @@
 package live.lingting.spring.security.web.exception
 
-import live.lingting.framework.api.ApiResultCode
+import live.lingting.framework.api.ApiResultCode.FORBIDDEN_ERROR
+import live.lingting.framework.api.ApiResultCode.UNAUTHORIZED_ERROR
 import live.lingting.framework.api.R
 import live.lingting.framework.security.exception.AuthorizationException
 import live.lingting.framework.security.exception.PermissionsException
@@ -22,18 +23,18 @@ class SecurityWebExceptionHandler : AbstractExceptionHandler() {
      * 鉴权异常
      */
     @ExceptionHandler(AuthorizationException::class)
-    fun handlerAuthorizationException(e: AuthorizationException): ResponseEntity<R<String>> {
+    fun handlerAuthorizationException(e: AuthorizationException): ResponseEntity<R<Unit>> {
         log.error("AuthorizationException! {}", e.message)
-        return extract<R<String>>(R.failed<String>(ApiResultCode.UNAUTHORIZED_ERROR))
+        return extract(UNAUTHORIZED_ERROR, e)
     }
 
     /**
      * 权限异常
      */
     @ExceptionHandler(PermissionsException::class)
-    fun handlerPermissionsException(e: PermissionsException): ResponseEntity<R<String>> {
+    fun handlerPermissionsException(e: PermissionsException): ResponseEntity<R<Unit>> {
         log.error("PermissionsException! {}", e.message)
-        return extract<R<String>>(R.failed<String>(ApiResultCode.FORBIDDEN_ERROR))
+        return extract(FORBIDDEN_ERROR, e)
     }
 
 }
