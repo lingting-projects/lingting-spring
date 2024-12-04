@@ -15,10 +15,6 @@ class SensitiveSpringProvider : SpringSpiLoader<SensitiveProvider>, SensitivePro
     override val cls: Class<SensitiveProvider> = SensitiveProvider::class.java
 
     override fun find(sensitive: Sensitive): SensitiveSerializer? {
-        if (SpringUtils.context == null) {
-            return null
-        }
-
         for (provider in providers) {
             val serializer = provider.find(sensitive)
             if (serializer != null) {

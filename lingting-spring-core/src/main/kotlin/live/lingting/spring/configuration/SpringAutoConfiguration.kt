@@ -5,11 +5,14 @@ import live.lingting.framework.sensitive.serializer.SensitiveAllSerializer
 import live.lingting.framework.sensitive.serializer.SensitiveDefaultSerializer
 import live.lingting.framework.sensitive.serializer.SensitiveMobileSerializer
 import live.lingting.spring.event.SpringContextClosedListener
+import live.lingting.spring.i18n.MessageI18nProvider
 import live.lingting.spring.mdc.MdcTaskDecorator
 import live.lingting.spring.post.ApplicationComponentBeanPostProcessor
 import org.springframework.boot.autoconfigure.AutoConfiguration
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
+import org.springframework.context.MessageSource
 import org.springframework.context.annotation.Bean
 import org.springframework.core.task.TaskDecorator
 
@@ -38,7 +41,15 @@ open class SpringAutoConfiguration {
         return SpringContextClosedListener()
     }
 
+    @Bean
+    @ConditionalOnMissingBean
+    @ConditionalOnBean(MessageSource::class)
+    open fun messageI18nProvider(source: MessageSource): MessageI18nProvider {
+        return MessageI18nProvider(source)
+    }
+
     // region Sensitive
+
     @Bean
     @ConditionalOnMissingBean
     open fun sensitiveAllSerializer(): SensitiveAllSerializer {
@@ -56,5 +67,6 @@ open class SpringAutoConfiguration {
     open fun sensitiveMobileSerializer(): SensitiveMobileSerializer {
         return SensitiveMobileSerializer
     }
-// endregion
+
+    // endregion
 }

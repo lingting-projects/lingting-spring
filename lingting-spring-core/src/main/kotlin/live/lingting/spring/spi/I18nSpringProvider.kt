@@ -1,5 +1,7 @@
 package live.lingting.spring.spi
 
+import java.util.Locale
+import java.util.Objects
 import live.lingting.framework.i18n.I18nProvider
 import live.lingting.framework.i18n.I18nSource
 import live.lingting.spring.util.SpringUtils
@@ -9,21 +11,28 @@ import live.lingting.spring.util.SpringUtils
  */
 class I18nSpringProvider : SpringSpiLoader<I18nProvider>, I18nProvider {
 
-    val providers by lazy { all() }
-
     override val cls: Class<I18nProvider> = I18nProvider::class.java
 
-    override fun load(): Collection<I18nSource> {
-        if (SpringUtils.context == null) {
-            return emptyList()
+    val providers by lazy { all() }
+
+    val beans by lazy { SpringUtils.getBeansOfType(I18nSource::class).values }
+
+    override fun find(locale: Locale): Collection<I18nSource>? {
+        val list = ArrayList<I18nSource>()
+
+        providers.forEach {
+            val sources = it.find(locale)
+            if (sources != null) {
+                list.addAll(sources)
+            }
         }
-        val values = HashSet<I18nSource>()
-        for (provider in providers) {
-            val sources = provider.load()
-            values.addAll(sources)
+
+        beans.forEach {
+            if (Objects.equals(it.locale, locale)) {
+                list.add(it)
+            }
         }
-        val beans = SpringUtils.getBeansOfType(I18nSource::class).values
-        values.addAll(beans)
-        return values
+
+        return list
     }
 }

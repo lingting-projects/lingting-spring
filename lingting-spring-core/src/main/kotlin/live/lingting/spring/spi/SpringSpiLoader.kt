@@ -10,9 +10,6 @@ interface SpringSpiLoader<S> {
     val cls: Class<S>
 
     fun all(): Collection<S> {
-        if (SpringUtils.context == null) {
-            return emptyList()
-        }
         return SpringUtils.getBeansOfType(cls).values
     }
 
