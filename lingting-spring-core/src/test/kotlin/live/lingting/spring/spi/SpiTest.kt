@@ -1,7 +1,8 @@
 package live.lingting.spring.spi
 
-import live.lingting.framework.sensitive.SensitiveUtils.providers
-import org.junit.jupiter.api.Assertions.assertTrue
+import live.lingting.framework.i18n.I18n
+import live.lingting.framework.sensitive.SensitiveUtils
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
 
 /**
@@ -10,10 +11,11 @@ import org.junit.jupiter.api.Test
 class SpiTest {
     @Test
     fun test() {
-        val optional = providers()
-            .stream()
-            .filter { p -> SensitiveSpringProvider::class.java.isAssignableFrom(p!!.javaClass) }
-            .findAny()
-        assertTrue(optional.isPresent)
+        val sensitive = SensitiveUtils.providers()
+            .firstOrNull { SensitiveSpringProvider::class == it::class }
+        assertNotNull(sensitive)
+        val i18n = I18n.providers
+            .firstOrNull { I18nSpringProvider::class == it::class }
+        assertNotNull(i18n)
     }
 }

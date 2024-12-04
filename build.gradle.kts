@@ -148,6 +148,7 @@ configure(javaProjects) {
     tasks.withType<JavaCompile> {
         options.encoding = encoding
         options.compilerArgs.add("-parameters")
+        options.setIncremental(true)
     }
 
     tasks.withType<Javadoc> {
