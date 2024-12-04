@@ -3,6 +3,7 @@ package live.lingting.spring.web.resolve
 import jakarta.servlet.http.HttpServletRequest
 import java.lang.reflect.InvocationTargetException
 import live.lingting.framework.api.PaginationParams
+import live.lingting.framework.jackson.JacksonUtils
 import live.lingting.framework.util.ArrayUtils.isEmpty
 import live.lingting.framework.util.StringUtils.hasText
 import live.lingting.spring.web.properties.SpringWebProperties.Pagination
@@ -101,6 +102,10 @@ open class ApiPaginationParamsResolve(val pagination: Pagination) : HandlerMetho
     }
 
     fun sort(raw: String): PaginationParams.Sort {
+        if (raw.startsWith("{") && raw.endsWith("}")) {
+            return JacksonUtils.toObj(raw, PaginationParams.Sort::class)
+        }
+
         val split = raw.split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
         val field = split[0]
         // 默认升序
