@@ -4,12 +4,10 @@ import java.time.LocalTime
 import live.lingting.framework.util.LocalTimeUtils
 import org.springframework.core.convert.TypeDescriptor
 import org.springframework.core.convert.converter.GenericConverter.ConvertiblePair
-import org.springframework.stereotype.Component
 
 /**
  * @author lingting 2022/9/28 12:17
  */
-@Component
 class StringToLocalTimeConverter : Converter<LocalTime> {
     override fun matches(sourceType: TypeDescriptor, targetType: TypeDescriptor): Boolean {
         return String::class.java.isAssignableFrom(sourceType.type)

@@ -4,12 +4,10 @@ import live.lingting.framework.util.EnumUtils.getCf
 import live.lingting.framework.util.EnumUtils.getValue
 import org.springframework.core.convert.TypeDescriptor
 import org.springframework.core.convert.converter.GenericConverter.ConvertiblePair
-import org.springframework.stereotype.Component
 
 /**
  * @author lingting 2022/9/28 12:17
  */
-@Component
 class EnumConverter : AbstractConverter<Enum<*>>() {
     override fun matches(sourceType: TypeDescriptor, targetType: TypeDescriptor): Boolean {
         // 来源类型判断

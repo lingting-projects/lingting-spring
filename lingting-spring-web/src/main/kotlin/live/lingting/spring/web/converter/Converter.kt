@@ -12,7 +12,7 @@ interface Converter<T> : ConditionalGenericConverter {
         if (source == null) {
             return arrayOf()
         }
-        var string = (source as String).trim { it <= ' ' }
+        var string = (source as String).trim()
 
         if (string.startsWith("[") && string.endsWith("]")) {
             string = string.substring(1, string.length - 1)
