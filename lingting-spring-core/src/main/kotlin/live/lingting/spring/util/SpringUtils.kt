@@ -70,10 +70,15 @@ object SpringUtils {
     @JvmStatic
     fun <T> ofBean(cls: Class<T>): T {
         val constructors: Array<Constructor<T>> = constructors<T>(cls)
-        return ofBean<T>(constructors[0], Function { clazz: Class<*> -> getBean(clazz) })
+        return ofBean<T>(constructors[0])
     }
 
     fun <T : Any> ofBean(cls: KClass<T>): T = ofBean(cls.java)
+
+    @JvmStatic
+    fun <T> ofBean(constructor: Constructor<T>): T {
+        return ofBean(constructor) { getBean(it) }
+    }
 
     @JvmStatic
     fun <T> ofBean(constructor: Constructor<T>, getArgument: Function<Class<*>, Any>): T {
