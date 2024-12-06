@@ -2,7 +2,8 @@ package live.lingting.spring.aws
 
 import live.lingting.framework.aws.AwsS3Bucket
 import live.lingting.framework.aws.AwsS3Object
-import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -17,8 +18,8 @@ class SpringAwsTest {
 
     @Test
     fun test() {
-        Assertions.assertNotNull(s3Bucket)
+        assertNotNull(s3Bucket)
         val obsObject: AwsS3Object = s3Bucket!!.use("key")
-        Assertions.assertTrue(obsObject.publicUrl().contains("key"))
+        assertTrue(obsObject.publicUrl().contains("key"))
     }
 }

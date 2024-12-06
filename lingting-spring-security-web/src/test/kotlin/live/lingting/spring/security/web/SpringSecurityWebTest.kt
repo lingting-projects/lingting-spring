@@ -5,7 +5,7 @@ import live.lingting.framework.jackson.JacksonUtils.toObj
 import live.lingting.framework.security.domain.AuthorizationVO
 import live.lingting.framework.security.password.SecurityPassword
 import live.lingting.spring.security.web.properties.SecurityWebProperties
-import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
@@ -66,7 +66,7 @@ class SpringSecurityWebTest {
             .contentAsString
 
         val vo: AuthorizationVO = toObj<AuthorizationVO>(json, AuthorizationVO::class.java)
-        Assertions.assertEquals("lingting", vo.nickname)
+        assertEquals("lingting", vo.nickname)
 
         mock.perform(get("/authorization/resolve").header(properties!!.headerAuthorization, vo.authorization))
             .andDo(print())

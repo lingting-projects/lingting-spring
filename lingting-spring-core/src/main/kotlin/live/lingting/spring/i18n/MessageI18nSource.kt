@@ -19,13 +19,26 @@ class MessageI18nSource(
          */
         const val ORDER = 1000
 
+        /**
+         * 默认值, 用于避免 message 回滚到系统语言去, 然后导致默认值丢失
+         */
+        @JvmStatic
+        var defaultNull = "N_M"
+
     }
 
     override val sequence: Int = ORDER
 
     override fun find(key: String): String? {
         return try {
-            message.getMessage(key, null, locale)
+            // 避免被修改导致不一致
+            val default = defaultNull
+            val text = message.getMessage(key, null, default, locale)
+            if (text == default) {
+                null
+            } else {
+                text
+            }
         } catch (_: NoSuchMessageException) {
             null
         }
