@@ -14,7 +14,7 @@ class GrpcSpringProperties {
         const val PREFIX: String = "lingting.grpc"
     }
 
-    var traceIdKey: String = MdcUtils.TRACE_ID
+    var traceIdKey: String = MdcUtils.traceIdKey
 
     var traceOrder: Int = Int.MIN_VALUE + 100
 

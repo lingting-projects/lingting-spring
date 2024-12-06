@@ -6,9 +6,7 @@ import jakarta.servlet.http.HttpServletResponse
 import java.time.Duration
 import live.lingting.framework.i18n.I18n
 import live.lingting.framework.time.StopWatch
-import live.lingting.framework.util.MdcUtils.fillTraceId
-import live.lingting.framework.util.MdcUtils.removeTraceId
-import live.lingting.framework.util.MdcUtils.traceId
+import live.lingting.framework.util.MdcUtils
 import live.lingting.framework.util.Slf4jUtils.logger
 import live.lingting.spring.web.properties.SpringWebProperties
 import live.lingting.spring.web.request.ServletRequestConsumer
@@ -38,7 +36,7 @@ open class WebScopeFilter(protected val properties: SpringWebProperties, protect
         val scope = WebScopeHolder.of(request, traceId, requestId)
         log.trace("request scope: {}", scope)
         WebScopeHolder.put(scope)
-        fillTraceId(scope.traceId)
+        MdcUtils.setTraceId(scope.traceId)
         val language = scope.language()
         if (language != null) {
             log.trace("request language: {}", language)
@@ -70,18 +68,18 @@ open class WebScopeFilter(protected val properties: SpringWebProperties, protect
             request.close()
             WebScopeHolder.pop()
             I18n.remove()
-            removeTraceId()
+            MdcUtils.removeTraceId()
         }
     }
 
-    protected fun consumer(duration: Duration, scope: WebScope, request: RepeatBodyRequestWrapper, response: ContentCachingResponseWrapper, t: Throwable?) {
+    protected open fun consumer(duration: Duration, scope: WebScope, request: RepeatBodyRequestWrapper, response: ContentCachingResponseWrapper, t: Throwable?) {
         consumers.forEach {
             log.trace("request consumer: {}", it.javaClass.simpleName)
             it.consumer(duration, scope, request, response, t)
         }
     }
 
-    protected fun traceId(request: HttpServletRequest): String {
+    protected open fun traceId(request: HttpServletRequest): String {
         val traceId = request.getHeader(properties.headerTraceId)
         if (StringUtils.hasText(traceId)) {
             return traceId
@@ -89,7 +87,8 @@ open class WebScopeFilter(protected val properties: SpringWebProperties, protect
         return requestId()
     }
 
-    protected fun requestId(): String {
-        return traceId()
+    protected open fun requestId(): String {
+        return MdcUtils.traceId()
     }
+
 }
