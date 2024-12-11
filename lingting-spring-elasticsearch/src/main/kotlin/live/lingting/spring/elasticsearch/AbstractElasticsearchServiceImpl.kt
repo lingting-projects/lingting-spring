@@ -1,18 +1,20 @@
 package live.lingting.spring.elasticsearch
 
 import co.elastic.clients.elasticsearch._types.Script
-import co.elastic.clients.elasticsearch._types.SortOptions
 import co.elastic.clients.elasticsearch._types.aggregations.Aggregate
 import co.elastic.clients.elasticsearch._types.aggregations.Aggregation
 import co.elastic.clients.elasticsearch._types.query_dsl.Query
 import co.elastic.clients.elasticsearch.core.BulkRequest
 import co.elastic.clients.elasticsearch.core.BulkResponse
 import co.elastic.clients.elasticsearch.core.DeleteByQueryRequest
+import co.elastic.clients.elasticsearch.core.DeleteByQueryResponse
 import co.elastic.clients.elasticsearch.core.ScrollRequest
 import co.elastic.clients.elasticsearch.core.SearchRequest
 import co.elastic.clients.elasticsearch.core.SearchResponse
 import co.elastic.clients.elasticsearch.core.UpdateByQueryRequest
+import co.elastic.clients.elasticsearch.core.UpdateByQueryResponse
 import co.elastic.clients.elasticsearch.core.UpdateRequest
+import co.elastic.clients.elasticsearch.core.UpdateResponse
 import co.elastic.clients.elasticsearch.core.bulk.BulkOperation
 import co.elastic.clients.elasticsearch.core.bulk.BulkOperationBase
 import co.elastic.clients.elasticsearch.core.search.HitsMetadata
@@ -148,8 +150,11 @@ abstract class AbstractElasticsearchServiceImpl<T : Any> {
         return api.search(operator, queries)
     }
 
-    fun ofLimitSort(sorts: MutableCollection<PaginationParams.Sort>): List<SortOptions> {
-        return api.ofLimitSort(sorts)
+    fun <E> search(
+        operator: UnaryOperator<SearchRequest.Builder>, queries: QueryBuilder<T>,
+        convert: Function<SearchResponse<T>, E>
+    ): E {
+        return api.search(operator, queries, convert)
     }
 
     fun page(params: PaginationParams): PaginationResult<T> {
@@ -209,6 +214,10 @@ abstract class AbstractElasticsearchServiceImpl<T : Any> {
         return api.update(operator, documentId)
     }
 
+    fun <E> update(operator: UnaryOperator<UpdateRequest.Builder<T, T>>, convert: Function<UpdateResponse<T>, E>): E {
+        return api.update(operator, convert)
+    }
+
     fun updateByQuery(script: Script, vararg queries: Query): Boolean {
         return api.updateByQuery(script, *queries)
     }
@@ -229,6 +238,13 @@ abstract class AbstractElasticsearchServiceImpl<T : Any> {
         queries: QueryBuilder<T>
     ): Boolean {
         return api.updateByQuery(operator, script, queries)
+    }
+
+    fun <E> updateByQuery(
+        operator: UnaryOperator<UpdateByQueryRequest.Builder>,
+        script: Script, queries: QueryBuilder<T>, convert: Function<UpdateByQueryResponse, E>
+    ): E {
+        return api.updateByQuery(operator, script, queries, convert)
     }
 
     fun bulk(vararg collection: T, convert: Function<T, BulkOperationBase.AbstractBuilder<*>>): BulkResponse {
@@ -288,6 +304,10 @@ abstract class AbstractElasticsearchServiceImpl<T : Any> {
 
     fun deleteByQuery(operator: UnaryOperator<DeleteByQueryRequest.Builder>, queries: QueryBuilder<T>): Boolean {
         return api.deleteByQuery(operator, queries)
+    }
+
+    fun <E> deleteByQuery(operator: UnaryOperator<DeleteByQueryRequest.Builder>, queries: QueryBuilder<T>, convert: Function<DeleteByQueryResponse, E>): E {
+        return api.deleteByQuery(operator, queries, convert)
     }
 
     fun list(vararg queries: Query): List<T> {
