@@ -1,22 +1,23 @@
 package live.lingting.spring.util
 
 import java.lang.reflect.Method
-import org.aspectj.lang.ProceedingJoinPoint
+import live.lingting.framework.util.AnnotationUtils
+import org.aspectj.lang.JoinPoint
 import org.aspectj.lang.reflect.MethodSignature
-import org.springframework.core.annotation.AnnotationUtils
 
 /**
  * 切面工具类
  * @author lingting 2022/10/28 15:03
  */
 object AspectUtils {
+
     /**
      * 获取切入的方法
      * @param point 切面
      * @return java.lang.reflect.Method
      */
     @JvmStatic
-    fun findMethod(point: ProceedingJoinPoint): Method? {
+    fun findMethod(point: JoinPoint): Method? {
         val signature = point.signature
         if (signature is MethodSignature) {
             return signature.method
@@ -31,7 +32,7 @@ object AspectUtils {
      * @return T 注解类型
      */
     @JvmStatic
-    fun <T : Annotation> findAnnotation(point: ProceedingJoinPoint, cls: Class<T>): T? {
+    fun <T : Annotation> findAnnotation(point: JoinPoint, cls: Class<T>): T? {
         val method = findMethod(point)
         var t: T? = null
         if (method != null) {
@@ -43,5 +44,6 @@ object AspectUtils {
         }
         return t
     }
+
 }
 
