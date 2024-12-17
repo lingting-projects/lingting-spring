@@ -13,9 +13,9 @@ import live.lingting.spring.redis.lock.RedisLock
 import live.lingting.spring.redis.lock.RedisLockParams
 import live.lingting.spring.redis.properties.RedisProperties
 import live.lingting.spring.redis.script.RedisScriptExecutor
-import live.lingting.spring.redis.script.RedisScriptProvider
 import live.lingting.spring.redis.script.RepeatRedisScript
 import org.springframework.beans.factory.InitializingBean
+import org.springframework.data.redis.connection.RedisScriptingCommands
 import org.springframework.data.redis.core.Cursor
 import org.springframework.data.redis.core.HashOperations
 import org.springframework.data.redis.core.ListOperations
@@ -25,6 +25,7 @@ import org.springframework.data.redis.core.StreamOperations
 import org.springframework.data.redis.core.StringRedisTemplate
 import org.springframework.data.redis.core.ValueOperations
 import org.springframework.data.redis.core.ZSetOperations
+import org.springframework.data.redis.core.script.RedisScript
 import org.springframework.data.redis.serializer.RedisSerializer
 
 /**
@@ -34,7 +35,6 @@ import org.springframework.data.redis.serializer.RedisSerializer
 class Redis(
     private val template: StringRedisTemplate,
     private val properties: RedisProperties,
-    providers: MutableList<RedisScriptProvider>
 ) : InitializingBean {
 
     companion object {
@@ -46,21 +46,8 @@ class Redis(
         }
     }
 
-    private val scriptExecutor: RedisScriptExecutor<String> = RedisScriptExecutor<String>(template)
-
-    init {
-        for (provider in providers) {
-            val scripts = provider.scripts()
-            loadScripts(scripts)
-        }
-    }
-
     fun template(): StringRedisTemplate {
         return template
-    }
-
-    fun scriptExecutor(): RedisScriptExecutor<String> {
-        return scriptExecutor
     }
 
     fun keySerializer(): RedisSerializer<String> {
@@ -105,22 +92,42 @@ class Redis(
     }
 
     override fun afterPropertiesSet() {
-        Redis.INSTANCE.update(this)
+        INSTANCE.update(this)
     }
 
     // region script
-    fun loadScript(script: RepeatRedisScript<*>) {
-        if (!script.isLoad) {
-            script.load(scriptExecutor)
+
+    fun <T> script(script: RedisScript<T>): RedisScriptExecutor<T> {
+        val repeat = RepeatRedisScript.of(script)
+        return RedisScriptExecutor(repeat, template)
+    }
+
+    fun <T> script(script: RepeatRedisScript<T>): RedisScriptExecutor<T> {
+        return RedisScriptExecutor(script, template)
+    }
+
+    fun <T> execute(function: Function<RedisScriptingCommands, T>) {
+        return template.execute {
+            val commands = it.scriptingCommands()
+            function.apply(commands)
         }
     }
 
-    fun loadScripts(scripts: Collection<RepeatRedisScript<*>>) {
-        if (scripts.isEmpty()) {
-            return
-        }
-        for (script in scripts) {
-            loadScript(script)
+    fun load(script: RepeatRedisScript<*>) {
+        val executor = script(script)
+        executor.load()
+    }
+
+    fun load(scripts: Collection<RepeatRedisScript<*>>) {
+        execute {
+            var executor: RedisScriptExecutor<*>? = null
+            scripts.filter { !it.load }.forEach { script ->
+                if (executor == null) {
+                    executor = script(script)
+                }
+                executor = executor.copy(script)
+                executor.load(it)
+            }
         }
     }
 

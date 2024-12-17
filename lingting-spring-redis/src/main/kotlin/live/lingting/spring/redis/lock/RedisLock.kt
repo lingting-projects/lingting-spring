@@ -96,6 +96,10 @@ return 1
 
     val id = ValueUtils.simpleUuid()
 
+    val lockExecutor = redis.script(SCRIPT_LOCK)
+
+    val unlockExecutor = redis.script(SCRIPT_UNLOCK)
+
     val lockKey = "$key:lock"
 
     val counterKey = "$key:counter"
@@ -117,13 +121,13 @@ return 1
 
     override fun tryLock(): Boolean {
         val keys = listOf(lockKey, counterKey)
-        val bool = redis.scriptExecutor().execute(SCRIPT_LOCK, keys, value, ttl)
+        val bool = lockExecutor.execute(keys, value, ttl)
         return bool == true
     }
 
     override fun unlock() {
         val keys = listOf(lockKey, counterKey)
-        redis.scriptExecutor().execute(SCRIPT_UNLOCK, keys, value, ttl)
+        unlockExecutor.execute(keys, value, ttl)
     }
 
     fun count(): Long {

@@ -2,7 +2,6 @@ package live.lingting.spring.redis.configuration
 
 import live.lingting.spring.redis.Redis
 import live.lingting.spring.redis.cache.CacheAspect
-import live.lingting.spring.redis.lock.RedisLock
 import live.lingting.spring.redis.prefix.DefaultKeyPrefixConvert
 import live.lingting.spring.redis.prefix.JdkKeyPrefixSerializer
 import live.lingting.spring.redis.prefix.KeyPrefixConvert
@@ -120,7 +119,10 @@ open class SpringRedisAutoConfiguration {
         template: StringRedisTemplate, properties: RedisProperties,
         providers: MutableList<RedisScriptProvider>
     ): Redis {
-        return Redis(template, properties, providers)
+        val scripts = providers.map { it.scripts() }.flatten().toSet()
+        val redis = Redis(template, properties)
+        redis.load(scripts)
+        return redis
     }
 
     @Bean
@@ -131,20 +133,14 @@ open class SpringRedisAutoConfiguration {
     }
 
     @Bean
-    open fun springRedisScriptProvider(): RedisScriptProvider {
-        return object : RedisScriptProvider {
-            override fun scripts(): Collection<RepeatRedisScript<*>> {
-                return listOf(
-                    RedisId.SCRIPT, RedisLock.SCRIPT_LOCK, RedisLock.SCRIPT_UNLOCK
-                )
-            }
-        }
+    open fun springRedisScriptProvider(scripts: List<RepeatRedisScript<*>>): SpringRedisScriptProvider {
+        return SpringRedisScriptProvider(scripts)
     }
 
     @Bean
     @ConditionalOnMissingBean
     open fun redisId(redis: Redis): RedisId {
-        val id = RedisId(redis.scriptExecutor())
+        val id = RedisId(redis.template())
         RedisId.value.update(id)
         return id
     }

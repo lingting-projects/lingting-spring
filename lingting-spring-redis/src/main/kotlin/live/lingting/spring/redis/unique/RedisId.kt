@@ -4,6 +4,7 @@ import live.lingting.framework.id.Snowflake
 import live.lingting.framework.lock.JavaReentrantLock
 import live.lingting.framework.value.UniqueValue
 import live.lingting.framework.value.WaitValue
+import live.lingting.spring.redis.Redis
 import live.lingting.spring.redis.script.RedisScriptExecutor
 import live.lingting.spring.redis.script.RepeatRedisScript
 import org.springframework.data.redis.core.RedisTemplate
@@ -13,8 +14,8 @@ import org.springframework.data.redis.core.ZSetOperations
  * @author lingting 2024/11/25 16:55
  */
 class RedisId @JvmOverloads constructor(
-    val executor: RedisScriptExecutor<String>,
-    val template: RedisTemplate<String, String> = executor.template,
+    val template: RedisTemplate<String, String> = Redis.instance().template(),
+    val executor: RedisScriptExecutor<List<*>> = RedisScriptExecutor(SCRIPT, template),
     val snowflake: Snowflake = Snowflake(0, 0),
     val key: String = "lingting:redis:unique:id"
 ) : UniqueValue<String> {
@@ -95,8 +96,8 @@ return result
     }
 
     fun fromRedis(count: Int): List<String> {
-        val keys = listOf<String>(key)
-        val execute = executor.execute(SCRIPT, keys, count)
+        val keys = listOf(key)
+        val execute = executor.execute(keys, count)
         if (execute.isNullOrEmpty()) {
             return emptyList()
         }

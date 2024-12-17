@@ -1,149 +1,185 @@
 package live.lingting.spring.redis.script
 
-import org.springframework.data.redis.connection.RedisConnection
-import org.springframework.data.redis.connection.ReturnType
+import com.fasterxml.jackson.databind.ObjectMapper
+import live.lingting.framework.jackson.JacksonUtils
+import live.lingting.framework.jackson.wrapper.JacksonWrapper
+import live.lingting.framework.util.Slf4jUtils.logger
+import live.lingting.spring.redis.Redis
+import org.springframework.data.redis.connection.RedisScriptingCommands
 import org.springframework.data.redis.core.RedisCallback
 import org.springframework.data.redis.core.RedisTemplate
-import org.springframework.data.redis.core.script.DefaultScriptExecutor
-import org.springframework.data.redis.core.script.RedisScript
 import org.springframework.data.redis.serializer.RedisSerializer
 
 /**
  * @author lingting 2024-04-17 17:19
  */
-@Suppress("UNCHECKED_CAST", "WRONG_NULLABILITY_FOR_JAVA_OVERRIDE", "NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
-class RedisScriptExecutor<K>(val template: RedisTemplate<K, String>) : DefaultScriptExecutor<K>(template) {
+class RedisScriptExecutor<T> @JvmOverloads constructor(
+    val script: RepeatRedisScript<T>,
+    val template: RedisTemplate<*, *> = Redis.instance().template(),
+    val jacksonWrapper: JacksonWrapper<ObjectMapper> = JacksonUtils.jsonWrapper
+) {
 
-    fun load(script: RepeatRedisScript<*>) {
+    companion object {
+        val log = logger()
+    }
+
+    /**
+     * 脚本内容序列化
+     */
+    var bytesSerializer = template.stringSerializer as RedisSerializer<Any>
+
+    /**
+     * 脚本key序列化
+     */
+    var keySerializer = template.keySerializer as RedisSerializer<Any>
+
+    /**
+     * 脚本参数序列化
+     */
+    var argsSerializer = template.valueSerializer as RedisSerializer<Any>
+
+    /**
+     * 脚本返回值序列化
+     */
+    var resultSerializer = template.valueSerializer as RedisSerializer<Any>
+
+    fun load() {
         template.execute(RedisCallback {
             val commands = it.scriptingCommands()
-            val bytes = scriptBytes(script)
-            commands.scriptLoad(bytes)
+            load(commands)
         })
     }
 
-    fun scriptBytes(script: RepeatRedisScript<*>): ByteArray {
-        val serializer = template.stringSerializer
-        return serializer.serialize(script.source)
+    fun load(commands: RedisScriptingCommands) {
+        if (script.load) {
+            return
+        }
+        val bytes = bytes()
+        commands.scriptLoad(bytes)
+        script.load = true
     }
 
-    override fun keysAndArgs(argsSerializer: RedisSerializer<*>, keys: List<K?>?, args: Array<out Any?>): Array<out ByteArray?> {
-        val map = args.map { it?.toString() }
-        return super.keysAndArgs(argsSerializer, keys, map.toTypedArray())
+    fun bytes(): ByteArray {
+        if (script.bytes == null) {
+            script.bytes = bytesSerializer.serialize(script.source)
+        }
+        return script.bytes!!
     }
 
-    override fun <T : Any> execute(
-        script: RedisScript<T>,
-        argsSerializer: RedisSerializer<*>,
-        resultSerializer: RedisSerializer<T>,
-        keys: List<K>?,
-        vararg args: Any
-    ): T? {
-        return template.execute<T>(RedisCallback { connection ->
-            val returnType = ReturnType.fromJavaType(script.getResultType())
-            val bytes = scriptBytes(script)
-            eval<T>(connection, returnType, argsSerializer, resultSerializer, bytes, keys, *args)
+    @JvmOverloads
+    fun execute(keys: List<Any> = emptyList(), vararg args: Any): T? {
+        return execute(keys, args.toList())
+    }
+
+    @JvmOverloads
+    fun execute(keys: List<Any> = emptyList(), args: Collection<Any> = emptyList()): T? {
+        if (script.load) {
+            return evalSha1(keys, args)
+        }
+        return eval(keys, args)
+    }
+
+    @JvmOverloads
+    fun eval(keys: List<Any> = emptyList(), vararg args: Any): T? {
+        return eval(keys, args.toList())
+    }
+
+    @JvmOverloads
+    fun eval(keys: List<Any> = emptyList(), args: Collection<Any> = emptyList()): T? {
+        return commands(keys, args) { c, s, v ->
+            val bytes = bytes()
+            val eval = c.eval<T>(bytes, script.type, s, *v)
+            script.load = true
+            eval
+        }
+    }
+
+    @JvmOverloads
+    fun evalSha1(keys: List<Any> = emptyList(), vararg args: Any): T? {
+        return evalSha1(keys, args.toList())
+    }
+
+    @JvmOverloads
+    fun evalSha1(keys: List<Any> = emptyList(), args: Collection<Any> = emptyList()): T? {
+        return commands(keys, args) { c, s, v ->
+            c.evalSha(script.sha1, script.type, s, *v)
+        }
+    }
+
+    fun <T> convert(value: Any, target: Class<T>?): T {
+        try {
+            if (target != null) {
+                val convert = jacksonWrapper.convert(value, target)
+                if (convert != null) {
+                    return convert
+                }
+            }
+        } catch (e: Exception) {
+            log.debug("Convert error! value: {}; target: {}", value, target, e)
+        }
+        return value as T
+    }
+
+    fun keysAndArgs(keys: List<Any>, args: Collection<Any>): Array<ByteArray> {
+        val list = mutableListOf<ByteArray>()
+
+        val keyType = keySerializer.targetType
+        for (key in keys) {
+            val value = convert(key, keyType)
+            val bytes = keySerializer.serialize(value)
+            list.add(bytes!!)
+        }
+
+        val argType = argsSerializer.targetType
+        for (arg in args) {
+            val value = convert(arg, argType)
+            val bytes = argsSerializer.serialize(value)
+            list.add(bytes!!)
+        }
+
+        return list.toTypedArray()
+    }
+
+    fun deserializeResult(result: Any?): T? {
+        if (result == null) {
+            return null
+        }
+
+        if (result is ByteArray) {
+            return resultSerializer.deserialize(result) as T?
+        }
+
+        if (result is Iterable<*>) {
+            val list = mutableListOf<Any?>()
+            for (item in result) {
+                val deserialize = deserializeResult(item)
+                list.add(deserialize)
+            }
+            return list as T?
+        }
+
+        return result as T?
+    }
+
+    fun commands(keys: List<Any>, args: Collection<Any>, callback: RedisScriptCallback): T? {
+        val keysAndArgs = keysAndArgs(keys, args)
+
+        return template.execute(RedisCallback {
+            val commands = it.scriptingCommands()
+            val apply = callback.apply(commands, keys.size, keysAndArgs)
+            if (it.isQueueing || it.isPipelined || apply == null) {
+                return@RedisCallback null
+            }
+            deserializeResult(apply)
         })
     }
 
-    fun <T : Any> execute(
-        connection: RedisConnection, script: RedisScript<T>, keys: List<K>?,
-        vararg args: Any
-    ): T? {
-        val returnType = ReturnType.fromJavaType(script.getResultType())
-        val bytes = scriptBytes(script)
-        return eval<T>(connection, returnType, bytes, keys, *args)
-    }
-
-    fun <T : Any> execute(script: RepeatRedisScript<T>, keys: List<K>?, vararg args: Any): T? {
-        return template.execute<T>(RedisCallback { connection -> execute<T>(connection, script, keys, *args) })
-    }
-
-    fun <T : Any> execute(script: RepeatRedisScript<T>, keys: List<K>?, args: Collection<Any>): T? {
-        return execute(script, keys, *args.toTypedArray())
-    }
-
-    fun <T : Any> execute(connection: RedisConnection, script: RepeatRedisScript<T>, keys: List<K>?, vararg args: Any): T? {
-        if (script.isLoad) {
-            return evalSha1<T>(connection, script.type, script.sha1, keys, *args)
-        }
-        val bytes = scriptBytes(script)
-        return eval<T>(connection, script.type, bytes, keys, *args)
-    }
-
-    fun <T : Any> execute(connection: RedisConnection, script: RepeatRedisScript<T>, keys: List<K>?, args: Collection<Any>): T? {
-        return execute(connection, script, keys, *args.toTypedArray())
-    }
-
-    fun <T : Any> eval(
-        connection: RedisConnection, returnType: ReturnType, script: ByteArray, keys: List<K>?,
-        vararg args: Any
-    ): T? {
-        return eval<T>(
-            connection, returnType, template.valueSerializer,
-            template.valueSerializer as RedisSerializer<T>, script, keys, *args
-        )
-    }
-
-    fun <T : Any> eval(
-        connection: RedisConnection, returnType: ReturnType, script: ByteArray, keys: List<K>?,
-        args: Collection<Any>
-    ): T? {
-        return eval<T>(connection, returnType, script, keys, *args.toTypedArray())
-    }
-
-    fun <T : Any> eval(
-        connection: RedisConnection, returnType: ReturnType, argsSerializer: RedisSerializer<*>,
-        resultSerializer: RedisSerializer<T>, script: ByteArray, keys: List<K>?, vararg args: Any
-    ): T? {
-        val keysAndArgs = keysAndArgs(argsSerializer, keys, args)
-        val keySize = keys?.size ?: 0
-        val commands = connection.scriptingCommands()
-        val result = commands.eval<Any>(script, returnType, keySize, *keysAndArgs)
-        if (connection.isQueueing || connection.isPipelined || result == null) {
-            return null
-        }
-        return deserializeResult<T>(resultSerializer, result)
-    }
-
-    fun <T : Any> eval(
-        connection: RedisConnection, returnType: ReturnType, argsSerializer: RedisSerializer<*>,
-        resultSerializer: RedisSerializer<T>, script: ByteArray, keys: List<K>?, args: Collection<Any>
-    ): T? {
-        return eval<T>(connection, returnType, argsSerializer, resultSerializer, script, keys, *args.toTypedArray())
-    }
-
-
-    fun <T : Any> evalSha1(
-        connection: RedisConnection, returnType: ReturnType, sha1: String, keys: List<K>?,
-        vararg args: Any
-    ): T? {
-        return evalSha1<T>(
-            connection, returnType, template.valueSerializer,
-            template.valueSerializer as RedisSerializer<T>, sha1, keys, *args
-        )
-    }
-
-    fun <T : Any> evalSha1(connection: RedisConnection, script: RepeatRedisScript<T>, keys: List<K>?, vararg args: Any): T? {
-        return evalSha1(connection, script.type, script.sha1, keys, *args)
-    }
-
-    fun <T : Any> evalSha1(
-        connection: RedisConnection, returnType: ReturnType, argsSerializer: RedisSerializer<*>,
-        resultSerializer: RedisSerializer<T>, sha1: String, keys: List<K>?, vararg args: Any
-    ): T? {
-        val keysAndArgs = keysAndArgs(argsSerializer, keys, args)
-        val keySize = keys?.size ?: 0
-        val commands = connection.scriptingCommands()
-        val result = commands.evalSha<Any>(sha1, returnType, keySize, *keysAndArgs)
-        if (connection.isQueueing || connection.isPipelined || result == null) {
-            return null
-        }
-        return deserializeResult<T>(resultSerializer, result)
-    }
-
-    fun <T : Any> evalSha1(connection: RedisConnection, script: RepeatRedisScript<T>, keys: List<K>?, args: Collection<Any>): T? {
-        return evalSha1(connection, script.type, script.sha1, keys, *args.toTypedArray())
+    fun <T> copy(script: RepeatRedisScript<T>) = RedisScriptExecutor(script, template).let {
+        it.bytesSerializer = bytesSerializer
+        it.keySerializer = keySerializer
+        it.argsSerializer = argsSerializer
+        it.resultSerializer = resultSerializer
+        it
     }
 
 }

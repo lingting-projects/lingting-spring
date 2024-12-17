@@ -1,55 +1,58 @@
 package live.lingting.spring.redis.script
 
-import kotlin.reflect.KClass
+import java.util.concurrent.ConcurrentHashMap
 import live.lingting.spring.redis.Redis
-import org.springframework.data.redis.connection.RedisConnection
 import org.springframework.data.redis.connection.ReturnType
 import org.springframework.data.redis.core.script.DigestUtils
-import org.springframework.util.Assert
-import org.springframework.util.StringUtils
+import org.springframework.data.redis.core.script.RedisScript
 
 /**
  * @author lingting 2024-04-17 16:19
  */
-class RepeatRedisScript<T : Any> @JvmOverloads constructor(source: String, type: ReturnType = ReturnType.STATUS) {
+class RepeatRedisScript<T> @JvmOverloads constructor(
+    source: String,
+    val type: ReturnType = ReturnType.STATUS
+) {
+
+    companion object {
+
+        @JvmField
+        val CACHE = ConcurrentHashMap<RedisScript<*>, RepeatRedisScript<*>>()
+
+        @JvmStatic
+        fun <T> of(source: RedisScript<T>): RepeatRedisScript<T> {
+            return CACHE.computeIfAbsent(source) { RepeatRedisScript(source.scriptAsString, source.resultType) } as RepeatRedisScript<T>
+        }
+
+        fun <T> RedisScript<T>.repeat(): RepeatRedisScript<T> = of(this)
+
+    }
+
     val source: String
 
     val sha1: String
 
-    val type: ReturnType
+    var load: Boolean = false
 
-    var isLoad: Boolean = false
-        private set
+    var bytes: ByteArray? = null
 
-    constructor(source: String, resultType: Class<T>) : this(source, ReturnType.fromJavaType(resultType))
-
-    constructor(source: String, resultType: KClass<T>) : this(source, resultType.java)
+    constructor(source: String, resultType: Class<T>?) : this(source, ReturnType.fromJavaType(resultType))
 
     init {
-        Assert.state(StringUtils.hasText(source), "Redis script source must not be empty")
+        require(source.isNotBlank()) { "Redis script source must not be empty" }
         this.source = source
         this.sha1 = DigestUtils.sha1DigestAsHex(source)
-        this.type = type
     }
 
-    fun execute(keys: List<String>, vararg args: Any): T? {
-        return Redis.instance().scriptExecutor().execute<T>(this, keys, *args)
+    @JvmOverloads
+    fun execute(keys: List<String> = emptyList(), vararg args: Any): T? {
+        return execute(keys, args.toList())
     }
 
-    fun execute(keys: List<String>, args: Collection<Any>): T? {
-        return execute(keys, *args.toTypedArray())
+    @JvmOverloads
+    fun execute(keys: List<String> = emptyList(), args: Collection<Any>): T? {
+        return Redis.instance().script(this).execute(keys, args)
     }
 
-    fun execute(connection: RedisConnection, keys: List<String>, vararg args: Any): T? {
-        return Redis.instance().scriptExecutor().execute<T>(connection, this, keys, *args)
-    }
 
-    fun execute(connection: RedisConnection, keys: List<String>, args: Collection<Any>): T? {
-        return execute(connection, keys, *args.toTypedArray())
-    }
-
-    fun load(executor: RedisScriptExecutor<*>) {
-        executor.load(this)
-        this.isLoad = true
-    }
 }
