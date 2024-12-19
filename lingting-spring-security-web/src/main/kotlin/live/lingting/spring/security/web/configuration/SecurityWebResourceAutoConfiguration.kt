@@ -42,7 +42,7 @@ open class SecurityWebResourceAutoConfiguration {
     ): SecurityTokenWebRemoteResolver {
         val authorization = properties.authorization
         val remoteHost = authorization.remoteHost
-        return SecurityTokenWebRemoteResolver(remoteHost!!, ApiClient.CLIENT, convert, webProperties)
+        return SecurityTokenWebRemoteResolver(remoteHost!!, ApiClient.defaultClient, convert, webProperties)
     }
 
     @Bean
