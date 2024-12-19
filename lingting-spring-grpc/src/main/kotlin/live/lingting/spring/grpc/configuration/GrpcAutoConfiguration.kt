@@ -4,6 +4,8 @@ import io.grpc.ClientInterceptor
 import live.lingting.framework.grpc.GrpcClientProvide
 import live.lingting.framework.grpc.GrpcServer
 import live.lingting.framework.grpc.GrpcServerBuilder
+import live.lingting.framework.grpc.customizer.ClientCustomizer
+import live.lingting.framework.grpc.customizer.ThreadExecutorCustomizer
 import live.lingting.framework.grpc.interceptor.GrpcClientTraceIdInterceptor
 import live.lingting.framework.grpc.properties.GrpcClientProperties
 import live.lingting.framework.grpc.properties.GrpcServerProperties
@@ -11,6 +13,7 @@ import live.lingting.spring.grpc.properties.GrpcSpringProperties
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 
@@ -30,6 +33,7 @@ open class GrpcAutoConfiguration {
         client.traceIdKey = properties.traceIdKey
         client.traceOrder = properties.traceOrder
         client.usePlaintext = properties.client.usePlaintext
+        client.useGzip = properties.useGzip
         client.disableSsl = properties.client.disableSsl
         client.enableRetry = properties.client.enableRetry
         client.enableKeepAlive = properties.client.enableKeepAlive
@@ -43,6 +47,7 @@ open class GrpcAutoConfiguration {
     open fun grpcServerProperties(properties: GrpcSpringProperties): GrpcServerProperties {
         val server = GrpcServerProperties()
         server.port = properties.server.port
+        server.useGzip = properties.useGzip
         server.messageSize = properties.server.messageSize
         server.keepAliveTime = properties.keepAliveTime
         server.keepAliveTimeout = properties.keepAliveTimeout
@@ -54,8 +59,18 @@ open class GrpcAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    open fun grpcClientProvide(properties: GrpcClientProperties, interceptors: MutableList<ClientInterceptor>): GrpcClientProvide {
-        return GrpcClientProvide(properties, interceptors)
+    open fun grpcClientTraceIdInterceptor(properties: GrpcClientProperties): GrpcClientTraceIdInterceptor {
+        return GrpcClientTraceIdInterceptor(properties)
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    open fun grpcClientProvide(
+        properties: GrpcClientProperties,
+        interceptors: Collection<ClientInterceptor>,
+        customizers: Collection<ClientCustomizer>
+    ): GrpcClientProvide {
+        return GrpcClientProvide(properties, interceptors, customizers)
     }
 
     @Bean
@@ -67,7 +82,9 @@ open class GrpcAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    open fun grpcClientTraceIdInterceptor(properties: GrpcClientProperties): GrpcClientTraceIdInterceptor {
-        return GrpcClientTraceIdInterceptor(properties)
+    @ConditionalOnProperty(prefix = GrpcSpringProperties.PREFIX, name = ["use-customize-execute"], matchIfMissing = true)
+    open fun threadExecutorCustomizer(): ThreadExecutorCustomizer {
+        return ThreadExecutorCustomizer()
     }
+
 }

@@ -22,6 +22,10 @@ class GrpcSpringProperties {
 
     var keepAliveTimeout: Duration = Duration.ofSeconds(2)
 
+    var useGzip: Boolean = false
+
+    var useCustomizeExecute: Boolean = true
+
     var client: Client = Client()
 
     var server: Server = Server()
