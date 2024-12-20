@@ -10,13 +10,15 @@ import org.springframework.boot.context.properties.NestedConfigurationProperty
  */
 @ConfigurationProperties(HuaweiSpringProperties.PREFIX)
 class HuaweiSpringProperties {
+
+    companion object {
+        const val PREFIX: String = "lingting.huawei"
+    }
+
     @NestedConfigurationProperty
     var iam: HuaweiIamProperties = HuaweiIamProperties()
 
     @NestedConfigurationProperty
     var obs: HuaweiObsProperties = HuaweiObsProperties()
 
-    companion object {
-        const val PREFIX: String = "lingting.huawei"
-    }
 }

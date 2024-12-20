@@ -9,6 +9,7 @@ import org.springframework.data.redis.core.script.RedisScript
 /**
  * @author lingting 2024-04-17 16:19
  */
+@Suppress("UNCHECKED_CAST")
 class RepeatRedisScript<T> @JvmOverloads constructor(
     source: String,
     val type: ReturnType = ReturnType.STATUS

@@ -13,6 +13,7 @@ import org.springframework.data.redis.serializer.RedisSerializer
 /**
  * @author lingting 2024-04-17 17:19
  */
+@Suppress("UNCHECKED_CAST")
 class RedisScriptExecutor<T> @JvmOverloads constructor(
     val script: RepeatRedisScript<T>,
     val template: RedisTemplate<*, *> = Redis.instance().template(),

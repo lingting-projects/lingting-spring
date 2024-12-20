@@ -166,7 +166,7 @@ abstract class AbstractElasticsearchServiceImpl<T : Any> {
     }
 
     fun aggs(
-        consumer: BiConsumer<String, Aggregate>, aggregationMap: MutableMap<String, Aggregation>,
+        consumer: BiConsumer<String, Aggregate>, aggregationMap: Map<String, Aggregation>,
         queries: QueryBuilder<T>
     ) {
         api.aggs(consumer, aggregationMap, queries)
@@ -174,14 +174,14 @@ abstract class AbstractElasticsearchServiceImpl<T : Any> {
 
     fun aggs(
         operator: UnaryOperator<SearchRequest.Builder>, consumer: BiConsumer<String, Aggregate>,
-        aggregationMap: MutableMap<String, Aggregation>, queries: QueryBuilder<T>
+        aggregationMap: Map<String, Aggregation>, queries: QueryBuilder<T>
     ) {
         api.aggs(operator, consumer, aggregationMap, queries)
     }
 
     fun aggs(
         operator: UnaryOperator<SearchRequest.Builder>, consumer: Consumer<SearchResponse<T>>,
-        aggregationMap: MutableMap<String, Aggregation>, queries: QueryBuilder<T>
+        aggregationMap: Map<String, Aggregation>, queries: QueryBuilder<T>
     ) {
         api.aggs(operator, consumer, aggregationMap, queries)
     }
@@ -263,11 +263,11 @@ abstract class AbstractElasticsearchServiceImpl<T : Any> {
         return api.bulk(*operations)
     }
 
-    fun bulk(operations: MutableList<BulkOperation>): BulkResponse {
+    fun bulk(operations: List<BulkOperation>): BulkResponse {
         return api.bulk(operations)
     }
 
-    fun bulk(operator: UnaryOperator<BulkRequest.Builder>, operations: MutableList<BulkOperation>): BulkResponse {
+    fun bulk(operator: UnaryOperator<BulkRequest.Builder>, operations: List<BulkOperation>): BulkResponse {
         return api.bulk(operator, operations)
     }
 
@@ -275,20 +275,20 @@ abstract class AbstractElasticsearchServiceImpl<T : Any> {
         api.save(t)
     }
 
-    fun saveBatch(collection: MutableCollection<T>) {
+    fun saveBatch(collection: Collection<T>) {
         api.saveBatch(collection)
     }
 
-    fun saveBatch(operator: UnaryOperator<BulkRequest.Builder>, collection: MutableCollection<T>) {
+    fun saveBatch(operator: UnaryOperator<BulkRequest.Builder>, collection: Collection<T>) {
         api.saveBatch(operator, collection)
     }
 
-    fun <E> batch(collection: MutableCollection<E>, function: Function<E, BulkOperation>): BulkResponse {
+    fun <E> batch(collection: Collection<E>, function: Function<E, BulkOperation>): BulkResponse {
         return api.batch<E>(collection, function)
     }
 
     fun <E> batch(
-        operator: UnaryOperator<BulkRequest.Builder>, collection: MutableCollection<E>,
+        operator: UnaryOperator<BulkRequest.Builder>, collection: Collection<E>,
         function: Function<E, BulkOperation>
     ): BulkResponse {
         return api.batch<E>(operator, collection, function)
