@@ -60,7 +60,7 @@ abstract class AbstractElasticsearchServiceImpl<T : Any> {
     val info: IndexInfo
         get() = api.info
 
-    abstract fun documentId(t: T): String
+    open fun documentId(t: T): String? = null
 
     // region extend
     open fun script(): ScriptBuilder<T> {
@@ -186,15 +186,15 @@ abstract class AbstractElasticsearchServiceImpl<T : Any> {
         api.aggs(operator, consumer, aggregationMap, queries)
     }
 
-    open fun update(documentId: String, scriptOperator: Function<Script.Builder, ObjectBuilder<Script>>): Boolean {
+    open fun update(documentId: String?, scriptOperator: Function<Script.Builder, ObjectBuilder<Script>>): Boolean {
         return api.update(documentId, scriptOperator)
     }
 
-    open fun update(documentId: String, script: Script): Boolean {
+    open fun update(documentId: String?, script: Script): Boolean {
         return api.update(documentId, script)
     }
 
-    open fun update(operator: UnaryOperator<UpdateRequest.Builder<T, T>>, documentId: String, script: Script): Boolean {
+    open fun update(operator: UnaryOperator<UpdateRequest.Builder<T, T>>, documentId: String?, script: Script): Boolean {
         return api.update(operator, documentId, script)
     }
 
@@ -210,7 +210,7 @@ abstract class AbstractElasticsearchServiceImpl<T : Any> {
         return api.upsert(doc, script)
     }
 
-    open fun update(operator: UnaryOperator<UpdateRequest.Builder<T, T>>, documentId: String): Boolean {
+    open fun update(operator: UnaryOperator<UpdateRequest.Builder<T, T>>, documentId: String?): Boolean {
         return api.update(operator, documentId)
     }
 
