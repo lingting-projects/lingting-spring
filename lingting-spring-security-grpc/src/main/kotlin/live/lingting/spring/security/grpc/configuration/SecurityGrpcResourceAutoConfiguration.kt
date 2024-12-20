@@ -36,22 +36,15 @@ open class SecurityGrpcResourceAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     @ConditionalOnUsingRemoteAuthorization
-    open fun securityGrpcRemoteResourceClientInterceptor(
-        properties: SecurityGrpcProperties
-    ): SecurityGrpcRemoteResourceClientInterceptor {
-        return SecurityGrpcRemoteResourceClientInterceptor(properties)
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    @ConditionalOnUsingRemoteAuthorization
     @ConditionalOnBean(GrpcClientProvide::class)
     open fun securityTokenGrpcRemoteResolver(
         properties: SecurityProperties,
-        interceptor: SecurityGrpcRemoteResourceClientInterceptor, provide: GrpcClientProvide,
+        grpcProperties: SecurityGrpcProperties,
+        provide: GrpcClientProvide,
         convert: SecurityGrpcConvert
     ): SecurityTokenGrpcRemoteResolver {
         val authorization = properties.authorization
+        val interceptor = SecurityGrpcRemoteResourceClientInterceptor(grpcProperties)
         val channel = provide.builder(authorization.remoteHost!!)
             .provide()
             .interceptor(interceptor)
