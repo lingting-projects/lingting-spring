@@ -47,7 +47,7 @@ abstract class AbstractElasticsearchServiceImpl<T : Any> {
 
     protected val log = logger()
 
-    val cls = getEntityClass<T>(javaClass)
+    open val cls = getEntityClass<T>(javaClass)
 
     private val apiValue = WaitValue.of<ElasticsearchApi<T>>()
 
@@ -63,15 +63,15 @@ abstract class AbstractElasticsearchServiceImpl<T : Any> {
     abstract fun documentId(t: T): String
 
     // region extend
-    fun script(): ScriptBuilder<T> {
+    open fun script(): ScriptBuilder<T> {
         return ScriptBuilder.builder<T>()
     }
 
-    fun query(): QueryBuilder<T> {
+    open fun query(): QueryBuilder<T> {
         return QueryBuilder.builder()
     }
 
-    fun tryIgnore(runnable: ThrowingRunnable) {
+    open fun tryIgnore(runnable: ThrowingRunnable) {
         try {
             runnable.run()
         } catch (e: Throwable) {
@@ -79,15 +79,15 @@ abstract class AbstractElasticsearchServiceImpl<T : Any> {
         }
     }
 
-    fun <R> tryElse(supplier: ThrowingSupplier<R>, defaultValue: R): R {
+    open fun <R> tryElse(supplier: ThrowingSupplier<R>, defaultValue: R): R {
         return tryGet<R>(supplier, Supplier { defaultValue })
     }
 
-    fun <R> tryGet(supplier: ThrowingSupplier<R>, defaultValue: Supplier<R>): R {
+    open fun <R> tryGet(supplier: ThrowingSupplier<R>, defaultValue: Supplier<R>): R {
         return tryGet<R>(supplier, Function { e -> defaultValue.get() })
     }
 
-    fun <R> tryGet(supplier: ThrowingSupplier<R>, defaultValue: Function<Throwable, R>): R {
+    open fun <R> tryGet(supplier: ThrowingSupplier<R>, defaultValue: Function<Throwable, R>): R {
         try {
             return supplier.get()
         } catch (e: Throwable) {
@@ -98,270 +98,270 @@ abstract class AbstractElasticsearchServiceImpl<T : Any> {
 
     // endregion
 
-    fun retry(runnable: ThrowingRunnable) {
+    open fun retry(runnable: ThrowingRunnable) {
         api.retry(runnable)
     }
 
-    fun <R> retry(supplier: ThrowingSupplier<R>): R {
+    open fun <R> retry(supplier: ThrowingSupplier<R>): R {
         return api.retry<R>(supplier)
     }
 
-    fun merge(vararg arrays: Query): Query {
+    open fun merge(vararg arrays: Query): Query {
         return api.merge(*arrays)
     }
 
-    fun merge(builder: QueryBuilder<T>): Query {
+    open fun merge(builder: QueryBuilder<T>): Query {
         return api.merge(builder)
     }
 
-    fun get(id: String): T {
+    open fun get(id: String): T {
         return api.get(id)
     }
 
-    fun getByQuery(vararg queries: Query): T? {
+    open fun getByQuery(vararg queries: Query): T? {
         return api.getByQuery(*queries)
     }
 
-    fun getByQuery(queries: QueryBuilder<T>): T? {
+    open fun getByQuery(queries: QueryBuilder<T>): T? {
         return api.getByQuery(queries)
     }
 
-    fun getByQuery(operator: UnaryOperator<SearchRequest.Builder>, queries: QueryBuilder<T>): T? {
+    open fun getByQuery(operator: UnaryOperator<SearchRequest.Builder>, queries: QueryBuilder<T>): T? {
         return api.getByQuery(operator, queries)
     }
 
-    fun count(vararg queries: Query): Long {
+    open fun count(vararg queries: Query): Long {
         return api.count(*queries)
     }
 
-    fun count(queries: QueryBuilder<T>): Long {
+    open fun count(queries: QueryBuilder<T>): Long {
         return api.count(queries)
     }
 
-    fun search(vararg queries: Query): HitsMetadata<T> {
+    open fun search(vararg queries: Query): HitsMetadata<T> {
         return api.search(*queries)
     }
 
-    fun search(queries: QueryBuilder<T>): HitsMetadata<T> {
+    open fun search(queries: QueryBuilder<T>): HitsMetadata<T> {
         return api.search(queries)
     }
 
-    fun search(operator: UnaryOperator<SearchRequest.Builder>, queries: QueryBuilder<T>): HitsMetadata<T> {
+    open fun search(operator: UnaryOperator<SearchRequest.Builder>, queries: QueryBuilder<T>): HitsMetadata<T> {
         return api.search(operator, queries)
     }
 
-    fun <E> search(
+    open fun <E> search(
         operator: UnaryOperator<SearchRequest.Builder>, queries: QueryBuilder<T>,
         convert: Function<SearchResponse<T>, E>
     ): E {
         return api.search(operator, queries, convert)
     }
 
-    fun page(params: PaginationParams): PaginationResult<T> {
+    open fun page(params: PaginationParams): PaginationResult<T> {
         return api.page(params, QueryBuilder.builder())
     }
 
-    fun page(params: PaginationParams, queries: QueryBuilder<T>): PaginationResult<T> {
+    open fun page(params: PaginationParams, queries: QueryBuilder<T>): PaginationResult<T> {
         return api.page(params, queries)
     }
 
-    fun aggs(
+    open fun aggs(
         consumer: BiConsumer<String, Aggregate>, aggregationMap: Map<String, Aggregation>,
         queries: QueryBuilder<T>
     ) {
         api.aggs(consumer, aggregationMap, queries)
     }
 
-    fun aggs(
+    open fun aggs(
         operator: UnaryOperator<SearchRequest.Builder>, consumer: BiConsumer<String, Aggregate>,
         aggregationMap: Map<String, Aggregation>, queries: QueryBuilder<T>
     ) {
         api.aggs(operator, consumer, aggregationMap, queries)
     }
 
-    fun aggs(
+    open fun aggs(
         operator: UnaryOperator<SearchRequest.Builder>, consumer: Consumer<SearchResponse<T>>,
         aggregationMap: Map<String, Aggregation>, queries: QueryBuilder<T>
     ) {
         api.aggs(operator, consumer, aggregationMap, queries)
     }
 
-    fun update(documentId: String, scriptOperator: Function<Script.Builder, ObjectBuilder<Script>>): Boolean {
+    open fun update(documentId: String, scriptOperator: Function<Script.Builder, ObjectBuilder<Script>>): Boolean {
         return api.update(documentId, scriptOperator)
     }
 
-    fun update(documentId: String, script: Script): Boolean {
+    open fun update(documentId: String, script: Script): Boolean {
         return api.update(documentId, script)
     }
 
-    fun update(operator: UnaryOperator<UpdateRequest.Builder<T, T>>, documentId: String, script: Script): Boolean {
+    open fun update(operator: UnaryOperator<UpdateRequest.Builder<T, T>>, documentId: String, script: Script): Boolean {
         return api.update(operator, documentId, script)
     }
 
-    fun update(t: T): Boolean {
+    open fun update(t: T): Boolean {
         return api.update(t)
     }
 
-    fun upsert(doc: T): Boolean {
+    open fun upsert(doc: T): Boolean {
         return api.upsert(doc)
     }
 
-    fun upsert(doc: T, script: Script): Boolean {
+    open fun upsert(doc: T, script: Script): Boolean {
         return api.upsert(doc, script)
     }
 
-    fun update(operator: UnaryOperator<UpdateRequest.Builder<T, T>>, documentId: String): Boolean {
+    open fun update(operator: UnaryOperator<UpdateRequest.Builder<T, T>>, documentId: String): Boolean {
         return api.update(operator, documentId)
     }
 
-    fun <E> update(operator: UnaryOperator<UpdateRequest.Builder<T, T>>, convert: Function<UpdateResponse<T>, E>): E {
+    open fun <E> update(operator: UnaryOperator<UpdateRequest.Builder<T, T>>, convert: Function<UpdateResponse<T>, E>): E {
         return api.update(operator, convert)
     }
 
-    fun updateByQuery(script: Script, vararg queries: Query): Boolean {
+    open fun updateByQuery(script: Script, vararg queries: Query): Boolean {
         return api.updateByQuery(script, *queries)
     }
 
-    fun updateByQuery(
+    open fun updateByQuery(
         scriptOperator: Function<Script.Builder, ObjectBuilder<Script>>,
         queries: QueryBuilder<T>
     ): Boolean {
         return api.updateByQuery(scriptOperator, queries)
     }
 
-    fun updateByQuery(script: Script, queries: QueryBuilder<T>): Boolean {
+    open fun updateByQuery(script: Script, queries: QueryBuilder<T>): Boolean {
         return api.updateByQuery(script, queries)
     }
 
-    fun updateByQuery(
+    open fun updateByQuery(
         operator: UnaryOperator<UpdateByQueryRequest.Builder>, script: Script,
         queries: QueryBuilder<T>
     ): Boolean {
         return api.updateByQuery(operator, script, queries)
     }
 
-    fun <E> updateByQuery(
+    open fun <E> updateByQuery(
         operator: UnaryOperator<UpdateByQueryRequest.Builder>,
         script: Script, queries: QueryBuilder<T>, convert: Function<UpdateByQueryResponse, E>
     ): E {
         return api.updateByQuery(operator, script, queries, convert)
     }
 
-    fun bulk(vararg collection: T, convert: Function<T, BulkOperationBase.AbstractBuilder<*>>): BulkResponse {
+    open fun bulk(vararg collection: T, convert: Function<T, BulkOperationBase.AbstractBuilder<*>>): BulkResponse {
         return api.bulk(collection.toList(), convert)
     }
 
-    fun bulk(collection: List<T>, convert: Function<T, BulkOperationBase.AbstractBuilder<*>>): BulkResponse {
+    open fun bulk(collection: List<T>, convert: Function<T, BulkOperationBase.AbstractBuilder<*>>): BulkResponse {
         return api.bulk(collection, convert)
     }
 
-    fun bulk(operator: UnaryOperator<BulkRequest.Builder>, collection: Collection<T>, convert: Function<T, BulkOperationBase.AbstractBuilder<*>>): BulkResponse {
+    open fun bulk(operator: UnaryOperator<BulkRequest.Builder>, collection: Collection<T>, convert: Function<T, BulkOperationBase.AbstractBuilder<*>>): BulkResponse {
         return api.bulk(operator, collection, convert)
     }
 
-    fun bulk(vararg operations: BulkOperation): BulkResponse {
+    open fun bulk(vararg operations: BulkOperation): BulkResponse {
         return api.bulk(*operations)
     }
 
-    fun bulk(operations: List<BulkOperation>): BulkResponse {
+    open fun bulk(operations: List<BulkOperation>): BulkResponse {
         return api.bulk(operations)
     }
 
-    fun bulk(operator: UnaryOperator<BulkRequest.Builder>, operations: List<BulkOperation>): BulkResponse {
+    open fun bulk(operator: UnaryOperator<BulkRequest.Builder>, operations: List<BulkOperation>): BulkResponse {
         return api.bulk(operator, operations)
     }
 
-    fun save(t: T) {
+    open fun save(t: T) {
         api.save(t)
     }
 
-    fun saveBatch(collection: Collection<T>) {
+    open fun saveBatch(collection: Collection<T>) {
         api.saveBatch(collection)
     }
 
-    fun saveBatch(operator: UnaryOperator<BulkRequest.Builder>, collection: Collection<T>) {
+    open fun saveBatch(operator: UnaryOperator<BulkRequest.Builder>, collection: Collection<T>) {
         api.saveBatch(operator, collection)
     }
 
-    fun <E> batch(collection: Collection<E>, function: Function<E, BulkOperation>): BulkResponse {
+    open fun <E> batch(collection: Collection<E>, function: Function<E, BulkOperation>): BulkResponse {
         return api.batch<E>(collection, function)
     }
 
-    fun <E> batch(
+    open fun <E> batch(
         operator: UnaryOperator<BulkRequest.Builder>, collection: Collection<E>,
         function: Function<E, BulkOperation>
     ): BulkResponse {
         return api.batch<E>(operator, collection, function)
     }
 
-    fun deleteByQuery(vararg queries: Query): Boolean {
+    open fun deleteByQuery(vararg queries: Query): Boolean {
         return api.deleteByQuery(*queries)
     }
 
-    fun deleteByQuery(queries: QueryBuilder<T>): Boolean {
+    open fun deleteByQuery(queries: QueryBuilder<T>): Boolean {
         return api.deleteByQuery(queries)
     }
 
-    fun deleteByQuery(operator: UnaryOperator<DeleteByQueryRequest.Builder>, queries: QueryBuilder<T>): Boolean {
+    open fun deleteByQuery(operator: UnaryOperator<DeleteByQueryRequest.Builder>, queries: QueryBuilder<T>): Boolean {
         return api.deleteByQuery(operator, queries)
     }
 
-    fun <E> deleteByQuery(operator: UnaryOperator<DeleteByQueryRequest.Builder>, queries: QueryBuilder<T>, convert: Function<DeleteByQueryResponse, E>): E {
+    open fun <E> deleteByQuery(operator: UnaryOperator<DeleteByQueryRequest.Builder>, queries: QueryBuilder<T>, convert: Function<DeleteByQueryResponse, E>): E {
         return api.deleteByQuery(operator, queries, convert)
     }
 
-    fun list(vararg queries: Query): List<T> {
+    open fun list(vararg queries: Query): List<T> {
         return api.list(*queries)
     }
 
-    fun list(queries: QueryBuilder<T>): List<T> {
+    open fun list(queries: QueryBuilder<T>): List<T> {
         return api.list(queries)
     }
 
-    fun list(operator: UnaryOperator<SearchRequest.Builder>, vararg queries: Query): List<T> {
+    open fun list(operator: UnaryOperator<SearchRequest.Builder>, vararg queries: Query): List<T> {
         return api.list(operator, *queries)
     }
 
-    fun list(operator: UnaryOperator<SearchRequest.Builder>, queries: QueryBuilder<T>): List<T> {
+    open fun list(operator: UnaryOperator<SearchRequest.Builder>, queries: QueryBuilder<T>): List<T> {
         return api.list(operator, queries)
     }
 
-    fun scroll(params: ScrollParams<String>, vararg queries: Query): ScrollResult<T, String> {
+    open fun scroll(params: ScrollParams<String>, vararg queries: Query): ScrollResult<T, String> {
         return api.scroll(params, *queries)
     }
 
-    fun scroll(params: ScrollParams<String>, queries: QueryBuilder<T>): ScrollResult<T, String> {
+    open fun scroll(params: ScrollParams<String>, queries: QueryBuilder<T>): ScrollResult<T, String> {
         return api.scroll(params, queries)
     }
 
-    fun scroll(
+    open fun scroll(
         operator: UnaryOperator<SearchRequest.Builder>, params: ScrollParams<String>,
         queries: QueryBuilder<T>
     ): ScrollResult<T, String> {
         return api.scroll(operator, params, queries)
     }
 
-    fun scroll(operator: UnaryOperator<ScrollRequest.Builder>, scrollId: String): ScrollResult<T, String> {
+    open fun scroll(operator: UnaryOperator<ScrollRequest.Builder>, scrollId: String): ScrollResult<T, String> {
         return api.scroll(operator, scrollId)
     }
 
-    fun clearScroll(scrollId: String) {
+    open fun clearScroll(scrollId: String) {
         api.clearScroll(scrollId)
     }
 
-    fun pageCursor(params: PaginationParams, vararg queries: Query): LimitCursor<T> {
+    open fun pageCursor(params: PaginationParams, vararg queries: Query): LimitCursor<T> {
         return api.pageCursor(params, *queries)
     }
 
-    fun pageCursor(params: PaginationParams, queries: QueryBuilder<T>): LimitCursor<T> {
+    open fun pageCursor(params: PaginationParams, queries: QueryBuilder<T>): LimitCursor<T> {
         return api.pageCursor(params, queries)
     }
 
-    fun scrollCursor(params: ScrollParams<String>, vararg queries: Query): ScrollCursor<T, String> {
+    open fun scrollCursor(params: ScrollParams<String>, vararg queries: Query): ScrollCursor<T, String> {
         return api.scrollCursor(params, *queries)
     }
 
-    fun scrollCursor(params: ScrollParams<String>, queries: QueryBuilder<T>): ScrollCursor<T, String> {
+    open fun scrollCursor(params: ScrollParams<String>, queries: QueryBuilder<T>): ScrollCursor<T, String> {
         return api.scrollCursor(params, queries)
     }
 
