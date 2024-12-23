@@ -5,7 +5,7 @@ import live.lingting.framework.grpc.GrpcClientProvide
 import live.lingting.framework.grpc.GrpcServer
 import live.lingting.framework.grpc.GrpcServerBuilder
 import live.lingting.framework.grpc.customizer.ClientCustomizer
-import live.lingting.framework.grpc.customizer.ThreadExecutorCustomizer
+import live.lingting.framework.grpc.customizer.GrpcThreadExecutorCustomizer
 import live.lingting.framework.grpc.interceptor.GrpcClientTraceIdInterceptor
 import live.lingting.framework.grpc.properties.GrpcClientProperties
 import live.lingting.framework.grpc.properties.GrpcServerProperties
@@ -83,8 +83,8 @@ open class GrpcAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     @ConditionalOnProperty(prefix = GrpcSpringProperties.PREFIX, name = ["use-customize-execute"], matchIfMissing = true)
-    open fun threadExecutorCustomizer(): ThreadExecutorCustomizer {
-        return ThreadExecutorCustomizer()
+    open fun grpcThreadExecutorCustomizer(): GrpcThreadExecutorCustomizer {
+        return GrpcThreadExecutorCustomizer()
     }
 
 }
