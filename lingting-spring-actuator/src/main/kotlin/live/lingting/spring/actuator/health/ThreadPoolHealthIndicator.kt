@@ -1,6 +1,7 @@
 package live.lingting.spring.actuator.health
 
-import live.lingting.framework.thread.ThreadPool
+import live.lingting.framework.thread.executor.ThreadPoolExecutorServiceImpl
+import live.lingting.framework.util.ThreadUtils
 import org.springframework.boot.actuate.health.AbstractHealthIndicator
 import org.springframework.boot.actuate.health.Health
 import org.springframework.boot.actuate.health.Status
@@ -11,12 +12,15 @@ import org.springframework.boot.actuate.health.Status
 class ThreadPoolHealthIndicator : AbstractHealthIndicator() {
 
     override fun doHealthCheck(builder: Health.Builder) {
-        val instance = ThreadPool.instance
+        val executor = ThreadUtils.executor()
 
-        builder.status(if (instance.isRunning) Status.UP else Status.DOWN)
-            .withDetail("corePoolSize", instance.corePoolSize)
-            .withDetail("taskCount", instance.taskCount)
-            .withDetail("activeCount", instance.activeCount)
-            .withDetail("maximumPoolSize", instance.maximumPoolSize)
+        builder.status(if (!executor.isShutdown && !executor.isTerminated) Status.UP else Status.DOWN)
+
+        if (executor is ThreadPoolExecutorServiceImpl) {
+            builder.withDetail("corePoolSize", executor.corePoolSize)
+                .withDetail("taskCount", executor.taskCount)
+                .withDetail("activeCount", executor.activeCount)
+                .withDetail("maximumPoolSize", executor.maximumPoolSize)
+        }
     }
 }
