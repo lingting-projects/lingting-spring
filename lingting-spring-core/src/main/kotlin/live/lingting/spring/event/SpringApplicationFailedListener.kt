@@ -11,13 +11,14 @@ import org.springframework.core.annotation.Order
  * @author lingting 2023-12-06 17:18
  */
 @Order(Ordered.HIGHEST_PRECEDENCE)
-class SpringApplicationStartingListener : ApplicationListener<ApplicationStartingEvent> {
+class SpringApplicationFailedListener : ApplicationListener<ApplicationStartingEvent> {
+
     companion object {
         private val log = logger()
     }
 
     override fun onApplicationEvent(event: ApplicationStartingEvent) {
-        log.debug("spring application starting")
-        ApplicationHolder.start()
+        log.debug("spring application failed")
+        ApplicationHolder.stop()
     }
 }
