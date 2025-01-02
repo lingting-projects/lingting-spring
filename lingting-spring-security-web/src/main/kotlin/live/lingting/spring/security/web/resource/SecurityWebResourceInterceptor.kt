@@ -14,7 +14,7 @@ import org.springframework.web.servlet.HandlerInterceptor
 /**
  * @author lingting 2024-03-21 19:59
  */
-class SecurityWebResourceInterceptor(
+open class SecurityWebResourceInterceptor(
     protected val properties: SecurityWebProperties,
     protected val authorize: SecurityAuthorize
 ) : HandlerInterceptor, Ordered, Sequence {

@@ -2,6 +2,7 @@ package live.lingting.spring.security.configuration
 
 import java.util.concurrent.atomic.AtomicReference
 import java.util.function.Consumer
+import live.lingting.framework.security.authorize.SecurityAuthorizationCustomizer
 import live.lingting.framework.security.authorize.SecurityAuthorize
 import live.lingting.framework.security.properties.SecurityProperties
 import live.lingting.framework.security.resolver.SecurityTokenDefaultResolver
@@ -19,10 +20,11 @@ import org.springframework.context.annotation.Bean
  * @author lingting 2023-03-29 21:09
  */
 open class SecurityResourceConfiguration {
+
     @Bean
     @ConditionalOnMissingBean
-    fun securityAuthorize(properties: SecurityProperties): SecurityAuthorize {
-        return SecurityAuthorize(properties.order)
+    fun securityAuthorize(properties: SecurityProperties, customizers: List<SecurityAuthorizationCustomizer>): SecurityAuthorize {
+        return SecurityAuthorize(properties.order, customizers)
     }
 
     @Bean
