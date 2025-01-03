@@ -24,7 +24,7 @@ import java.util.function.Consumer
 import java.util.function.Function
 import java.util.function.Supplier
 import java.util.function.UnaryOperator
-import live.lingting.framework.api.LimitCursor
+import live.lingting.framework.api.PaginationCursor
 import live.lingting.framework.api.PaginationParams
 import live.lingting.framework.api.PaginationResult
 import live.lingting.framework.api.ScrollCursor
@@ -349,11 +349,11 @@ abstract class AbstractElasticsearchServiceImpl<T : Any> {
         api.clearScroll(scrollId)
     }
 
-    open fun pageCursor(params: PaginationParams, vararg queries: Query): LimitCursor<T> {
+    open fun pageCursor(params: PaginationParams, vararg queries: Query): PaginationCursor<T> {
         return api.pageCursor(params, *queries)
     }
 
-    open fun pageCursor(params: PaginationParams, queries: QueryBuilder<T>): LimitCursor<T> {
+    open fun pageCursor(params: PaginationParams, queries: QueryBuilder<T>): PaginationCursor<T> {
         return api.pageCursor(params, queries)
     }
 
