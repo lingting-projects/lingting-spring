@@ -12,15 +12,15 @@ import org.springframework.boot.actuate.health.Status
 class ThreadPoolHealthIndicator : AbstractHealthIndicator() {
 
     override fun doHealthCheck(builder: Health.Builder) {
-        val executor = ThreadUtils.executor()
+        val instance = ThreadUtils.instance()
 
-        builder.status(if (!executor.isShutdown && !executor.isTerminated) Status.UP else Status.DOWN)
+        builder.status(if (instance.isRunning) Status.UP else Status.DOWN)
 
-        if (executor is ThreadPoolExecutorServiceImpl) {
-            builder.withDetail("corePoolSize", executor.corePoolSize)
-                .withDetail("taskCount", executor.taskCount)
-                .withDetail("activeCount", executor.activeCount)
-                .withDetail("maximumPoolSize", executor.maximumPoolSize)
+        if (instance is ThreadPoolExecutorServiceImpl) {
+            builder.withDetail("corePoolSize", instance.corePoolSize)
+                .withDetail("taskCount", instance.taskCount)
+                .withDetail("activeCount", instance.activeCount)
+                .withDetail("maximumPoolSize", instance.maximumPoolSize)
         }
     }
 }
