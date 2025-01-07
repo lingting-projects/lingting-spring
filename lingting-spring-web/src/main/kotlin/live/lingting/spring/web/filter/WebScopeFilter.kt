@@ -4,6 +4,7 @@ import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import java.time.Duration
+import live.lingting.framework.application.ApplicationHolder
 import live.lingting.framework.i18n.I18n
 import live.lingting.framework.time.StopWatch
 import live.lingting.framework.util.MdcUtils
@@ -13,6 +14,7 @@ import live.lingting.spring.web.request.ServletRequestConsumer
 import live.lingting.spring.web.scope.WebScope
 import live.lingting.spring.web.scope.WebScopeHolder
 import live.lingting.spring.web.wrapper.RepeatBodyRequestWrapper
+import org.springframework.http.HttpStatus
 import org.springframework.util.StringUtils
 import org.springframework.web.filter.OncePerRequestFilter
 import org.springframework.web.util.ContentCachingResponseWrapper
@@ -20,14 +22,14 @@ import org.springframework.web.util.ContentCachingResponseWrapper
 /**
  * @author lingting 2024-03-20 14:57
  */
-open class WebScopeFilter(protected val properties: SpringWebProperties, protected val consumers: List<ServletRequestConsumer>) : OncePerRequestFilter() {
+open class WebScopeFilter(
+    protected val properties: SpringWebProperties,
+    protected val consumers: List<ServletRequestConsumer>
+) : OncePerRequestFilter() {
 
     val log = logger()
 
-    override fun doFilterInternal(
-        httpServletRequest: HttpServletRequest, httpServletResponse: HttpServletResponse,
-        filterChain: FilterChain
-    ) {
+    override fun doFilterInternal(httpServletRequest: HttpServletRequest, httpServletResponse: HttpServletResponse, filterChain: FilterChain) {
         val request: RepeatBodyRequestWrapper = RepeatBodyRequestWrapper.of(httpServletRequest)
         val response = ContentCachingResponseWrapper(httpServletResponse)
         val traceId = traceId(request)
@@ -42,8 +44,17 @@ open class WebScopeFilter(protected val properties: SpringWebProperties, protect
             log.trace("request language: {}", language)
             I18n.set(language)
         }
+
         response.addHeader(properties.headerTraceId, scope.traceId)
         response.addHeader(properties.headerRequestId, scope.requestId)
+
+        if (ApplicationHolder.isStop && properties.rejectRequestOnStop) {
+            response.status = HttpStatus.SERVICE_UNAVAILABLE.value()
+            response.copyBodyToResponse()
+            log.warn("reject request on application stop. uri: {}, requestId: {}", scope.uri, requestId)
+            return
+        }
+
         val watch = StopWatch()
         try {
             watch.start()
