@@ -16,7 +16,8 @@ class SpringObjectMapperConfigurator(
     val modules: List<Module>,
     val customizers: List<ObjectMapperCustomizer>,
 ) : ObjectMapperConfigurator {
-    override fun apply(mapper: ObjectMapper) {
+
+    override fun applyConfigure(mapper: ObjectMapper) {
         // 序列化时忽略未知属性
         mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
         // 单值元素可以被设置成 array, 防止处理 ["a"] 为 List<String> 时报错
@@ -26,14 +27,21 @@ class SpringObjectMapperConfigurator(
         // 有特殊需要转义字符, 不报错
         mapper.enable(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS.mappedFeature())
 
+    }
+
+    override fun applyProvider(mapper: ObjectMapper) {
         for (serializerProvider in serializerProviders) {
             mapper.setSerializerProvider(serializerProvider)
         }
+    }
 
+    override fun applyModule(mapper: ObjectMapper) {
         for (module in modules) {
             mapper.registerModule(module)
         }
+    }
 
+    override fun applyCustomizer(mapper: ObjectMapper) {
         for (mapperCustomizer in customizers) {
             mapperCustomizer.apply(mapper)
         }
