@@ -23,7 +23,7 @@ class SpringWebProperties {
     var useVirtualThread: Boolean = true
 
     /**
-     * 当上下文在关闭阶段是, 是否拒绝请求
+     * 当上下文在关闭阶段时, 是否拒绝请求
      * @see live.lingting.framework.application.ApplicationHolder.isStop
      */
     var rejectRequestOnStop = true

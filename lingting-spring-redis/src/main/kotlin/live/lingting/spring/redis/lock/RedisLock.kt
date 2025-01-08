@@ -4,9 +4,10 @@ import java.time.Duration
 import live.lingting.framework.lock.AbstractLock
 import live.lingting.framework.lock.SpinLock
 import live.lingting.framework.util.OptionalUtils.optional
-import live.lingting.framework.util.ValueUtils
+import live.lingting.framework.util.Slf4jUtils.logger
 import live.lingting.spring.redis.Redis
 import live.lingting.spring.redis.script.RepeatRedisScript
+import live.lingting.spring.redis.unique.RedisId
 
 /**
  * 基于redis的分布式锁
@@ -19,6 +20,7 @@ class RedisLock @JvmOverloads constructor(
 ) : AbstractLock() {
 
     companion object {
+        private val log = logger()
 
         const val SCRIPT_LOCK_LUA = """-- 获取传入的参数
 local lockKey = KEYS[1]
@@ -92,9 +94,13 @@ return 1
             return SpinLock(lock, params.sleep)
         }
 
-    }
+        val id by lazy {
+            RedisId.get().also {
+                log.info("RedisLock id: {}", it)
+            }
+        }
 
-    val id = ValueUtils.simpleUuid()
+    }
 
     val lockExecutor = redis.script(SCRIPT_LOCK)
 
@@ -110,6 +116,7 @@ return 1
 
     /**
      * 当前线程获取到锁之后, 给锁设置的值
+     * - 同一个线程, 即便不同的实例,也要是同一个值
      */
     val value: String
         get() = "$id:${Thread.currentThread().threadId()}"

@@ -140,9 +140,7 @@ open class SpringRedisAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     open fun redisId(redis: Redis): RedisId {
-        val id = RedisId(redis.template())
-        RedisId.value.update(id)
-        return id
+        return RedisId(redis.template())
     }
 
 }
