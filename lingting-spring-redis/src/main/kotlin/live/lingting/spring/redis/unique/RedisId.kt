@@ -7,6 +7,7 @@ import live.lingting.framework.value.WaitValue
 import live.lingting.spring.redis.Redis
 import live.lingting.spring.redis.script.RedisScriptExecutor
 import live.lingting.spring.redis.script.RepeatRedisScript
+import org.springframework.beans.factory.InitializingBean
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.data.redis.core.ZSetOperations
 
@@ -18,11 +19,11 @@ class RedisId @JvmOverloads constructor(
     val executor: RedisScriptExecutor<List<*>> = RedisScriptExecutor(SCRIPT, template),
     val snowflake: Snowflake = Snowflake(0, 0),
     val key: String = "lingting:redis:unique:id"
-) : UniqueValue<String> {
+) : UniqueValue<String>, InitializingBean {
 
     companion object {
 
-        val value = WaitValue<RedisId>()
+        private val value = WaitValue<RedisId>()
 
         @JvmStatic
         fun instance() = value.notNull()
@@ -103,6 +104,10 @@ return result
         }
 
         return execute.filterNotNull().map { it.toString() }
+    }
+
+    override fun afterPropertiesSet() {
+        value.update(this)
     }
 
 }
