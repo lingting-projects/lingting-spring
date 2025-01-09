@@ -5,7 +5,6 @@ import live.lingting.framework.jackson.module.EnumModule
 import live.lingting.framework.jackson.module.JavaTimeModule
 import live.lingting.framework.jackson.module.MoneyModule
 import live.lingting.framework.jackson.module.RModule
-import live.lingting.framework.jackson.provider.NullSerializerProvider
 import live.lingting.framework.jackson.sensitive.SensitiveModule
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
@@ -51,12 +50,6 @@ open class SpringJacksonModuleAutoConfiguration {
     @ConditionalOnMissingBean
     open fun moneyModule(): MoneyModule {
         return MoneyModule()
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    open fun nullSerializerProvider(): NullSerializerProvider {
-        return NullSerializerProvider()
     }
 
 }
