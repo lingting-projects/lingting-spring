@@ -102,7 +102,7 @@ abstract class AbstractElasticsearchServiceImpl<T : Any> {
         api.retry(runnable)
     }
 
-    open fun <R> retry(supplier: ThrowingSupplier<R>): R {
+    open fun <R> retry(supplier: ThrowingSupplier<R>): R? {
         return api.retry<R>(supplier)
     }
 
