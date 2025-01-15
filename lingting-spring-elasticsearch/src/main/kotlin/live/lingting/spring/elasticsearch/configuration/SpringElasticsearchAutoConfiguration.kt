@@ -10,6 +10,7 @@ import live.lingting.framework.Sequence
 import live.lingting.framework.elasticsearch.ElasticsearchProperties
 import live.lingting.framework.elasticsearch.interceptor.Interceptor
 import live.lingting.framework.elasticsearch.polymerize.PolymerizeFactory
+import live.lingting.framework.util.ThreadUtils
 import live.lingting.spring.elasticsearch.ElasticsearchServiceImplBeanPost
 import live.lingting.spring.elasticsearch.ElasticsearchSpringProperties
 import live.lingting.spring.elasticsearch.SpringPolymerizeFactory
@@ -59,6 +60,10 @@ open class SpringElasticsearchAutoConfiguration {
     @ConditionalOnBean(RestClientBuilder::class)
     @ConditionalOnMissingBean(RestClient::class)
     open fun restClient(builder: RestClientBuilder): RestClient {
+        builder.setHttpClientConfigCallback {
+            val factory = ThreadUtils.executor().threadFactory
+            it.setThreadFactory(factory)
+        }
         return builder.build()
     }
 
