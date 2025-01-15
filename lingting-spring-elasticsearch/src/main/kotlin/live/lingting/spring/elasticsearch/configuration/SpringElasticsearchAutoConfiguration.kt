@@ -6,6 +6,7 @@ import co.elastic.clients.json.jackson.JacksonJsonpMapper
 import co.elastic.clients.transport.ElasticsearchTransport
 import co.elastic.clients.transport.rest_client.RestClientTransport
 import com.fasterxml.jackson.databind.ObjectMapper
+import java.util.concurrent.atomic.AtomicLong
 import live.lingting.framework.Sequence
 import live.lingting.framework.elasticsearch.ElasticsearchProperties
 import live.lingting.framework.elasticsearch.interceptor.Interceptor
@@ -62,7 +63,12 @@ open class SpringElasticsearchAutoConfiguration {
     open fun restClient(builder: RestClientBuilder): RestClient {
         builder.setHttpClientConfigCallback {
             val factory = ThreadUtils.executor().threadFactory
-            it.setThreadFactory(factory)
+            val counter = AtomicLong()
+            it.setThreadFactory {
+                val thread = factory.newThread(it)
+                thread.name = "es-${counter.incrementAndGet()}"
+                thread
+            }
         }
         return builder.build()
     }
