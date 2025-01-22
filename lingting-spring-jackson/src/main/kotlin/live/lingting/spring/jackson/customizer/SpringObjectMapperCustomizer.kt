@@ -1,4 +1,4 @@
-package live.lingting.spring.jackson.Customizer
+package live.lingting.spring.jackson.customizer
 
 import com.fasterxml.jackson.core.json.JsonReadFeature
 import com.fasterxml.jackson.databind.DeserializationFeature

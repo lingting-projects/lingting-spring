@@ -1,8 +1,8 @@
 package live.lingting.spring.elasticsearch
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient
-import live.lingting.framework.elasticsearch.ElasticsearchApi
 import live.lingting.framework.elasticsearch.ElasticsearchProperties
+import live.lingting.framework.elasticsearch.api.ElasticsearchApiImpl
 import live.lingting.framework.elasticsearch.interceptor.Interceptor
 import live.lingting.framework.elasticsearch.polymerize.PolymerizeFactory
 import live.lingting.spring.post.SpringBeanPostProcessor
@@ -25,7 +25,7 @@ class ElasticsearchServiceImplBeanPost(
     override fun postProcessAfter(bean: Any, beanName: String): Any {
         if (bean is AbstractElasticsearchServiceImpl<*>) {
             val impl = (bean as AbstractElasticsearchServiceImpl<Any>)
-            val api = ElasticsearchApi(impl.cls, polymerizeFactory, { impl.documentId(it) }, properties, interceptors, client)
+            val api = ElasticsearchApiImpl(impl.cls, polymerizeFactory, { impl.documentId(it) }, properties, interceptors, client)
             impl.api = api
         }
         return bean

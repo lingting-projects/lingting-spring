@@ -2,7 +2,7 @@ package live.lingting.spring.elasticsearch
 
 import co.elastic.clients.elasticsearch._types.query_dsl.Query
 import live.lingting.framework.elasticsearch.IndexInfo
-import live.lingting.framework.elasticsearch.composer.QueryComposer.term
+import live.lingting.framework.elasticsearch.builder.DefaultCompare
 import live.lingting.framework.elasticsearch.datascope.ElasticsearchDataScope
 import org.springframework.stereotype.Component
 
@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component
  */
 @Component
 class SpaceDataScope : ElasticsearchDataScope {
+
     override val resource: String = "null"
 
     override fun includes(index: String): Boolean {
@@ -18,7 +19,9 @@ class SpaceDataScope : ElasticsearchDataScope {
     }
 
     override fun handler(p: IndexInfo): Query? {
-        return term<String>("space.name", "default")
+        val compare = DefaultCompare<Any>()
+            .term("type", "space")
+        return compare.buildQuery()
     }
 
 }

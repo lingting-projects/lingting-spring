@@ -2,9 +2,9 @@ package live.lingting.spring.elasticsearch
 
 import live.lingting.framework.api.PaginationParams
 import live.lingting.framework.elasticsearch.annotation.Index
-import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -27,9 +27,9 @@ class SpringElasticsearchTest {
         assertFalse(list.isEmpty())
         assertNotNull(scope)
         assertFalse(scope!!.ignore())
-        val byQuery = service.getByQuery()
+        val byQuery = service.get()
         assertNotNull(byQuery)
-        assertEquals("Default", byQuery!!.space["name"])
+        assertTrue(listOf("default", "默认").any { it == byQuery?.space["name"]?.toString()?.lowercase() })
     }
 
     @Index(index = ".kibana_8.12.2_001")

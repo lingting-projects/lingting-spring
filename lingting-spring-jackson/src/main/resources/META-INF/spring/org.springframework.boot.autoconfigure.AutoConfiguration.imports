@@ -1,2 +1,3 @@
 live.lingting.spring.jackson.configuration.SpringObjectMapperAutoConfiguration
 live.lingting.spring.jackson.configuration.SpringJacksonModuleAutoConfiguration
+live.lingting.spring.jackson.configuration.SpringObjectMapperWebAutoConfiguration
