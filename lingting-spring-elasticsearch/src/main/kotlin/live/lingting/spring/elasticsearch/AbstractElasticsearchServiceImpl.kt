@@ -51,10 +51,6 @@ abstract class AbstractElasticsearchServiceImpl<T : Any> : ElasticsearchApi<T> {
     override val scrollTime: Time?
         get() = api.scrollTime
 
-    override fun documentId(t: T): String? {
-        return api.documentId(t)
-    }
-
     override fun index(): Collection<String> {
         return api.index()
     }
