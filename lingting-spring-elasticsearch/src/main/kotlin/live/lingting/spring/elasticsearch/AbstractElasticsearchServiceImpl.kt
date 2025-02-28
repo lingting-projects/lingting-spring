@@ -87,8 +87,8 @@ abstract class AbstractElasticsearchServiceImpl<T : Any> : ElasticsearchApi<T> {
         api.scrollClear(scrollId)
     }
 
-    override fun update(operator: UnaryOperator<UpdateRequest.Builder<T, T>>, documentId: String?): Boolean {
-        return api.update(operator, documentId)
+    override fun update(documentId: String?, operator: UnaryOperator<UpdateRequest.Builder<T, T>>): Boolean {
+        return api.update(documentId, operator)
     }
 
     override fun updateByQuery(builder: UpdateBuilder<T>, operator: UnaryOperator<UpdateByQueryRequest.Builder>): Long {
