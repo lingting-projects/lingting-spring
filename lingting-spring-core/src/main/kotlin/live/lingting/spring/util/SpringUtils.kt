@@ -2,10 +2,13 @@ package live.lingting.spring.util
 
 import jakarta.annotation.Resource
 import java.lang.reflect.Constructor
+import java.lang.reflect.Field
+import java.lang.reflect.Method
 import java.util.function.Function
 import kotlin.reflect.KClass
-import live.lingting.framework.util.ClassUtils.classFields
+import live.lingting.framework.util.ClassUtils
 import live.lingting.framework.util.ClassUtils.constructors
+import live.lingting.framework.util.FieldUtils.isFinal
 import org.springframework.beans.factory.NoSuchBeanDefinitionException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
@@ -26,7 +29,7 @@ object SpringUtils {
     fun hasBean(cls: Class<*>): Boolean {
         try {
             val map = getBeansOfType(cls)
-            return !map.isEmpty()
+            return map.isNotEmpty()
         } catch (_: NoSuchBeanDefinitionException) {
             return false
         }
@@ -102,19 +105,29 @@ object SpringUtils {
         }
 
         val t = constructor.newInstance(*arguments.toTypedArray())
-        // 自动注入
-        val cfs = classFields(t::class.java)
-        for (cf in cfs) {
-            if (!cf.hasField || cf.isFinalField) {
-                continue
+        val clazz = t::class.java
+        // 自动注入 - 字段
+        val fields = ClassUtils.fields(clazz).filter { !it.isFinal }
+        // 自动注入 - 方法
+        val methods = ClassUtils.methods(clazz).filter { it.parameterCount == 1 }
+
+        val list = fields + methods
+
+        list.forEach {
+            val isAutowired = it.getAnnotation(Autowired::class.java) != null
+                    || it.getAnnotation(Resource::class.java) != null
+            if (!isAutowired) {
+                return@forEach
             }
-            val isAutowired = cf.getAnnotation(Autowired::class.java) != null || cf.getAnnotation(Resource::class.java) != null
-            if (isAutowired) {
-                val cls = cf.valueType
-                val arg = getArgument.apply(cls)
-                cf.set(t as Any, arg)
+            val cls = if (it is Method) it.parameterTypes[0] else (it as Field).type
+            val arg = getArgument.apply(cls)
+            if (it is Method) {
+                it.invoke(t, arg)
+            } else if (it is Field) {
+                it[t] = arg
             }
         }
+
         return t
     }
 
