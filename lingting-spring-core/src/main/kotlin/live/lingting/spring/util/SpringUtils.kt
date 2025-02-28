@@ -6,6 +6,7 @@ import java.lang.reflect.Field
 import java.lang.reflect.Method
 import java.util.function.Function
 import kotlin.reflect.KClass
+import live.lingting.framework.reflect.ClassField
 import live.lingting.framework.util.ClassUtils
 import live.lingting.framework.util.ClassUtils.constructors
 import live.lingting.framework.util.FieldUtils.isFinal
@@ -18,6 +19,14 @@ import org.springframework.context.ApplicationContext
  */
 @Suppress("UNCHECKED_CAST")
 object SpringUtils {
+
+    @JvmField
+    val AUTOWIRE_ANNOTATIONS = setOf(
+        Autowired::class.java.name,
+        Resource::class.java.name,
+        "javax.annotation.Resource"
+    )
+
     var context: ApplicationContext? = null
 
     @JvmStatic
@@ -114,18 +123,19 @@ object SpringUtils {
         val list = fields + methods
 
         list.forEach {
-            val isAutowired = it.getAnnotation(Autowired::class.java) != null
-                    || it.getAnnotation(Resource::class.java) != null
+            val isAutowired = it.annotations.any { a -> AUTOWIRE_ANNOTATIONS.contains(a.annotationClass.qualifiedName) }
             if (!isAutowired) {
                 return@forEach
             }
             val cls = if (it is Method) it.parameterTypes[0] else (it as Field).type
             val arg = getArgument.apply(cls)
-            if (it is Method) {
-                it.invoke(t, arg)
-            } else if (it is Field) {
-                it[t] = arg
+            val cf = if (it is Method) {
+                ClassField(null, null, it)
+            } else {
+                ClassField(it as Field, null, null)
             }
+
+            cf.visibleSet().set(t, arg)
         }
 
         return t
