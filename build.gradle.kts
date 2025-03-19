@@ -1,9 +1,9 @@
-import java.net.URI
 import org.gradle.plugins.ide.idea.model.IdeaLanguageLevel
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
+import java.net.URI
 
 val projectGroup = "live.lingting.spring"
-val projectVersion = "2024.11.21-Beta-3"
+val projectVersion = "2024.11.21-Beta-4"
 
 // 用于子模块获取包管理信息
 val catalogLibs = libs
