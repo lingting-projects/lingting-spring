@@ -26,7 +26,7 @@ class SpringElasticsearchTest {
         val list = service!!.page(params).records
         assertFalse(list.isEmpty())
         assertNotNull(scope)
-        assertFalse(scope!!.ignore())
+        assertFalse(scope!!.ignore(null))
         val byQuery = service.get()
         assertNotNull(byQuery)
         assertTrue(listOf("default", "默认").any { it == byQuery?.space["name"]?.toString()?.lowercase() })

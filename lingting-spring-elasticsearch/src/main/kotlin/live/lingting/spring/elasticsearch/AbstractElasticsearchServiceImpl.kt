@@ -11,8 +11,8 @@ import co.elastic.clients.elasticsearch.core.SearchResponse
 import co.elastic.clients.elasticsearch.core.UpdateByQueryRequest
 import co.elastic.clients.elasticsearch.core.UpdateRequest
 import co.elastic.clients.elasticsearch.core.bulk.BulkOperation
-import java.util.function.UnaryOperator
 import live.lingting.framework.api.ScrollResult
+import live.lingting.framework.datascope.HandlerType
 import live.lingting.framework.elasticsearch.IndexInfo
 import live.lingting.framework.elasticsearch.api.ElasticsearchApi
 import live.lingting.framework.elasticsearch.api.ElasticsearchApiImpl
@@ -24,6 +24,7 @@ import live.lingting.framework.elasticsearch.util.ElasticsearchUtils.getEntityCl
 import live.lingting.framework.function.ThrowingSupplier
 import live.lingting.framework.util.Slf4jUtils.logger
 import live.lingting.framework.value.WaitValue
+import java.util.function.UnaryOperator
 
 /**
  * @author lingting 2024-03-08 16:43
@@ -67,8 +68,8 @@ abstract class AbstractElasticsearchServiceImpl<T : Any> : ElasticsearchApi<T> {
         return api.retry(properties, supplier)
     }
 
-    override fun merge(builder: Compare<T, *>) {
-        api.merge(builder)
+    override fun merge(type: HandlerType?, builder: Compare<T, *>) {
+        api.merge(type, builder)
     }
 
     override fun getByDoc(documentId: String): T? {
@@ -95,7 +96,10 @@ abstract class AbstractElasticsearchServiceImpl<T : Any> : ElasticsearchApi<T> {
         return api.updateByQuery(builder, operator)
     }
 
-    override fun deleteByQuery(builder: SearchBuilder<T>, operator: UnaryOperator<DeleteByQueryRequest.Builder>): DeleteByQueryResponse {
+    override fun deleteByQuery(
+        builder: SearchBuilder<T>,
+        operator: UnaryOperator<DeleteByQueryRequest.Builder>
+    ): DeleteByQueryResponse {
         return api.deleteByQuery(builder, operator)
     }
 
