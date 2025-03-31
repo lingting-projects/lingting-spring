@@ -1,10 +1,10 @@
 package live.lingting.spring.redis.cache
 
-import java.lang.reflect.Method
 import live.lingting.framework.util.CollectionUtils.multiToList
 import live.lingting.framework.util.StringUtils.hasText
 import live.lingting.spring.util.SpelUtils
 import org.springframework.expression.spel.support.StandardEvaluationContext
+import java.lang.reflect.Method
 
 /**
  * @author lingting 2024-04-18 10:04
@@ -23,7 +23,7 @@ class CacheKeyGenerator(
         }
 
         val obj = SpelUtils.parseValue(context, spel)
-        return multiToList(obj).stream().map<String> { it?.toString() ?: "" }.toList()
+        return multiToList(obj).stream().map { it?.toString() ?: "" }.toList()
     }
 
     fun join(key: String, spel: String): String {

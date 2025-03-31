@@ -1,12 +1,12 @@
 package live.lingting.spring.web.converter
 
-import java.util.function.Supplier
 import org.springframework.core.convert.ConversionFailedException
 import org.springframework.core.convert.ConversionService
 import org.springframework.core.convert.TypeDescriptor
 import org.springframework.core.convert.converter.GenericConverter
 import org.springframework.util.Assert
 import org.springframework.util.ClassUtils
+import java.util.function.Supplier
 
 /**
  * Internal utilities for the conversion package.
@@ -15,11 +15,12 @@ import org.springframework.util.ClassUtils
  * @since 3.0
  */
 object ConversionUtils {
+
     @JvmStatic
     fun invokeConverter(
         converter: GenericConverter, source: Any?, sourceType: TypeDescriptor,
         targetType: TypeDescriptor
-    ): Any {
+    ): Any? {
         try {
             return converter.convert(source, sourceType, targetType)
         } catch (ex: ConversionFailedException) {

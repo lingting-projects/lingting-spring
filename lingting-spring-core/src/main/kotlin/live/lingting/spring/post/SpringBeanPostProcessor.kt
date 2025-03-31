@@ -23,7 +23,7 @@ interface SpringBeanPostProcessor : BeanPostProcessor, Ordered {
      * @return java.lang.Object
      */
     fun postProcessBefore(bean: Any, beanName: String): Any {
-        return super<BeanPostProcessor>.postProcessBeforeInitialization(bean, beanName)
+        return bean
     }
 
     /**
@@ -33,7 +33,7 @@ interface SpringBeanPostProcessor : BeanPostProcessor, Ordered {
      * @return java.lang.Object
      */
     fun postProcessAfter(bean: Any, beanName: String): Any {
-        return super<BeanPostProcessor>.postProcessAfterInitialization(bean, beanName)
+        return bean
     }
 
     override fun getOrder(): Int {
@@ -46,13 +46,13 @@ interface SpringBeanPostProcessor : BeanPostProcessor, Ordered {
             return postProcessBefore(bean, beanName)
         }
 
-        return super<BeanPostProcessor>.postProcessBeforeInitialization(bean, beanName)
+        return bean
     }
 
     override fun postProcessAfterInitialization(bean: Any, beanName: String): Any {
         if (isProcess(bean, beanName, false)) {
             return postProcessAfter(bean, beanName)
         }
-        return super<BeanPostProcessor>.postProcessAfterInitialization(bean, beanName)
+        return bean
     }
 }

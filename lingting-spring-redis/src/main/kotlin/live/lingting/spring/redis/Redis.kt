@@ -1,10 +1,5 @@
 package live.lingting.spring.redis
 
-import java.time.Duration
-import java.time.Instant
-import java.util.Date
-import java.util.concurrent.TimeUnit
-import java.util.function.Function
 import live.lingting.framework.lock.SpinLock
 import live.lingting.framework.time.DateTime
 import live.lingting.framework.value.WaitValue
@@ -27,6 +22,11 @@ import org.springframework.data.redis.core.ValueOperations
 import org.springframework.data.redis.core.ZSetOperations
 import org.springframework.data.redis.core.script.RedisScript
 import org.springframework.data.redis.serializer.RedisSerializer
+import java.time.Duration
+import java.time.Instant
+import java.util.*
+import java.util.concurrent.TimeUnit
+import java.util.function.Function
 
 /**
  * @author lingting 2024-04-17 14:29
@@ -87,7 +87,12 @@ class Redis(
     }
 
     @JvmOverloads
-    fun cache(key: String, expireTime: Duration? = properties.cacheExpireTime, lockTimeout: Duration = properties.lockTimeout, leaseTime: Duration? = properties.leaseTime): RedisCache {
+    fun cache(
+        key: String,
+        expireTime: Duration? = properties.cacheExpireTime,
+        lockTimeout: Duration = properties.lockTimeout,
+        leaseTime: Duration? = properties.leaseTime
+    ): RedisCache {
         return RedisCache(key, this, properties.nullValue, expireTime, lockTimeout, leaseTime)
     }
 
@@ -107,7 +112,7 @@ class Redis(
     }
 
     fun <T> execute(function: Function<RedisScriptingCommands, T>) {
-        return template.execute {
+        template.execute {
             val commands = it.scriptingCommands()
             function.apply(commands)
         }
@@ -400,14 +405,14 @@ class Redis(
      * @return values list，当值为空时，该 key 对应的 value 为 null
      * @see [MGet Command](http://redis.io/commands/mget)
      */
-    fun multiGet(keys: Collection<String>): MutableList<String?> {
-        return valueOps().multiGet(keys)
+    fun multiGet(keys: Collection<String>): List<String> {
+        return valueOps().multiGet(keys)?.filterNotNull() ?: emptyList()
     }
 
     /**
      * @see this.multiGet
      */
-    fun multiGet(vararg keys: String): MutableList<String?> {
+    fun multiGet(vararg keys: String): List<String> {
         return multiGet(keys.toList())
     }
 
@@ -417,7 +422,7 @@ class Redis(
      * @return map，key 和 value 的键值对集合，当 value 获取为 null 时，不存入此 map
      */
     fun multiGetMap(keys: Collection<String>): Map<String, String> {
-        return multiGetMap<String>(keys, Function { t: String -> t })
+        return multiGetMap(keys) { t: String -> t }
     }
 
     /**

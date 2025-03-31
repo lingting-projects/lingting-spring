@@ -1,12 +1,13 @@
 package live.lingting.spring.util
 
-import java.lang.reflect.Method
 import org.springframework.context.expression.MethodBasedEvaluationContext
 import org.springframework.core.DefaultParameterNameDiscoverer
 import org.springframework.core.ParameterNameDiscoverer
+import org.springframework.expression.Expression
 import org.springframework.expression.ExpressionParser
 import org.springframework.expression.spel.standard.SpelExpressionParser
 import org.springframework.expression.spel.support.StandardEvaluationContext
+import java.lang.reflect.Method
 
 /**
  * @author Hccake
@@ -35,7 +36,7 @@ object SpelUtils {
      * @return 解析后的字符串
      */
     @JvmStatic
-    fun parseValueToString(rootObject: Any, method: Method, args: Array<Any>, spelExpression: String): String {
+    fun parseValueToString(rootObject: Any, method: Method, args: Array<Any>, spelExpression: String): String? {
         val context: StandardEvaluationContext = getSpelContext(rootObject, method, args)
         return parseValueToString(context, spelExpression)
     }
@@ -65,6 +66,11 @@ object SpelUtils {
         return context
     }
 
+    @JvmStatic
+    fun parse(context: StandardEvaluationContext, spelExpression: String): Expression {
+        return PARSER.parseExpression(spelExpression)
+    }
+
     /**
      * 解析 spel 表达式
      * @param context spel 上下文
@@ -72,13 +78,14 @@ object SpelUtils {
      * @return String 解析后的字符串
      */
     @JvmStatic
-    fun parseValue(context: StandardEvaluationContext, spelExpression: String): Any {
-        return PARSER.parseExpression(spelExpression).getValue(context)
+    fun parseValue(context: StandardEvaluationContext, spelExpression: String): Any? {
+        return parse(context, spelExpression).getValue(context)
     }
 
     @JvmStatic
-    fun parseValueToString(context: StandardEvaluationContext, spelExpression: String): String {
-        return PARSER.parseExpression(spelExpression).getValue<String>(context, String::class.java)
+    fun parseValueToString(context: StandardEvaluationContext, spelExpression: String): String? {
+        return parse(context, spelExpression).getValue(context, String::class.java)
     }
+
 }
 
