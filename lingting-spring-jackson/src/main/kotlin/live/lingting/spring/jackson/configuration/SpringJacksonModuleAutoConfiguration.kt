@@ -1,6 +1,7 @@
 package live.lingting.spring.jackson.configuration
 
 import live.lingting.framework.jackson.module.BooleanModule
+import live.lingting.framework.jackson.module.DataSizeModule
 import live.lingting.framework.jackson.module.EnumModule
 import live.lingting.framework.jackson.module.JavaTimeModule
 import live.lingting.framework.jackson.module.MoneyModule
@@ -50,6 +51,12 @@ open class SpringJacksonModuleAutoConfiguration {
     @ConditionalOnMissingBean
     open fun moneyModule(): MoneyModule {
         return MoneyModule()
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    open fun dataSizeModule(): DataSizeModule {
+        return DataSizeModule()
     }
 
 }
