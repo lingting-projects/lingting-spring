@@ -1,6 +1,6 @@
 org.springframework.context.ApplicationListener=\
   live.lingting.spring.event.SpringApplicationContextInitializedListener,\
-  live.lingting.spring.event.SpringApplicationStartingListener,\
+  live.lingting.spring.event.SpringApplicationPreparedListener,\
   live.lingting.spring.event.SpringApplicationFailedListener
 # 环境自动配置
 org.springframework.boot.env.EnvironmentPostProcessor=\
