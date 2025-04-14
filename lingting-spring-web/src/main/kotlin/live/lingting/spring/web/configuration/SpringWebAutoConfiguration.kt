@@ -1,7 +1,6 @@
 package live.lingting.spring.web.configuration
 
 import jakarta.servlet.DispatcherType
-import java.util.EnumSet
 import live.lingting.spring.web.filter.WebScopeFilter
 import live.lingting.spring.web.properties.SpringWebProperties
 import live.lingting.spring.web.request.ServletRequestConsumer
@@ -22,6 +21,7 @@ import org.springframework.core.Ordered
 import org.springframework.core.annotation.Order
 import org.springframework.web.method.support.HandlerMethodArgumentResolver
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
+import java.util.EnumSet
 
 /**
  * @author lingting 2024-03-20 14:59
@@ -33,10 +33,13 @@ open class SpringWebAutoConfiguration {
     @Bean
     @ConditionalOnMissingFilterBean
     @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
-    open fun webScopeFilter(properties: SpringWebProperties, consumers: List<ServletRequestConsumer>): FilterRegistrationBean<WebScopeFilter> {
+    open fun webScopeFilter(
+        properties: SpringWebProperties,
+        consumers: List<ServletRequestConsumer>
+    ): FilterRegistrationBean<WebScopeFilter> {
         val filter = WebScopeFilter(properties, consumers)
-        val bean = FilterRegistrationBean<WebScopeFilter>(filter)
-        bean.setDispatcherTypes(EnumSet.allOf<DispatcherType>(DispatcherType::class.java))
+        val bean = FilterRegistrationBean(filter)
+        bean.setDispatcherTypes(EnumSet.allOf(DispatcherType::class.java))
         bean.order = properties.scopeFilterOrder
         return bean
     }
@@ -49,7 +52,7 @@ open class SpringWebAutoConfiguration {
 
     @Bean
     @ConditionalOnBean(ApiPaginationParamsResolve::class)
-    open fun webMvcConfigurer(resolve: ApiPaginationParamsResolve): WebMvcConfigurer {
+    open fun lingtingSpringWebMvcConfigurer(resolve: ApiPaginationParamsResolve): WebMvcConfigurer {
         return object : WebMvcConfigurer {
             override fun addArgumentResolvers(resolvers: MutableList<HandlerMethodArgumentResolver>) {
                 resolvers.add(resolve)
