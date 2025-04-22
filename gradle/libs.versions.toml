@@ -20,7 +20,8 @@ kotlin-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coro
 dependencies = ["framework-dependencies"]
 annotation = []
 ksp = []
-implementation = ["slf4j", "kotlin-reflect", "kotlin-stdlib", "kotlin-coroutines-core"]
+implementation = ["slf4j", "kotlin-stdlib"]
+kotlin = ["kotlin-reflect", "kotlin-coroutines-core"]
 compile = []
 test = ["awaitility", "junit", "logback", "spring-test"]
 
