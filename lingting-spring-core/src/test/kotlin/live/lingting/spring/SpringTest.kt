@@ -26,7 +26,7 @@ class SpringTest {
         assertEquals("bean", bean.value)
         assertTrue(bean.isStart)
         val timer = SpringUtils.getBean(Timer::class)
-        Await.wait(1.seconds())
+        Await.wait(1.seconds)
         assertEquals(1, timer.count)
     }
 }
