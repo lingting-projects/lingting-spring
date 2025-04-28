@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotEmpty
 import live.lingting.framework.api.PaginationParams
 import live.lingting.framework.api.R
 import live.lingting.spring.web.scope.WebScope
-import live.lingting.spring.web.scope.WebScopeHolder.get
+import live.lingting.spring.web.scope.WebScopeHolder
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
 
@@ -16,12 +16,12 @@ import org.springframework.web.bind.annotation.RestController
 class SpringTestController {
     @GetMapping("hello")
     fun hello(): R<Void> {
-        return R.ok<Void>()
+        return R.ok()
     }
 
     @GetMapping("pagination")
     fun pagination(pagination: PaginationParams): R<PaginationParams> {
-        return R.ok<PaginationParams>(pagination)
+        return R.ok(pagination)
     }
 
     @GetMapping("exception")
@@ -31,12 +31,12 @@ class SpringTestController {
 
     @GetMapping("validation")
     fun validation(@Valid p: P): R<P> {
-        return R.ok<P>(p)
+        return R.ok(p)
     }
 
     @GetMapping("scope")
-    fun scope(): R<WebScope> {
-        return R.ok<WebScope>(get())
+    fun scope(): R<Scope> {
+        return R.ok(Scope())
     }
 
     class P {
@@ -47,4 +47,17 @@ class SpringTestController {
             const val MESSAGE: String = "name must not be empty."
         }
     }
+
+    class Scope(ws: WebScope? = WebScopeHolder.get()) {
+
+        val host = ws?.host
+
+        val uri = ws?.uri
+
+        val traceId = ws?.traceId
+
+        val requestId = ws?.requestId
+
+    }
+
 }

@@ -3,20 +3,20 @@ package live.lingting.spring.web
 import com.fasterxml.jackson.core.type.TypeReference
 import live.lingting.framework.api.ApiResultCode
 import live.lingting.framework.api.R
+import live.lingting.framework.i18n.I18n
 import live.lingting.framework.jackson.JacksonUtils
 import live.lingting.spring.web.properties.SpringWebProperties
-import live.lingting.spring.web.scope.WebScope
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.mock.web.MockHttpServletResponse
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers.print
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import java.util.Locale
 
 /**
  * @author lingting 2024-03-20 17:29
@@ -32,6 +32,7 @@ class SpringWebTest {
 
     @Test
     fun test() {
+        I18n.defaultLocal = Locale.ENGLISH
         mock!!.perform(get("/hello"))
             .andDo(print())
             .andExpect(status().isOk())
@@ -70,9 +71,9 @@ class SpringWebTest {
             .andExpect(jsonPath("$.code").value(200))
             .andExpect(jsonPath("$.data.uri").value("/scope"))
             .andExpect { result ->
-                val response: MockHttpServletResponse = result.response
-                val content: String = response.contentAsString
-                val scope = JacksonUtils.toObj(content, object : TypeReference<R<WebScope>>() {
+                val response = result.response
+                val content = response.contentAsString
+                val scope = JacksonUtils.toObj(content, object : TypeReference<R<SpringTestController.Scope>>() {
                 }).data
 
                 assertEquals(scope!!.traceId, response.getHeader(properties!!.headerTraceId))

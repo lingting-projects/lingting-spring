@@ -4,31 +4,46 @@ import jakarta.servlet.ReadListener
 import jakarta.servlet.ServletInputStream
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletRequestWrapper
+import live.lingting.framework.util.FileUtils
+import live.lingting.framework.util.StreamUtils
 import java.io.BufferedReader
 import java.io.Closeable
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.FileReader
-import live.lingting.framework.util.FileUtils.createTemp
-import live.lingting.framework.util.FileUtils.createTempDir
-import live.lingting.framework.util.FileUtils.delete
-import live.lingting.framework.util.StreamUtils.close
-import live.lingting.framework.util.StreamUtils.write
 
 /**
  * @author lingting 2024-03-20 15:08
  */
 class RepeatBodyRequestWrapper(request: HttpServletRequest) : HttpServletRequestWrapper(request), Closeable {
-    val bodyFile: File = createTemp(".repeat", TMP_DIR)
+
+    companion object {
+
+        @JvmField
+        val TMP_DIR = FileUtils.createTempDir("request")
+
+        @JvmStatic
+        fun of(request: HttpServletRequest): RepeatBodyRequestWrapper {
+
+            if (request !is RepeatBodyRequestWrapper) {
+                return RepeatBodyRequestWrapper(request)
+            }
+            return request
+        }
+
+    }
+
+    val bodyFile: File = FileUtils.createTemp(".repeat", TMP_DIR)
 
     private val paramsMap: MutableMap<String, Array<String>> = request.parameterMap
 
     val closeableList: MutableList<Closeable>
 
     init {
-        FileOutputStream(bodyFile).use { outputStream ->
-            write(request.inputStream, outputStream)
+        FileOutputStream(bodyFile).use { out ->
+            val input = request.inputStream
+            StreamUtils.write(input, out)
         }
         closeableList = ArrayList<Closeable>()
     }
@@ -72,21 +87,9 @@ class RepeatBodyRequestWrapper(request: HttpServletRequest) : HttpServletRequest
 
     override fun close() {
         for (closeable in this.closeableList) {
-            close(closeable)
+            StreamUtils.close(closeable)
         }
-        delete(this.bodyFile)
+        FileUtils.delete(this.bodyFile)
     }
 
-    companion object {
-        @JvmField
-        val TMP_DIR: File = createTempDir("request")
-
-        @JvmStatic
-        fun of(request: HttpServletRequest): RepeatBodyRequestWrapper {
-            if (request !is RepeatBodyRequestWrapper) {
-                return RepeatBodyRequestWrapper(request)
-            }
-            return request
-        }
-    }
 }
