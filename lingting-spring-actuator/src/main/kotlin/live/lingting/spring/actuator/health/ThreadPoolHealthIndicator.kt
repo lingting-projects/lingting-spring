@@ -1,10 +1,14 @@
 package live.lingting.spring.actuator.health
 
-import live.lingting.framework.thread.executor.ThreadPoolExecutorServiceImpl
+import live.lingting.framework.thread.platform.PlatformThread
+import live.lingting.framework.thread.virtual.VirtualThread
 import live.lingting.framework.util.ThreadUtils
 import org.springframework.boot.actuate.health.AbstractHealthIndicator
 import org.springframework.boot.actuate.health.Health
 import org.springframework.boot.actuate.health.Status
+import java.util.concurrent.Executor
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.ThreadPoolExecutor
 
 /**
  * @author lingting 2023-07-25 14:35
@@ -12,15 +16,29 @@ import org.springframework.boot.actuate.health.Status
 class ThreadPoolHealthIndicator : AbstractHealthIndicator() {
 
     override fun doHealthCheck(builder: Health.Builder) {
-        val instance = ThreadUtils.instance()
+        builder.status(if (ThreadUtils.isRunning) Status.UP else Status.DOWN)
 
-        builder.status(if (instance.isRunning) Status.UP else Status.DOWN)
-
-        if (instance is ThreadPoolExecutorServiceImpl) {
-            builder.withDetail("corePoolSize", instance.corePoolSize)
-                .withDetail("taskCount", instance.taskCount)
-                .withDetail("activeCount", instance.activeCount)
-                .withDetail("maximumPoolSize", instance.maximumPoolSize)
+        if (VirtualThread.isSupport) {
+            detail("platform-", builder, PlatformThread)
+            detail("virtual-", builder, VirtualThread)
+        } else {
+            detail("", builder, PlatformThread)
         }
     }
+
+
+    fun detail(prefix: String, builder: Health.Builder, executor: Executor) {
+        if (executor is ExecutorService && prefix.isNotBlank()) {
+            builder.withDetail("${prefix}running", !(executor.isShutdown || executor.isTerminated))
+        }
+
+        if (executor is ThreadPoolExecutor) {
+            builder.withDetail("${prefix}corePoolSize", executor.corePoolSize)
+                .withDetail("${prefix}taskCount", executor.taskCount)
+                .withDetail("${prefix}activeCount", executor.activeCount)
+                .withDetail("${prefix}maximumPoolSize", executor.maximumPoolSize)
+        }
+
+    }
+
 }

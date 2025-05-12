@@ -3,13 +3,13 @@ package live.lingting.spring.web.undertow
 import io.undertow.server.DefaultByteBufferPool
 import io.undertow.servlet.api.DeploymentInfo
 import io.undertow.websockets.jsr.WebSocketDeploymentInfo
-import java.util.concurrent.ExecutorService
-import live.lingting.framework.thread.ThreadPool
-import live.lingting.framework.thread.VirtualThread
+import live.lingting.framework.thread.platform.PlatformThread
+import live.lingting.framework.thread.virtual.VirtualThread
 import live.lingting.framework.util.BooleanUtils.isTrue
 import live.lingting.spring.util.EnvironmentUtils.getProperty
 import live.lingting.spring.web.properties.SpringWebProperties
 import org.springframework.boot.web.embedded.undertow.UndertowDeploymentInfoCustomizer
+import java.util.concurrent.ExecutorService
 
 /**
  * @author lingting 2024-03-20 16:01
@@ -35,9 +35,9 @@ class UndertowWebCustomizer(private val properties: SpringWebProperties) : Under
         val property = getProperty("spring.threads.virtual.enabled")
         val enabled = property.isTrue()
         if (enabled && properties.useVirtualThread) {
-            return VirtualThread.executor()
+            return VirtualThread
         }
-        return ThreadPool.executor()
+        return PlatformThread
     }
 
 }
