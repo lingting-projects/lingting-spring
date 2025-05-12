@@ -34,6 +34,8 @@ class ElasticsearchSpringProperties {
     @NestedConfigurationProperty
     var scroll: Scroll = Scroll()
 
+    var useVirtualThread = false
+
     fun properties(): ElasticsearchProperties {
         val properties = ElasticsearchProperties()
         properties.index = index

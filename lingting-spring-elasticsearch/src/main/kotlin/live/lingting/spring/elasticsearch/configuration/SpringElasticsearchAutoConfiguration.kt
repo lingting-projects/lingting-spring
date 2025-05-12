@@ -39,8 +39,8 @@ open class SpringElasticsearchAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    open fun defaultRestClientBuilderCustomizer(): RestClientBuilderCustomizer {
-        return DefaultRestClientBuilderCustomizer()
+    open fun defaultRestClientBuilderCustomizer(properties: ElasticsearchSpringProperties): RestClientBuilderCustomizer {
+        return DefaultRestClientBuilderCustomizer(properties)
     }
 
     @Bean
