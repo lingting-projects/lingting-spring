@@ -1,6 +1,7 @@
 package live.lingting.spring.actuator.health
 
 import live.lingting.framework.thread.executor.DelegationExecutorService
+import live.lingting.framework.thread.executor.PerThreadExecutor
 import live.lingting.framework.thread.platform.PlatformThread
 import live.lingting.framework.thread.virtual.VirtualThread
 import live.lingting.framework.util.ThreadUtils
@@ -42,6 +43,14 @@ class ThreadPoolHealthIndicator : AbstractHealthIndicator() {
                 .withDetail("${prefix}taskCount", threadPoolExecutor.taskCount)
                 .withDetail("${prefix}activeCount", threadPoolExecutor.activeCount)
                 .withDetail("${prefix}maximumPoolSize", threadPoolExecutor.maximumPoolSize)
+        }
+
+        val perThreadExecutor = executor as? PerThreadExecutor
+            ?: if (executor is DelegationExecutorService) executor.find(PerThreadExecutor::class.java)
+            else null
+
+        if (perThreadExecutor != null) {
+            builder.withDetail("${prefix}count", perThreadExecutor.threads.size)
         }
 
     }
