@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Bean
 @AutoConfiguration
 @EnableConfigurationProperties(AliSpringProperties::class)
 open class AliAutoConfiguration {
+
     @Bean
     open fun aliStsProperties(properties: AliSpringProperties): AliStsProperties {
         return properties.sts
@@ -36,4 +37,5 @@ open class AliAutoConfiguration {
     open fun aliOssBucket(properties: AliOssProperties): AliOssBucket {
         return AliOssBucket(properties)
     }
+
 }
