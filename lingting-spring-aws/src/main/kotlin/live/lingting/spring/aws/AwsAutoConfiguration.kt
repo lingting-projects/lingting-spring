@@ -1,7 +1,7 @@
 package live.lingting.spring.aws
 
 import live.lingting.framework.aws.AwsS3Bucket
-import live.lingting.framework.aws.s3.AwsS3Properties
+import live.lingting.framework.aws.properties.AwsS3Properties
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.properties.EnableConfigurationProperties

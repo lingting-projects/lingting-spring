@@ -1,6 +1,6 @@
 package live.lingting.spring.aws
 
-import live.lingting.framework.aws.s3.AwsS3Properties
+import live.lingting.framework.aws.properties.AwsS3Properties
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.NestedConfigurationProperty
 
@@ -9,10 +9,12 @@ import org.springframework.boot.context.properties.NestedConfigurationProperty
  */
 @ConfigurationProperties(AwsSpringProperties.PREFIX)
 class AwsSpringProperties {
-    @NestedConfigurationProperty
-    var s3: AwsS3Properties = AwsS3Properties()
 
     companion object {
         const val PREFIX: String = "lingting.aws"
     }
+
+    @NestedConfigurationProperty
+    var s3: AwsS3Properties = AwsS3Properties()
+
 }
