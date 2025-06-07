@@ -1,9 +1,9 @@
 [versions]
 framework = "2025.05.23-Beta-4"
-publish = "0.29.0"
 kotlin = "2.0.21"
 kotlin-ksp = "2.0.21-1.0.28"
 kotlin-coroutines = "1.9.0"
+publish = "0.29.0"
 
 [libraries]
 framework-dependencies = { group = "live.lingting.framework", name = "lingting-dependencies", version.ref = "framework" }
