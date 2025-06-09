@@ -1,7 +1,5 @@
 package live.lingting.spring.redis.cache
 
-import java.time.Duration
-import java.util.function.Function
 import live.lingting.framework.function.ThrowableSupplier
 import live.lingting.framework.jackson.JacksonUtils
 import live.lingting.framework.jackson.JacksonUtils.toObj
@@ -9,6 +7,8 @@ import live.lingting.framework.lock.SpinLock
 import live.lingting.spring.redis.Redis
 import live.lingting.spring.redis.lock.RedisLockParams
 import live.lingting.spring.redis.properties.RedisProperties
+import java.time.Duration
+import java.util.function.Function
 
 /**
  * @author lingting 2024-04-17 19:11
@@ -42,7 +42,7 @@ open class RedisCache(
     )
 
     protected fun lock(): SpinLock {
-        return redis.lock("$key:locker", RedisLockParams(timeout = leaseTime)).spin()
+        return redis.lock("$key:locker", RedisLockParams(expire = leaseTime)).spin()
     }
 
     protected fun get(): String? {

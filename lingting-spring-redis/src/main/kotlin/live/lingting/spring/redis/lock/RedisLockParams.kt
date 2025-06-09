@@ -1,7 +1,8 @@
 package live.lingting.spring.redis.lock
 
-import java.time.Duration
+import live.lingting.framework.util.DurationUtils.hours
 import live.lingting.framework.util.DurationUtils.millis
+import java.time.Duration
 
 /**
  * @author lingting 2024/11/25 20:08
@@ -10,7 +11,7 @@ data class RedisLockParams @JvmOverloads constructor(
     /**
      * 锁如果一直不释放, 则在多久后自动释放
      */
-    val timeout: Duration? = null,
+    val expire: Duration? = 1.hours,
     /**
      * 当重复尝试获取时, 每次获取失败后的休眠时间
      */
@@ -28,10 +29,10 @@ data class RedisLockParams @JvmOverloads constructor(
      * 转为redis的过期时间. 单位: 秒
      */
     fun ttl(): Long {
-        if (timeout == null || timeout.isZero || timeout.isNegative) {
+        if (expire == null || expire.isZero || expire.isNegative) {
             return -1
         }
-        return timeout.seconds
+        return expire.seconds
     }
 
 }
