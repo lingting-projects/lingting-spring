@@ -1,6 +1,5 @@
 package live.lingting.spring.redis.lock
 
-import java.time.Duration
 import live.lingting.framework.lock.AbstractLock
 import live.lingting.framework.lock.SpinLock
 import live.lingting.framework.util.OptionalUtils.optional
@@ -8,6 +7,7 @@ import live.lingting.framework.util.Slf4jUtils.logger
 import live.lingting.spring.redis.Redis
 import live.lingting.spring.redis.script.RepeatRedisScript
 import live.lingting.spring.redis.unique.RedisId
+import java.time.Duration
 
 /**
  * 基于redis的分布式锁
@@ -108,7 +108,7 @@ return 1
 
     val lockKey = "$key:lock"
 
-    val counterKey = "$key:counter"
+    val counterKey = "$lockKey:counter"
 
     override var sleep: Duration
         get() = params.sleep
