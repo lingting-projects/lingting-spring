@@ -2,6 +2,7 @@ package live.lingting.spring.event
 
 import live.lingting.framework.application.ApplicationHolder
 import live.lingting.framework.util.Slf4jUtils.logger
+import live.lingting.spring.ApplicationCloser
 import org.springframework.boot.context.event.ApplicationFailedEvent
 import org.springframework.context.ApplicationListener
 import org.springframework.core.Ordered
@@ -14,11 +15,14 @@ import org.springframework.core.annotation.Order
 class SpringApplicationFailedListener : ApplicationListener<ApplicationFailedEvent> {
 
     companion object {
+
         private val log = logger()
+
     }
 
     override fun onApplicationEvent(event: ApplicationFailedEvent) {
-        log.debug("spring application failed")
         ApplicationHolder.stop()
+        log.debug("spring application failed")
+        ApplicationCloser.stop(event.applicationContext)
     }
 }
