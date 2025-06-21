@@ -7,6 +7,11 @@ import live.lingting.framework.util.Slf4jUtils.logger
  * @author lingting 2022/10/22 15:10
  */
 class ApplicationComponentBeanPostProcessor : SpringBeanPostProcessor {
+
+    companion object {
+        private val log = logger()
+    }
+
     override fun isProcess(bean: Any, beanName: String, isBefore: Boolean): Boolean {
         return bean is ApplicationComponent
     }
@@ -17,7 +22,4 @@ class ApplicationComponentBeanPostProcessor : SpringBeanPostProcessor {
         return bean
     }
 
-    companion object {
-        private val log = logger()
-    }
 }

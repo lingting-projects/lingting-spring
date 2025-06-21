@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.xml.XmlMapper
 import live.lingting.framework.Sequence
 import live.lingting.framework.jackson.JacksonUtils
+import live.lingting.framework.jackson.xml.JacksonXmlUtils
 import live.lingting.spring.jackson.ObjectMapperCustomizer
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
@@ -27,14 +28,17 @@ open class SpringObjectMapperWebAutoConfiguration {
             asc.forEach { it.apply(mapper) }
             JacksonUtils.mapper = mapper
             asc.forEach { it.apply(xmlMapper) }
-            JacksonUtils.xmlMapper = xmlMapper
+            JacksonXmlUtils.mapper = xmlMapper
         }
 
     }
 
     @Bean
     @ConditionalOnMissingBean(ObjectMapper::class)
-    open fun objectMapperByWeb(builder: Jackson2ObjectMapperBuilder, customizers: List<ObjectMapperCustomizer>): ObjectMapper {
+    open fun objectMapperByWeb(
+        builder: Jackson2ObjectMapperBuilder,
+        customizers: List<ObjectMapperCustomizer>
+    ): ObjectMapper {
         val mapper = builder.createXmlMapper(false).build<ObjectMapper>()
         val xmlMapper = builder.createXmlMapper(true).build<XmlMapper>()
         after(customizers, mapper, xmlMapper)
