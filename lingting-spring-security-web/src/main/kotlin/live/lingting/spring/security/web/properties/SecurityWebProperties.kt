@@ -17,6 +17,6 @@ class SecurityWebProperties {
     @JvmField
     var headerAuthorization: String = "Authorization"
 
-    var paramAuthorization: String = "token"
+    var paramAuthorization: String = "authorization"
 
 }
