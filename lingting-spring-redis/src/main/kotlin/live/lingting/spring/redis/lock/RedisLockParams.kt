@@ -25,7 +25,7 @@ data class RedisLockParams @JvmOverloads constructor(
 
         @JvmStatic
         @JvmOverloads
-        fun copy(expire: Duration? = DEFAULT.expire, sleep: Duration = DEFAULT.sleep): RedisLockParams {
+        fun clone(expire: Duration? = DEFAULT.expire, sleep: Duration = DEFAULT.sleep): RedisLockParams {
             return RedisLockParams(expire, sleep)
         }
 
