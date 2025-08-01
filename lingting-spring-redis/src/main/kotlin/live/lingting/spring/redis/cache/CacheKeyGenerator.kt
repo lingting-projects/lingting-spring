@@ -19,7 +19,7 @@ class CacheKeyGenerator(
 
     fun resolve(spel: String): List<String> {
         if (!hasText(spel)) {
-            return mutableListOf<String>()
+            return mutableListOf()
         }
 
         val obj = SpelUtils.parseValue(context, spel)
@@ -55,31 +55,43 @@ class CacheKeyGenerator(
         return strings
     }
 
-    fun cached(cached: Cached?): String {
-        if (cached == null) {
-            return ""
+    fun cached(a: Cached?): MutableList<String> {
+        if (a == null) {
+            return mutableListOf()
         }
-        return join(cached.key, cached.keyJoint)
+        if (a.keyMulti) {
+            return multi(a.key, a.keyJoint)
+        }
+        return mutableListOf(join(a.key, a.keyJoint))
     }
 
-    fun cacheClear(clear: CacheClear?): MutableList<String> {
-        if (clear == null) {
-            return mutableListOf<String>()
-        }
-        if (clear.multi) {
-            return multi(clear.key, clear.keyJoint)
-        }
-        return mutableListOf<String>(join(clear.key, clear.keyJoint))
-    }
-
-    fun cacheClear(clear: CacheClear?, batchClear: CacheBatchClear?): List<String> {
-        val strings = cacheClear(clear)
-        batchClear?.let {
-            for (cacheClear in it.value) {
-                val elements = cacheClear(cacheClear)
-                strings.addAll(elements)
+    fun cached(a: Cached?, batch: CachedBatch?): List<String> {
+        val key = cached(a)
+        batch?.let {
+            for (ba in it.value) {
+                key.addAll(cached(ba))
             }
         }
-        return strings
+        return key
+    }
+
+    fun cacheClear(a: CacheClear?): MutableList<String> {
+        if (a == null) {
+            return mutableListOf()
+        }
+        if (a.keyMulti) {
+            return multi(a.key, a.keyJoint)
+        }
+        return mutableListOf(join(a.key, a.keyJoint))
+    }
+
+    fun cacheClear(a: CacheClear?, batch: CacheClearBatch?): List<String> {
+        val key = cacheClear(a)
+        batch?.let {
+            for (ba in it.value) {
+                key.addAll(cacheClear(ba))
+            }
+        }
+        return key
     }
 }

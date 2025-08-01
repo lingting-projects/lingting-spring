@@ -1,14 +1,14 @@
 package live.lingting.spring.redis.cache
 
-import java.util.concurrent.TimeUnit
+import java.time.temporal.ChronoUnit
 
 /**
- * @author Hccake
- * @version 1.0
+ * 保存
  */
 @MustBeDocumented
-@Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER)
+@JvmRepeatable(CachedBatch::class)
 @Retention(AnnotationRetention.RUNTIME)
+@Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER)
 annotation class Cached(
     /**
      * redis 存储的Key名
@@ -22,14 +22,17 @@ annotation class Cached(
      */
     val keyJoint: String = "",
     /**
+     * 是否依据keyJoint的值组装为多个key, 默认false, 会拼接位单个key
+     */
+    val keyMulti: Boolean = false,
+    /**
      * 超时时间(S) ttl = 0 使用全局配置值 ttl < 0 : 不超时 ttl > 0 : 使用此超时间
      */
     val ttl: Long = 0,
     /**
      * 控制时长单位，默认为 SECONDS 秒
-     * @return [TimeUnit]
      */
-    val timeUnit: TimeUnit = TimeUnit.SECONDS,
+    val ttlUnit: ChronoUnit = ChronoUnit.SECONDS,
     /**
      * 是否仅在缓存不存在时设置, 如果为false则会直接查询数据库并且设置到缓存
      */

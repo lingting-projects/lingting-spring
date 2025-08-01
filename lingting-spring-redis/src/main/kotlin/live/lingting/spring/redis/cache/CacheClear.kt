@@ -1,13 +1,12 @@
 package live.lingting.spring.redis.cache
 
 /**
- * @author Hccake
- * @version 1.0
+ * 删除
  */
 @MustBeDocumented
-@Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER)
-@JvmRepeatable(CacheBatchClear::class)
+@JvmRepeatable(CacheClearBatch::class)
 @Retention(AnnotationRetention.RUNTIME)
+@Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER)
 annotation class CacheClear(
     /**
      * redis 存储的Key名
@@ -23,5 +22,5 @@ annotation class CacheClear(
     /**
      * 是否依据keyJoint的值组装为多个key, 默认false, 会拼接位单个key
      */
-    val multi: Boolean = false
+    val keyMulti: Boolean = false
 )

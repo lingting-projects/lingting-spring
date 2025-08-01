@@ -1,6 +1,5 @@
 package live.lingting.spring.redis.cache
 
-import java.time.Duration
 import live.lingting.framework.function.ThrowableSupplier
 import live.lingting.spring.redis.Redis
 import live.lingting.spring.redis.properties.RedisProperties
@@ -11,8 +10,7 @@ import org.aspectj.lang.annotation.Aspect
 import org.aspectj.lang.annotation.Pointcut
 import org.springframework.core.Ordered
 import org.springframework.core.annotation.Order
-import org.springframework.util.Assert
-import org.springframework.util.CollectionUtils
+import java.time.Duration
 
 /**
  * @author lingting 2024-04-17 20:24
@@ -22,7 +20,7 @@ import org.springframework.util.CollectionUtils
 @Suppress("UNCHECKED_CAST")
 class CacheAspect(private val redis: Redis, private val properties: RedisProperties) : Ordered {
 
-    @Pointcut("@annotation(live.lingting.spring.redis.cache.Cached) || @annotation(live.lingting.spring.redis.cache.CacheClear) || @annotation(live.lingting.spring.redis.cache.CacheBatchClear)")
+    @Pointcut("@annotation(live.lingting.spring.redis.cache.Cached) || @annotation(live.lingting.spring.redis.cache.CachedBatch) || @annotation(live.lingting.spring.redis.cache.CacheClear) || @annotation(live.lingting.spring.redis.cache.CacheClearBatch)")
     fun pointCut() {
         // do nothing
     }
@@ -39,42 +37,41 @@ class CacheAspect(private val redis: Redis, private val properties: RedisPropert
 
         val type = method.returnType as Class<Any>
         val generator = CacheKeyGenerator(properties.keyDelimiter, target, method, args)
-        val cached = method.getAnnotation<Cached>(Cached::class.java)
-        val cacheClear = method.getAnnotation<CacheClear>(CacheClear::class.java)
-        val cacheBatchClear = method.getAnnotation<CacheBatchClear>(CacheBatchClear::class.java)
+        val cached = method.getAnnotation(Cached::class.java)
+        val cachedBatch = method.getAnnotation(CachedBatch::class.java)
+        val clear = method.getAnnotation(CacheClear::class.java)
+        val clearBatch = method.getAnnotation(CacheClearBatch::class.java)
 
         var result: Any? = null
-        if (cached != null) {
-            val key = generator.cached(cached)
-            Assert.hasText(key, "Cached key is required!")
+        if (cached != null || cachedBatch != null) {
+            val keys = generator.cached(cached, cachedBatch)
             val ttl = cached.ttl
             val expireTime = if (ttl > 0) {
-                Duration.ofSeconds(ttl)
+                Duration.of(ttl, cached.ttlUnit)
             } else if (ttl < 0) {
                 null
             } else {
                 properties.cacheExpireTime
             }
 
-            val cache = redis.cache(key, expireTime)
+            val cache = RedisCache(keys, redis, expireTime, properties)
 
-            val onLockFailure = ThrowableSupplier { cache.get<Any>(type) }
-            result = if (cached.ifAbsent)
-                cache.setIfAbsent(ThrowableSupplier { point.proceed() }, onLockFailure, type)
-            else
-                cache.set(ThrowableSupplier { point.proceed() }, onLockFailure)
+            val onLockFailure = ThrowableSupplier { cache.get(type) }
+            result = if (cached.ifAbsent) {
+                cache.setIfAbsent({ point.proceed() }, onLockFailure, type)
+            } else {
+                cache.set({ point.proceed() }, onLockFailure)
+            }
         }
 
-        if (cacheClear != null || cacheBatchClear != null) {
-            val keys = generator.cacheClear(cacheClear, cacheBatchClear)
+        if (clear != null || clearBatch != null) {
+            val keys = generator.cacheClear(clear, clearBatch)
             // 如果未执行
             if (cached == null) {
                 result = point.proceed()
             }
-            // 如果已执行, 直接删除缓存key
-            if (!CollectionUtils.isEmpty(keys)) {
-                redis.template().delete(keys)
-            }
+            // 删除缓存key
+            redis.template().delete(keys)
         }
 
         return result

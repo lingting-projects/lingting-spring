@@ -4,6 +4,7 @@ import live.lingting.framework.function.ThrowableSupplier
 import live.lingting.framework.jackson.JacksonUtils
 import live.lingting.framework.jackson.JacksonUtils.toObj
 import live.lingting.framework.lock.SpinLock
+import live.lingting.framework.util.DigestUtils
 import live.lingting.spring.redis.Redis
 import live.lingting.spring.redis.lock.RedisLockParams
 import live.lingting.spring.redis.properties.RedisProperties
@@ -15,7 +16,7 @@ import java.util.function.Function
  */
 @Suppress("UNCHECKED_CAST")
 open class RedisCache(
-    val key: String,
+    val keys: List<String>,
     val redis: Redis,
     val nullValue: String,
     val expireTime: Duration?,
@@ -23,8 +24,8 @@ open class RedisCache(
     val leaseTime: Duration?
 ) {
 
-    constructor(key: String, redis: Redis, expireTime: Duration?, properties: RedisProperties) : this(
-        key,
+    constructor(keys: List<String>, redis: Redis, expireTime: Duration?, properties: RedisProperties) : this(
+        keys,
         redis,
         properties.nullValue,
         expireTime,
@@ -32,8 +33,8 @@ open class RedisCache(
         properties.leaseTime
     )
 
-    constructor(key: String, redis: Redis, properties: RedisProperties) : this(
-        key,
+    constructor(keys: List<String>, redis: Redis, properties: RedisProperties) : this(
+        keys,
         redis,
         properties.nullValue,
         properties.cacheExpireTime,
@@ -42,24 +43,28 @@ open class RedisCache(
     )
 
     protected fun lock(): SpinLock {
-        return redis.lock("$key:locker", RedisLockParams(expire = leaseTime)).spin()
+        val join = keys.joinToString("_")
+        val hex = DigestUtils.sha1Hex(join)
+        return redis.lock("redis:cache:$hex", RedisLockParams(expire = leaseTime)).spin()
     }
 
     protected fun get(): String? {
-        return get<String>(Function { s -> s })
+        return get { s -> s }
     }
 
     fun <T> get(tClass: Class<T>): T? {
-        return get<T>(Function { v ->
+        return get(Function { v ->
             if (String::class.java.isAssignableFrom(tClass)) {
                 return@Function v as T
             }
-            toObj<T>(v, tClass)
+            toObj(v, tClass)
         })
     }
 
     fun <T> get(deserialize: Function<String, T>): T? {
         val ops = redis.valueOps()
+        // 所有的key都是同一个值, 所有随便拿一个就好了
+        val key = keys.first()
         val cache = if (expireTime != null) ops.getAndExpire(key, expireTime) else ops.get(key)
         if (nullValue == cache) {
             return null
@@ -72,21 +77,16 @@ open class RedisCache(
     }
 
     fun <T> set(t: T) {
-        set<T>(t, Function { obj -> JacksonUtils.toJson(obj) })
+        set(t) { obj -> JacksonUtils.toJson(obj) }
     }
 
     fun <T> set(t: T, serialize: Function<T, String>) {
         val value: String = (if (t == null) nullValue else serialize.apply(t))
-        val ops = redis.valueOps()
-        if (expireTime != null) {
-            ops.set(key, value, expireTime)
-        } else {
-            ops.set(key, value)
-        }
+        redis.multiSet(keys, value, expireTime)
     }
 
     fun <T> set(onGet: ThrowableSupplier<T>, onLockFailure: ThrowableSupplier<T>): T {
-        return set<T>(onGet, onLockFailure, Function { obj -> JacksonUtils.toJson(obj) })
+        return set(onGet, onLockFailure) { obj -> JacksonUtils.toJson(obj) }
     }
 
     fun <T> set(
@@ -111,7 +111,12 @@ open class RedisCache(
         onGet: ThrowableSupplier<T>, onLockFailure: ThrowableSupplier<T?>,
         tClass: Class<T>
     ): T? {
-        return setIfAbsent<T>(onGet, onLockFailure, Function { obj -> JacksonUtils.toJson(obj) }, Function { v -> toObj<T>(v, tClass) })
+        return setIfAbsent(
+            onGet,
+            onLockFailure,
+            { obj -> JacksonUtils.toJson(obj) },
+            { v -> JacksonUtils.toObj(v, tClass) }
+        )
     }
 
     fun <T> setIfAbsent(

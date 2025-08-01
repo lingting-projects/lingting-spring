@@ -3,11 +3,11 @@ package live.lingting.spring.redis
 import live.lingting.framework.lock.SpinLock
 import live.lingting.framework.time.DateTime
 import live.lingting.framework.value.WaitValue
-import live.lingting.spring.redis.cache.RedisCache
 import live.lingting.spring.redis.lock.RedisLock
 import live.lingting.spring.redis.lock.RedisLockParams
 import live.lingting.spring.redis.properties.RedisProperties
 import live.lingting.spring.redis.script.RedisScriptExecutor
+import live.lingting.spring.redis.script.RedisScripts
 import live.lingting.spring.redis.script.RepeatRedisScript
 import org.springframework.beans.factory.InitializingBean
 import org.springframework.data.redis.connection.RedisScriptingCommands
@@ -24,7 +24,7 @@ import org.springframework.data.redis.core.script.RedisScript
 import org.springframework.data.redis.serializer.RedisSerializer
 import java.time.Duration
 import java.time.Instant
-import java.util.*
+import java.util.Date
 import java.util.concurrent.TimeUnit
 import java.util.function.Function
 
@@ -33,8 +33,8 @@ import java.util.function.Function
  */
 @Suppress("UNCHECKED_CAST")
 class Redis(
-    private val template: StringRedisTemplate,
-    private val properties: RedisProperties,
+    internal val template: StringRedisTemplate,
+    val properties: RedisProperties,
 ) : InitializingBean {
 
     companion object {
@@ -84,16 +84,6 @@ class Redis(
 
     fun streamOps(): StreamOperations<String, String, String> {
         return template.opsForStream<String, String>()
-    }
-
-    @JvmOverloads
-    fun cache(
-        key: String,
-        expireTime: Duration? = properties.cacheExpireTime,
-        lockTimeout: Duration = properties.lockTimeout,
-        leaseTime: Duration? = properties.leaseTime
-    ): RedisCache {
-        return RedisCache(key, this, properties.nullValue, expireTime, lockTimeout, leaseTime)
     }
 
     override fun afterPropertiesSet() {
@@ -539,5 +529,21 @@ class Redis(
         return true == valueOps().setIfAbsent(key, value, timeout, timeUnit)
     }
 // endregion
+
+    // region multi
+
+    @JvmOverloads
+    fun multiSet(keys: Collection<String>, value: String, expire: Duration? = null) {
+        if (keys.isEmpty()) {
+            return
+        }
+        val args = mutableListOf(value)
+        if (expire?.isPositive == true) {
+            args.add(expire.toSeconds().toString())
+        }
+        script(RedisScripts.MULTI_SET).execute(keys.toSet().toList(), args)
+    }
+
+    // endregion
 
 }
