@@ -1,1 +1,2 @@
 live.lingting.spring.grpc.configuration.GrpcAutoConfiguration
+live.lingting.spring.grpc.configuration.GrpcDataScopeAutoConfiguration
