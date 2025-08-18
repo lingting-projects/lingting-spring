@@ -1,3 +1,4 @@
 live.lingting.spring.web.configuration.SpringWebAutoConfiguration
 live.lingting.spring.web.configuration.SpringUndertowAutoConfiguration
 live.lingting.spring.web.configuration.SpringWebConverterAutoConfiguration
+live.lingting.spring.web.configuration.SpringDataScopeAutoConfiguration

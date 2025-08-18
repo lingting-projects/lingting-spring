@@ -7,4 +7,6 @@ dependencies {
 
     implementation(project(":lingting-spring-core"))
     implementation(project(":lingting-spring-jackson"))
+
+    compileOnly("live.lingting.framework:lingting-datascope")
 }
