@@ -40,7 +40,7 @@ class CacheKeyGenerator(
         return builder.toString()
     }
 
-    fun multi(key: String, spel: String): MutableList<String> {
+    fun multi(key: String, spel: String): List<String> {
         val list = resolve(spel)
         if (list.isEmpty()) {
             return mutableListOf(key)
@@ -52,10 +52,10 @@ class CacheKeyGenerator(
             strings.add("$key$delimiter$s")
         }
 
-        return strings
+        return strings.distinct()
     }
 
-    fun cached(a: Cached?): MutableList<String> {
+    fun cached(a: Cached?): List<String> {
         if (a == null) {
             return mutableListOf()
         }
@@ -66,16 +66,17 @@ class CacheKeyGenerator(
     }
 
     fun cached(a: Cached?, batch: CachedBatch?): List<String> {
-        val key = cached(a)
+        val keys = mutableListOf<String>()
+        keys.addAll(cached(a))
         batch?.let {
             for (ba in it.value) {
-                key.addAll(cached(ba))
+                keys.addAll(cached(ba))
             }
         }
-        return key
+        return keys.distinct()
     }
 
-    fun cacheClear(a: CacheClear?): MutableList<String> {
+    fun cacheClear(a: CacheClear?): List<String> {
         if (a == null) {
             return mutableListOf()
         }
@@ -86,12 +87,13 @@ class CacheKeyGenerator(
     }
 
     fun cacheClear(a: CacheClear?, batch: CacheClearBatch?): List<String> {
-        val key = cacheClear(a)
+        val keys = mutableListOf<String>()
+        keys.addAll(cacheClear(a))
         batch?.let {
             for (ba in it.value) {
-                key.addAll(cacheClear(ba))
+                keys.addAll(cacheClear(ba))
             }
         }
-        return key
+        return keys.distinct()
     }
 }
