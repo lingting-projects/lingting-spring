@@ -4,6 +4,7 @@ import live.lingting.framework.security.SecurityEndpointService
 import live.lingting.framework.security.authorize.SecurityAuthorizationService
 import live.lingting.framework.security.convert.SecurityConvert
 import live.lingting.framework.security.password.SecurityPassword
+import live.lingting.framework.security.resolver.SecurityTokenResolverRegistry
 import live.lingting.framework.security.store.SecurityMemoryStore
 import live.lingting.framework.security.store.SecurityStore
 import live.lingting.spring.security.password.SecurityDefaultPassword
@@ -29,8 +30,9 @@ open class SecurityAuthorizationConfiguration {
         store: SecurityStore,
         password: SecurityPassword,
         convert: SecurityConvert,
+        registry: SecurityTokenResolverRegistry,
     ): SecurityEndpointService {
-        return SecurityEndpointService(service, store, password, convert)
+        return SecurityEndpointService(service, store, password, convert, registry)
     }
 
     /**

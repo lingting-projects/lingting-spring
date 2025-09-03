@@ -1,6 +1,8 @@
 package live.lingting.spring.security.configuration
 
 import live.lingting.framework.security.properties.SecurityProperties
+import live.lingting.framework.security.resolver.SecurityTokenResolver
+import live.lingting.framework.security.resolver.SecurityTokenResolverRegistry
 import live.lingting.spring.security.properties.SecuritySpringProperties
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
@@ -18,4 +20,10 @@ open class SecurityAutoConfiguration {
     open fun securityProperties(springProperties: SecuritySpringProperties): SecurityProperties {
         return springProperties.properties()
     }
+
+    @Bean
+    @ConditionalOnMissingBean
+    open fun securityTokenResolverRegistry(resolvers: List<SecurityTokenResolver>) =
+        SecurityTokenResolverRegistry(resolvers)
+
 }
