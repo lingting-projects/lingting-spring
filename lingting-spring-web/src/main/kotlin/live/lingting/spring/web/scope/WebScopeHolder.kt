@@ -1,11 +1,12 @@
 package live.lingting.spring.web.scope
 
 import jakarta.servlet.http.HttpServletRequest
+import live.lingting.framework.context.StackContext
+import live.lingting.framework.http.HttpUrlBuilder
+import live.lingting.framework.util.IpUtils.getFirstIp
+import live.lingting.framework.util.ServletUtils
 import java.util.Optional
 import java.util.function.Function
-import live.lingting.framework.context.StackContext
-import live.lingting.framework.util.HttpUtils
-import live.lingting.framework.util.IpUtils.getFirstIp
 
 /**
  * @author lingting 2024-03-20 15:09
@@ -33,11 +34,21 @@ object WebScopeHolder {
 
     @JvmStatic
     fun of(request: HttpServletRequest, traceId: String, requestId: String): WebScope {
-        val headers = HttpUtils.headers(request).unmodifiable()
+        val headers = ServletUtils.headers(request)
+        val origin = ServletUtils.origin(request, headers)
+        var scheme = request.scheme
+        var host = headers.hostReal()
+
+        if (!origin.isNullOrBlank()) {
+            val builder = HttpUrlBuilder.from(origin)
+            scheme = builder.scheme()
+            host = builder.headerHost()
+        }
+
         return WebScope(
-            request.scheme,
-            headers.host() ?: "",
-            headers.origin() ?: "",
+            scheme,
+            host ?: "",
+            origin ?: "",
             getFirstIp(request),
             request.requestURI,
             traceId,
