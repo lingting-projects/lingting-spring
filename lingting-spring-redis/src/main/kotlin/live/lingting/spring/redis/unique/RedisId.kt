@@ -97,6 +97,9 @@ return result
     }
 
     fun fromRedis(count: Int): List<String> {
+        if (count < 1) {
+            return emptyList()
+        }
         val keys = listOf(key)
         val execute = executor.execute(keys, count)
         if (execute.isNullOrEmpty()) {

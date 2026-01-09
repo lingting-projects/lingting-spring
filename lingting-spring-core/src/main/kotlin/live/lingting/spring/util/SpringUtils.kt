@@ -1,18 +1,14 @@
 package live.lingting.spring.util
 
 import jakarta.annotation.Resource
-import java.lang.reflect.Constructor
-import java.lang.reflect.Field
-import java.lang.reflect.Method
-import java.util.function.Function
-import kotlin.reflect.KClass
-import live.lingting.framework.reflect.ClassField
 import live.lingting.framework.util.ClassUtils
 import live.lingting.framework.util.ClassUtils.constructors
-import live.lingting.framework.util.FieldUtils.isFinal
 import org.springframework.beans.factory.NoSuchBeanDefinitionException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
+import java.lang.reflect.Constructor
+import java.util.function.Function
+import kotlin.reflect.KClass
 
 /**
  * @author lingting 2022/10/15 15:21
@@ -105,40 +101,7 @@ object SpringUtils {
 
     @JvmStatic
     fun <T> ofBean(constructor: Constructor<T>, getArgument: Function<Class<*>, Any>): T {
-        val types = constructor.parameterTypes
-        val arguments: MutableList<Any> = ArrayList<Any>()
-
-        for (cls in types) {
-            val argument = getArgument.apply(cls)
-            arguments.add(argument)
-        }
-
-        val t = constructor.newInstance(*arguments.toTypedArray())
-        val clazz = t::class.java
-        // 自动注入 - 字段
-        val fields = ClassUtils.fields(clazz).filter { !it.isFinal }
-        // 自动注入 - 方法
-        val methods = ClassUtils.methods(clazz).filter { it.parameterCount == 1 }
-
-        val list = fields + methods
-
-        list.forEach {
-            val isAutowired = it.annotations.any { a -> AUTOWIRE_ANNOTATIONS.contains(a.annotationClass.qualifiedName) }
-            if (!isAutowired) {
-                return@forEach
-            }
-            val cls = if (it is Method) it.parameterTypes[0] else (it as Field).type
-            val arg = getArgument.apply(cls)
-            val cf = if (it is Method) {
-                ClassField(null, null, it)
-            } else {
-                ClassField(it as Field, null, null)
-            }
-
-            cf.visibleSet().set(t, arg)
-        }
-
-        return t
+        return ClassUtils.newInstance(constructor, getArgument)
     }
 
 }
