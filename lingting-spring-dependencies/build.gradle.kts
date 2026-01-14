@@ -1,3 +1,8 @@
+plugins {
+    id("java-platform")
+    id("lingting_publish")
+}
+
 val bomList = mutableListOf<Provider<MinimalExternalModuleDependency>>()
 val apiList = mutableListOf<Provider<MinimalExternalModuleDependency>>()
 
@@ -9,6 +14,10 @@ for (catalog in versionCatalogs) {
             continue
         }
         val provider = optional.get()
+        val dependency = provider.orNull
+        if (dependency?.version.isNullOrBlank()) {
+            continue
+        }
         if (alias.contains("dependencies")) {
             bomList.add(provider)
         } else {
@@ -39,4 +48,5 @@ dependencies {
             }
         }
     }
+
 }

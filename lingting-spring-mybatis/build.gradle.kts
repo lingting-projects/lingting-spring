@@ -1,3 +1,7 @@
+plugins {
+    id("lingting_jvm")
+}
+
 dependencies {
     api("live.lingting.framework:lingting-mybatis")
     api("com.baomidou:mybatis-plus-spring-boot3-starter") {

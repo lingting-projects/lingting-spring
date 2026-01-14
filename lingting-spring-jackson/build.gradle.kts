@@ -1,3 +1,7 @@
+plugins {
+    id("lingting_jvm")
+}
+
 dependencies {
     api("live.lingting.framework:lingting-jackson")
     api("live.lingting.framework:lingting-jackson-xml")

@@ -1,3 +1,7 @@
+plugins {
+    id("lingting_jvm")
+}
+
 dependencies {
     api(project(":lingting-spring-security"))
     api(project(":lingting-spring-grpc"))
