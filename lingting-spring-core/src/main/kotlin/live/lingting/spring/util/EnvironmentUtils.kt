@@ -1,6 +1,5 @@
 package live.lingting.spring.util
 
-import java.util.Optional
 import live.lingting.framework.util.ArrayUtils.containsIgnoreCase
 import org.springframework.core.convert.support.ConfigurableConversionService
 import org.springframework.core.env.ConfigurableEnvironment
@@ -156,7 +155,7 @@ object EnvironmentUtils {
                 propertySources.addFirst(target)
             }
 
-            return Optional.ofNullable(target).map { it.source }.orElse(null)
+            return target?.source ?: mutableMapOf()
         }
 
     /**

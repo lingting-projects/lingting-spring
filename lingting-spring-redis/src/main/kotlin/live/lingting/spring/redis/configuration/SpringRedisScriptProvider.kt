@@ -14,7 +14,7 @@ import live.lingting.spring.redis.unique.RedisId
  */
 class SpringRedisScriptProvider(beans: List<RepeatRedisScript<*>>) : RedisScriptProvider {
 
-    val innerScripts = ClassUtils.fields(RedisScripts::class).filter {
+    val innerScripts = ClassUtils.fields(RedisScripts::class.java).filter {
         it.isPublic && it.isStatic && RepeatRedisScript::class.java.isAssignableFrom(it.type)
     }.mapNotNull { it.get(RedisScripts) as RepeatRedisScript<*>? }
 

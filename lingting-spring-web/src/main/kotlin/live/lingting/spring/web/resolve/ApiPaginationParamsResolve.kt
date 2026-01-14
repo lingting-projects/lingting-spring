@@ -1,7 +1,6 @@
 package live.lingting.spring.web.resolve
 
 import jakarta.servlet.http.HttpServletRequest
-import java.lang.reflect.InvocationTargetException
 import live.lingting.framework.api.PaginationParams
 import live.lingting.framework.jackson.JacksonUtils
 import live.lingting.framework.util.ArrayUtils.isEmpty
@@ -18,6 +17,7 @@ import org.springframework.web.bind.support.WebDataBinderFactory
 import org.springframework.web.context.request.NativeWebRequest
 import org.springframework.web.method.support.HandlerMethodArgumentResolver
 import org.springframework.web.method.support.ModelAndViewContainer
+import java.lang.reflect.InvocationTargetException
 
 /**
  * @author lingting 2024-03-20 16:06
@@ -103,7 +103,7 @@ open class ApiPaginationParamsResolve(val pagination: Pagination) : HandlerMetho
 
     fun sort(raw: String): PaginationParams.Sort {
         if (raw.startsWith("{") && raw.endsWith("}")) {
-            return JacksonUtils.toObj(raw, PaginationParams.Sort::class)
+            return JacksonUtils.toObj(raw, PaginationParams.Sort::class.java)
         }
 
         val split = raw.split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()

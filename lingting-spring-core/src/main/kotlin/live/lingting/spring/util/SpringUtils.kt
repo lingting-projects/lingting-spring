@@ -82,7 +82,7 @@ object SpringUtils {
     }
 
     @JvmStatic
-    fun <T> ofBean(cls: Class<T>, getArgument: Function<Class<*>, Any>): T {
+    fun <T> ofBean(cls: Class<T>, getArgument: Function<Class<*>, Any?>): T {
         val constructors: Array<Constructor<T>> = constructors<T>(cls)
         return ofBean<T>(constructors[0], getArgument)
     }
@@ -90,7 +90,7 @@ object SpringUtils {
     fun <T : Any> ofBean(cls: KClass<T>): T = ofBean(cls.java)
 
     @JvmStatic
-    fun <T : Any> ofBean(cls: KClass<T>, getArgument: Function<Class<*>, Any>): T {
+    fun <T : Any> ofBean(cls: KClass<T>, getArgument: Function<Class<*>, Any?>): T {
         return ofBean(cls.java, getArgument)
     }
 
@@ -100,8 +100,8 @@ object SpringUtils {
     }
 
     @JvmStatic
-    fun <T> ofBean(constructor: Constructor<T>, getArgument: Function<Class<*>, Any>): T {
-        return ClassUtils.newInstance(constructor, getArgument)
+    fun <T> ofBean(constructor: Constructor<T>, getArgument: Function<Class<*>, Any?>): T {
+        return ClassUtils.newInstance(constructor, getArg = getArgument)
     }
 
 }
