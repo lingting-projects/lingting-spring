@@ -1,5 +1,5 @@
 [versions]
-framework = "2025.05.23-Beta-12"
+framework = "2025.05.23-Beta-13"
 publish = "0.29.0"
 kotlin = "2.2.21"
 kotlin-ksp = "2.2.21-2.0.4"
