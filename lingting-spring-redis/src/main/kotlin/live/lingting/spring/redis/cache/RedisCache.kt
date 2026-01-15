@@ -76,23 +76,23 @@ open class RedisCache(
         return deserialize.apply(cache)
     }
 
-    fun <T> set(t: T) {
+    fun <T> set(t: T?) {
         set(t) { obj -> JacksonUtils.toJson(obj) }
     }
 
-    fun <T> set(t: T, serialize: Function<T, String>) {
+    fun <T> set(t: T?, serialize: Function<T, String>) {
         val value: String = (if (t == null) nullValue else serialize.apply(t))
         redis.multiSet(keys, value, expireTime)
     }
 
-    fun <T> set(onGet: ThrowableSupplier<T>, onLockFailure: ThrowableSupplier<T>): T {
+    fun <T> set(onGet: ThrowableSupplier<T?>, onLockFailure: ThrowableSupplier<T>): T? {
         return set(onGet, onLockFailure) { obj -> JacksonUtils.toJson(obj) }
     }
 
     fun <T> set(
-        onGet: ThrowableSupplier<T>, onLockFailure: ThrowableSupplier<T>,
+        onGet: ThrowableSupplier<T?>, onLockFailure: ThrowableSupplier<T>,
         serialize: Function<T, String>
-    ): T {
+    ): T? {
         val lock = lock()
         if (lock.tryLock(lockTimeout)) {
             try {
@@ -108,7 +108,7 @@ open class RedisCache(
     }
 
     fun <T> setIfAbsent(
-        onGet: ThrowableSupplier<T>, onLockFailure: ThrowableSupplier<T?>,
+        onGet: ThrowableSupplier<T?>, onLockFailure: ThrowableSupplier<T?>,
         tClass: Class<T>
     ): T? {
         return setIfAbsent(
@@ -120,7 +120,7 @@ open class RedisCache(
     }
 
     fun <T> setIfAbsent(
-        onGet: ThrowableSupplier<T>, onLockFailure: ThrowableSupplier<T?>,
+        onGet: ThrowableSupplier<T?>, onLockFailure: ThrowableSupplier<T?>,
         serialize: Function<T, String>, deserialize: Function<String, T>
     ): T? {
         val spinLock = lock()
